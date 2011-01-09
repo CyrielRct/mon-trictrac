@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Mon Tric Trac</string>
+	<!-- Config -->
+	<string name="default_date_format">dd MMM yyyy</string>
+
+	<!-- Buttons -->
+	<string name="save">Sauver</string>
+	<string name="cancel">Annuler</string>
+	<!-- Tabs -->
+	<string name="tab_collection">Ludothèques</string>
+	<string name="tab_search">Filtres</string>
+	<!-- Collections -->
+	<string name="collection_title">Liste des ludothèques</string>
+	<string name="collection_name">Nom de la ludothèques</string>
+	<string name="collection_trictrac_id">Identifiant TricTrac (numérique)</string>
+	<string name="import_game">Importation des jeux: %1$s</string>
+	<string name="empty_collection_list">\nUtiliser le Menu pour créer une nouvelle
+		ludothèque.\n\nPour effectuer une action sur une ludothèque, faire un
+		clic long sur celle-ci.</string>
+	<string name="add_collection">Ajouter une ludothèque</string>
+	<string name="edit_collection">Editer la lodothèque</string>
+	<string name="synch_collection">Syncroniser la lodothèque</string>
+	<string name="delete_collection">Supprimer la lodothèque</string>
+	<string name="next_page">Page suivante</string>
+
+	<!-- Game -->
+	<string name="difficulty">Difficulté</string>
+	<string name="luck">Chance</string>
+	<string name="strategy">Stratégie</string>
+	<string name="diplomacy">Diplomatie</string>
+	<string name="duration">Durée (mn)</string>
+	<string name="search_hint">Nom du jeu</string>
+	<string name="message_nb_result">%1$s jeux trouvés.</string>
+	
+	<!-- Search -->
+	<string name="collection_choice_title">Choisir la collection</string>
+	<string name="search_choice_title">Choisir le filtre</string>
+	<string name="search_type_choice_title">Type de recherche</string>
+	<string name="name">Nom</string>
+	<string name="apply_existing_filter">Choisir un filtre</string>
+	<string name="clear_filter">Enlever le filtre</string>
+	<string-array name="search_types">
+		<item>Par nom</item>
+		<item>Filtre existant</item>
+	</string-array>
+	<string name="min_player">Jouable à</string>
+	<string name="max_player">et</string>
+	<string name="min_level">Minimum</string>
+	<string name="max_level">Maximum</string>
+	<string name="search">Rechercher</string>
+	<string name="search_name">Nom du filtre</string>
+	<string name="add_search">Ajouter un filtre</string>
+	<string name="edit_search">Editer le filter</string>
+	<string name="delete_search">Supprimer le filtre</string>
+	<string name="empty_search_list">\nUtiliser le Menu pour créer un nouveau
+		filtre de recherche.\n\nPour effectuer une action sur un filtre, faire un
+		clic long sur celui-ci.</string>
+</resources>
+

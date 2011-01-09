@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:background="#FFFFFF">
+	<ScrollView android:layout_weight="1" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:background="#FFFFFF"
+		android:id="@+id/scroll_view">
+		<LinearLayout android:orientation="vertical"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="@string/search_name"
+				android:textColor="#000000"></TextView>
+
+			<EditText android:layout_height="wrap_content" android:id="@+id/txtName"
+				android:layout_width="fill_parent"></EditText>
+
+			<LinearLayout android:layout_height="wrap_content"
+				android:layout_width="fill_parent" android:background="@drawable/filter_title_background">
+				<CheckBox android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text=" Joueurs"
+					android:id="@+id/chkPlayers"></CheckBox>
+			</LinearLayout>
+			<LinearLayout android:layout_height="wrap_content"
+				android:id="@+id/pPlayers" android:layout_width="fill_parent"
+				android:visibility="gone">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/min_player"></TextView>
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMinPlayer"
+					android:layout_weight="1" android:inputType="number"></EditText>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/max_player"></TextView>
+
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMaxPlayer"
+					android:layout_weight="1" android:inputType="number"></EditText>
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+
+
+			</LinearLayout>
+
+			<LinearLayout android:layout_height="wrap_content"
+				android:layout_width="fill_parent" android:background="@drawable/filter_title_background">
+				<CheckBox android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/duration"
+					android:id="@+id/chkDuration"></CheckBox>
+			</LinearLayout>
+			<LinearLayout android:layout_height="wrap_content"
+				android:id="@+id/pDuration" android:layout_width="fill_parent" android:visibility="gone">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/min_level"></TextView>
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMinDuration"
+					android:inputType="number" android:layout_weight="1"></EditText>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/max_level"></TextView>
+
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMaxDuration"
+					android:layout_weight="1" android:inputType="number"></EditText>
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+			</LinearLayout>
+
+
+			<LinearLayout android:layout_height="wrap_content"
+				android:layout_width="fill_parent" android:background="@drawable/filter_title_background">
+				<CheckBox android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/difficulty"
+					android:id="@+id/chkDifficulty"></CheckBox>
+			</LinearLayout>
+			<LinearLayout android:layout_height="wrap_content"
+				android:id="@+id/pDifficulty" android:layout_width="fill_parent"
+				android:visibility="gone">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/min_level"></TextView>
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMinDifficulty"
+					android:layout_weight="1" android:inputType="number"></EditText>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/max_level"></TextView>
+
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMaxDifficulty"
+					android:layout_weight="1" android:inputType="number"></EditText>
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+			</LinearLayout>
+
+			<LinearLayout android:layout_height="wrap_content"
+				android:layout_width="fill_parent" android:background="@drawable/filter_title_background">
+				<CheckBox android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/luck"
+					android:id="@+id/chkLuck"></CheckBox>
+			</LinearLayout>
+			<LinearLayout android:layout_height="wrap_content"
+				android:id="@+id/pLuck" android:layout_width="fill_parent"
+				android:visibility="gone">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/min_level"></TextView>
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMinLuck"
+					android:layout_weight="1" android:inputType="number"></EditText>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/max_level"></TextView>
+
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMaxLuck"
+					android:layout_weight="1" android:inputType="number"></EditText>
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+			</LinearLayout>
+
+			<LinearLayout android:layout_height="wrap_content"
+				android:layout_width="fill_parent" android:background="@drawable/filter_title_background">
+				<CheckBox android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/strategy"
+					android:id="@+id/chkStrategy"></CheckBox>
+			</LinearLayout>
+			<LinearLayout android:layout_height="wrap_content"
+				android:id="@+id/pStrategy" android:layout_width="fill_parent"
+				android:visibility="gone">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/min_level"></TextView>
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMinStrategy"
+					android:layout_weight="1" android:inputType="number"></EditText>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/max_level"></TextView>
+
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMaxStrategy"
+					android:layout_weight="1" android:inputType="number"></EditText>
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+			</LinearLayout>
+
+			<LinearLayout android:layout_height="wrap_content"
+				android:layout_width="fill_parent" android:background="@drawable/filter_title_background">
+				<CheckBox android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/diplomacy"
+					android:id="@+id/chkDiplomacy"></CheckBox>
+			</LinearLayout>
+			<LinearLayout android:layout_height="wrap_content"
+				android:id="@+id/pDiplomacy" android:layout_width="fill_parent"
+				android:visibility="gone">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/min_level"></TextView>
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMinDiplomacy"
+					android:layout_weight="1" android:inputType="number"></EditText>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/max_level"></TextView>
+
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/txtMaxDiplomacy"
+					android:layout_weight="1" android:inputType="number"></EditText>
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_weight="1"></TextView>
+			</LinearLayout>
+
+		</LinearLayout>
+
+
+
+
+	</ScrollView>
+
+
+	<LinearLayout android:layout_height="wrap_content"
+		android:layout_width="fill_parent">
+		<Button android:text="@string/save" android:id="@+id/btSave"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1"></Button>
+		<Button android:text="@string/cancel" android:id="@+id/btCancel"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1"></Button>
+	</LinearLayout>
+</LinearLayout>
