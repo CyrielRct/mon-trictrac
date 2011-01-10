@@ -231,8 +231,31 @@ public class GameDao extends AbstractDao {
 	}
 
 	public void update(Game game) {
-		String sql = "update GAME set NAME=? where ID=?";
-		execSQL(sql, new String[] { game.getName(), game.getId() });
+		String sql = "update GAME set " + Game.DbField.NAME + "=?," + Game.DbField.IMAGE_NAME + "=?,"
+				+ Game.DbField.TYPE + "=?," + Game.DbField.FAMILIES + "=?," + Game.DbField.MECHANISMS + "=?,"
+				+ Game.DbField.THEMES + "=?," + Game.DbField.MIN_PLAYER + "=?," + Game.DbField.MAX_PLAYER + "=?,"
+				+ Game.DbField.MIN_AGE + "=?," + Game.DbField.MAX_AGE + "=?," + Game.DbField.DURATION + "=?,"
+				+ Game.DbField.DIFFICULTY + "=?," + Game.DbField.LUCK + "=?," + Game.DbField.STRATEGY + "=?,"
+				+ Game.DbField.DIPLOMATY + "=? WHERE " + Game.DbField.ID + "=?";
+		Object[] params = new Object[16];
+		params[0] = game.getName();
+		params[1] = game.getImageName();
+		params[2] = game.getType();
+		params[3] = game.getFamilies();
+		params[4] = game.getMechanisms();
+		params[5] = game.getThemes();
+		params[6] = game.getMinPlayer();
+		params[7] = game.getMaxPlayer();
+		params[8] = game.getMinAge();
+		params[9] = game.getMaxAge();
+		params[10] = game.getDuration();
+		params[11] = game.getDifficulty();
+		params[12] = game.getLuck();
+		params[13] = game.getStrategy();
+		params[14] = game.getDiplomaty();
+		params[15] = game.getId();
+
+		execSQL(sql, params);
 
 	}
 
