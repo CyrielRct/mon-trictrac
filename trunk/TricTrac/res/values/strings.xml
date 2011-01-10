@@ -12,16 +12,16 @@
 	<string name="tab_search">Filtres</string>
 	<!-- Collections -->
 	<string name="collection_title">Liste des ludothèques</string>
-	<string name="collection_name">Nom de la ludothèques</string>
+	<string name="collection_name">Nom de la ludothèque</string>
 	<string name="collection_trictrac_id">Identifiant TricTrac (numérique)</string>
 	<string name="import_game">Importation des jeux: %1$s</string>
 	<string name="empty_collection_list">\nUtiliser le Menu pour créer une nouvelle
 		ludothèque.\n\nPour effectuer une action sur une ludothèque, faire un
 		clic long sur celle-ci.</string>
 	<string name="add_collection">Ajouter une ludothèque</string>
-	<string name="edit_collection">Editer la lodothèque</string>
-	<string name="synch_collection">Syncroniser la lodothèque</string>
-	<string name="delete_collection">Supprimer la lodothèque</string>
+	<string name="edit_collection">Editer la ludothèque</string>
+	<string name="synch_collection">Synchroniser la ludothèque</string>
+	<string name="delete_collection">Supprimer la ludothèque</string>
 	<string name="next_page">Page suivante</string>
 
 	<!-- Game -->
@@ -32,7 +32,7 @@
 	<string name="duration">Durée (mn)</string>
 	<string name="search_hint">Nom du jeu</string>
 	<string name="message_nb_result">%1$s jeux trouvés.</string>
-	
+	<string name="synch_game">Synchroniser le jeu</string>
 	<!-- Search -->
 	<string name="collection_choice_title">Choisir la collection</string>
 	<string name="search_choice_title">Choisir le filtre</string>

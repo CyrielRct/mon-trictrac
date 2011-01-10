@@ -40,6 +40,7 @@ public class ApplicationConstants {
 	public static final int MENU_ID_DELETE_SEARCH = 6;
 	public static final int MENU_ID_CHOOSE_EXISTING_SEARCH = 7;
 	public static final int MENU_ID_CLEAR_SEARCH = 8;
+	public static final int MENU_ID_SYNCHRO_GAME = 9;
 
 	public static final int ACTIVITY_RETURN_CREATE_COLLECTION = 0;
 	public static final int ACTIVITY_RETURN_UPDATE_COLLECTION = 1;

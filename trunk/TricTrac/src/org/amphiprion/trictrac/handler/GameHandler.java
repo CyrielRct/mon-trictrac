@@ -158,9 +158,16 @@ public class GameHandler {
 					int end = ligne.indexOf("<", start);
 					String s = ligne.substring(start + 1, end).trim();
 					int p1 = s.indexOf(" ");
-					int p2 = s.indexOf(" ", p1 + 1);
-					int min = Integer.parseInt(s.substring(0, p1));
-					int max = Integer.parseInt(s.substring(p2 + 1));
+					int p2 = s.lastIndexOf(" ");
+					int min = 0;
+					int max = 0;
+					if (p1 == -1) {
+						min = Integer.parseInt(s);
+						max = min;
+					} else {
+						min = Integer.parseInt(s.substring(0, p1));
+						max = Integer.parseInt(s.substring(p2 + 1));
+					}
 					game.setMinPlayer(min);
 					game.setMaxPlayer(max);
 					// Log. d(ApplicationConstants.PACKAGE, "minPlayer=" +
@@ -177,8 +184,18 @@ public class GameHandler {
 					int p2 = s.indexOf(" ", p1 + 1);
 					int p3 = s.indexOf(" ", p2 + 1);
 
-					int min = Integer.parseInt(s.substring(0, p1));
-					int max = Integer.parseInt(s.substring(p2 + 1, p3));
+					int min = 0;
+					int max = 0;
+					try {
+						min = Integer.parseInt(s.substring(0, p1));
+					} catch (NumberFormatException e) {
+						p3 = p2;
+						p2 = p1;
+					}
+					try {
+						max = Integer.parseInt(s.substring(p2 + 1, p3));
+					} catch (NumberFormatException e) {
+					}
 					game.setMinAge(min);
 					game.setMaxAge(max);
 					// Log. d(ApplicationConstants.PACKAGE, "minAge=" +
@@ -193,8 +210,12 @@ public class GameHandler {
 					int end = ligne.indexOf("<", start);
 					String s = ligne.substring(start + 1, end).trim();
 					int p1 = s.indexOf(" ");
-
-					int delay = Integer.parseInt(s.substring(0, p1));
+					int delay = 0;
+					if (p1 == -1) {
+						delay = 0;
+					} else {
+						delay = Integer.parseInt(s.substring(0, p1));
+					}
 					game.setDuration(delay);
 					// Log. d(ApplicationConstants.PACKAGE, "maxDuration=" +
 					// game.getDuration());
@@ -250,5 +271,4 @@ public class GameHandler {
 			Log.e(ApplicationConstants.PACKAGE, "Error parsing tric trac collection", e);
 		}
 	}
-
 }

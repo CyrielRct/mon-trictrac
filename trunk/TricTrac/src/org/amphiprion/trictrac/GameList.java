@@ -29,6 +29,7 @@ import org.amphiprion.trictrac.dao.SearchDao;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Search;
+import org.amphiprion.trictrac.handler.GameHandler;
 import org.amphiprion.trictrac.view.GameSummaryView;
 
 import android.app.Activity;
@@ -38,9 +39,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -61,6 +64,7 @@ public class GameList extends Activity {
 	private Button next;
 	private String query;
 	private ScrollView scrollView;
+	private Game current;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -244,7 +248,37 @@ public class GameList extends Activity {
 					startActivity(i);
 				}
 			});
+			view.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					registerForContextMenu(v);
+					openContextMenu(v);
+					unregisterForContextMenu(v);
+					return true;
+				}
+			});
+
 			ln.addView(view);
 		}
 	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		menu.clear();
+		if (v instanceof GameSummaryView) {
+			current = ((GameSummaryView) v).getGame();
+			menu.add(1, ApplicationConstants.MENU_ID_SYNCHRO_GAME, 0, R.string.synch_game);
+		}
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		if (item.getItemId() == ApplicationConstants.MENU_ID_SYNCHRO_GAME) {
+			new GameHandler().parse(current);
+			GameDao.getInstance(this).update(current);
+			buildList();
+		}
+		return true;
+	}
+
 }
