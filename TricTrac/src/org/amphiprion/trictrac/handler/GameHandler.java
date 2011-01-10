@@ -82,8 +82,6 @@ public class GameHandler {
 	public void parse(Game game) {
 		step = Step.TYPE;
 		try {
-			Log.d(ApplicationConstants.PACKAGE, "game=" + game.getId() + " / " + game.getName());
-
 			String uri = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + game.getId();
 			URL url = new URL(uri);
 			InputStream fis = url.openConnection().getInputStream();
