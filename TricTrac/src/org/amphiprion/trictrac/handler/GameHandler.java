@@ -170,7 +170,8 @@ public class GameHandler {
 					game.setMaxPlayer(max);
 					// Log. d(ApplicationConstants.PACKAGE, "minPlayer=" +
 					// game.getMinPlayer());
-					Log.d(ApplicationConstants.PACKAGE, "maxPlayer=" + game.getMaxPlayer());
+					// Log. d(ApplicationConstants.PACKAGE, "maxPlayer=" +
+					// game.getMaxPlayer());
 					step = step.next();
 				} else if (step == Step.AGE && ligne.startsWith(step.getPattern())) {
 					ligne = br.readLine();
