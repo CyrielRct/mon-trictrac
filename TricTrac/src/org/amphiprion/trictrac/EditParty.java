@@ -107,6 +107,7 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 		if (party == null) {
 			// its a creation
 			party = new Party();
+			party.setGameId(game.getId());
 			setTitle(R.string.add_party);
 			dateAdapter.add(new Date());
 		} else {
