@@ -58,7 +58,10 @@ public class LoadGamesTask extends AsyncTask<Void, Integer, List<Game>> {
 	@Override
 	protected List<Game> doInBackground(Void... v) {
 		try {
-			return GameDao.getInstance(caller.getContext()).getGames(collection, pageIndex, pageSize, search, filter);
+			List<Game> games = GameDao.getInstance(caller.getContext()).getGames(collection, pageIndex, pageSize,
+					search, filter);
+			return games;
+
 		} catch (Exception e) {
 			return null;
 		}

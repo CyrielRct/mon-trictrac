@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.amphiprion.trictrac.entity.Search;
+import org.amphiprion.trictrac.entity.Entity.DbState;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -97,6 +98,14 @@ public class SearchDao extends AbstractDao {
 		}
 		cursor.close();
 		return result;
+	}
+
+	public void persist(Search search) {
+		if (search.getState() == DbState.NEW) {
+			create(search);
+		} else if (search.getState() == DbState.LOADED) {
+			update(search);
+		}
 	}
 
 	/**

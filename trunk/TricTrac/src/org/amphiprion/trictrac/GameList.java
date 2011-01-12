@@ -352,9 +352,7 @@ public class GameList extends Activity implements LoadGameListener {
 			Animation a = new RotateAnimation(0, 360, 23.5f, 23.5f);
 			a.setInterpolator(new LinearInterpolator());
 			a.setRepeatCount(Animation.INFINITE);
-			a.setDuration(3000);
-			// maybe other configuration as needed
-
+			a.setDuration(2000);
 			im.startAnimation(a);
 		}
 	}
@@ -365,6 +363,7 @@ public class GameList extends Activity implements LoadGameListener {
 		if (v instanceof GameSummaryView) {
 			current = ((GameSummaryView) v).getGame();
 			menu.add(1, ApplicationConstants.MENU_ID_SYNCHRO_GAME, 0, R.string.synch_game);
+			menu.add(2, ApplicationConstants.MENU_ID_CREATE_PARTY, 1, R.string.add_party);
 		}
 	}
 
@@ -374,6 +373,10 @@ public class GameList extends Activity implements LoadGameListener {
 			new GameHandler().parse(current);
 			GameDao.getInstance(this).update(current);
 			buildList();
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_CREATE_PARTY) {
+			Intent i = new Intent(this, EditParty.class);
+			i.putExtra("GAME", current);
+			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY);
 		}
 		return true;
 	}

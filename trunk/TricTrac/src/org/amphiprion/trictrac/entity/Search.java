@@ -19,14 +19,12 @@
  */
 package org.amphiprion.trictrac.entity;
 
-import java.io.Serializable;
-import java.util.UUID;
 
 /**
  * @author amphiprion
  * 
  */
-public class Search implements Serializable {
+public class Search extends Entity {
 
 	/**
 	 * 
@@ -37,7 +35,6 @@ public class Search implements Serializable {
 		ID, NAME, MIN_PLAYER, MAX_PLAYER, MIN_DIFFICULTY, MAX_DIFFICULTY, MIN_LUCK, MAX_LUCK, MIN_STRATEGY, MAX_STRATEGY, MIN_DIPLOMACY, MAX_DIPLOMACY, MIN_DURATION, MAX_DURATION
 	}
 
-	private String id;
 	private String name;
 	private int minPlayer;
 	private int maxPlayer;
@@ -53,15 +50,11 @@ public class Search implements Serializable {
 	private int maxDuration;
 
 	public Search() {
-		this(UUID.randomUUID().toString());
+		super();
 	}
 
 	public Search(String id) {
-		this.id = id;
-	}
-
-	public String getId() {
-		return id;
+		super(id);
 	}
 
 	public String getName() {

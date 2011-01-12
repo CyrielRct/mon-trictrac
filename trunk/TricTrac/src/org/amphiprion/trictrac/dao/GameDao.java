@@ -26,6 +26,7 @@ import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Search;
+import org.amphiprion.trictrac.entity.Entity.DbState;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -257,6 +258,14 @@ public class GameDao extends AbstractDao {
 
 		execSQL(sql, params);
 
+	}
+
+	public void persist(Game game) {
+		if (game.getState() == DbState.NEW) {
+			createGame(game);
+		} else if (game.getState() == DbState.LOADED) {
+			update(game);
+		}
 	}
 
 	/**

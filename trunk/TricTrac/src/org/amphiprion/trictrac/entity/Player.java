@@ -17,19 +17,49 @@
  * You should have received a copy of the GNU General Public License
  * along with My Accounts.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.amphiprion.trictrac;
+package org.amphiprion.trictrac.entity;
 
-import android.app.Activity;
-import android.os.Bundle;
+import java.io.Serializable;
 
 /**
  * @author amphiprion
  * 
  */
-public class PartyList extends Activity {
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.party_list);
+public class Player extends Entity implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public enum DbField {
+		ID, PSEUDO, TRICTRAC_ID
+	}
+
+	private String pseudo;
+	private String tricTracId;
+
+	public Player() {
+		super();
+	}
+
+	public Player(String id) {
+		super(id);
+	}
+
+	public String getPseudo() {
+		return pseudo;
+	}
+
+	public void setPseudo(String pseudo) {
+		this.pseudo = pseudo;
+	}
+
+	public String getTricTracId() {
+		return tricTracId;
+	}
+
+	public void setTricTracId(String tricTracId) {
+		this.tricTracId = tricTracId;
 	}
 }

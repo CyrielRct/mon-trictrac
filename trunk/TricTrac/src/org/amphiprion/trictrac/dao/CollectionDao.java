@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
+import org.amphiprion.trictrac.entity.Entity.DbState;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -140,6 +141,14 @@ public class CollectionDao extends AbstractDao {
 			getDatabase().endTransaction();
 		}
 
+	}
+
+	public void persist(Collection collection) {
+		if (collection.getState() == DbState.NEW) {
+			create(collection);
+		} else if (collection.getState() == DbState.LOADED) {
+			update(collection);
+		}
 	}
 
 	public void updateLinks(String collectionId, List<CollectionGame> links) {

@@ -23,6 +23,9 @@ import org.amphiprion.trictrac.ApplicationConstants;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
 import org.amphiprion.trictrac.entity.Game;
+import org.amphiprion.trictrac.entity.Party;
+import org.amphiprion.trictrac.entity.PlayStat;
+import org.amphiprion.trictrac.entity.Player;
 import org.amphiprion.trictrac.entity.Search;
 
 import android.content.Context;
@@ -32,7 +35,7 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "amphiprion_trictrac";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 6;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -94,6 +97,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			oldVersion++;
 		}
 
+		if (oldVersion == 4) {
+			db.execSQL("create table PLAYER (" + Player.DbField.ID + " text not null, " + Player.DbField.PSEUDO
+					+ " text ," + Player.DbField.TRICTRAC_ID + " text)");
+			db.execSQL("create table PARTY (" + Party.DbField.ID + " text not null, " + Party.DbField.CITY + " text ,"
+					+ Party.DbField.COMMENT + " text," + Party.DbField.DURATION + " integer," + Party.DbField.EVENT
+					+ " text," + Party.DbField.HAPPYNESS + " integer," + Party.DbField.PLAY_DATE + " date)");
+			db.execSQL("create table PLAY_STAT (" + PlayStat.DbField.ID + " text not null, "
+					+ PlayStat.DbField.FK_PLAYER + " text ," + PlayStat.DbField.RANK + " integer,"
+					+ PlayStat.DbField.SCORE + " integer)");
+			oldVersion++;
+		}
+		if (oldVersion == 5) {
+			db.execSQL("ALTER TABLE PLAY_STAT ADD " + PlayStat.DbField.FK_PARTY + " text");
+			oldVersion++;
+		}
 	}
 
 }

@@ -19,68 +19,65 @@
  */
 package org.amphiprion.trictrac.entity;
 
-import java.util.Date;
+import java.io.Serializable;
 
 /**
  * @author amphiprion
  * 
  */
-public class Collection extends Entity {
+public class PlayStat extends Entity implements Serializable {
+
 	/**
-	 * Serial UID
+	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String name;
-	private Date lastSynchro;
-	private int count;
-	private int tricTracId;
 
 	public enum DbField {
-		ID, NAME, LAST_SYNCHRO, COUNT, TRICTRAC_ID
+		ID, FK_PARTY, FK_PLAYER, RANK, SCORE
 	}
 
-	public Collection() {
+	private String partyId;
+	private String playerId;
+	private int rank;
+	private int score;
+
+	public PlayStat() {
 		super();
 	}
 
-	public Collection(String id) {
+	public PlayStat(String id) {
 		super(id);
 	}
 
-	public String getName() {
-		return name;
+	public String getPlayerId() {
+		return playerId;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setPlayerId(String playerId) {
+		this.playerId = playerId;
 	}
 
-	public Date getLastSynchro() {
-		return lastSynchro;
+	public int getRank() {
+		return rank;
 	}
 
-	public void setLastSynchro(Date lastSynchro) {
-		this.lastSynchro = lastSynchro;
+	public void setRank(int rank) {
+		this.rank = rank;
 	}
 
-	public int getCount() {
-		return count;
+	public int getScore() {
+		return score;
 	}
 
-	public void setCount(int count) {
-		this.count = count;
+	public void setScore(int score) {
+		this.score = score;
 	}
 
-	public int getTricTracId() {
-		return tricTracId;
+	public String getPartyId() {
+		return partyId;
 	}
 
-	public void setTricTracId(int tricTracId) {
-		this.tricTracId = tricTracId;
-	}
-
-	@Override
-	public String toString() {
-		return name + " (" + count + ")";
+	public void setPartyId(String partyId) {
+		this.partyId = partyId;
 	}
 }
