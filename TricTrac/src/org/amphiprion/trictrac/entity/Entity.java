@@ -19,68 +19,46 @@
  */
 package org.amphiprion.trictrac.entity;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * @author amphiprion
  * 
  */
-public class Collection extends Entity {
+public class Entity implements Serializable {
 	/**
-	 * Serial UID
+	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String name;
-	private Date lastSynchro;
-	private int count;
-	private int tricTracId;
 
-	public enum DbField {
-		ID, NAME, LAST_SYNCHRO, COUNT, TRICTRAC_ID
+	public enum DbState {
+		NEW, LOADED, DELETE
 	}
 
-	public Collection() {
-		super();
+	private String id;
+	/** used to define if a persist command call insert, or update. */
+	private DbState state;
+
+	public String getId() {
+		return id;
 	}
 
-	public Collection(String id) {
-		super(id);
+	Entity() {
+		this(UUID.randomUUID().toString());
+		state = DbState.NEW;
 	}
 
-	public String getName() {
-		return name;
+	Entity(String id) {
+		this.id = id;
+		state = DbState.LOADED;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public DbState getState() {
+		return state;
 	}
 
-	public Date getLastSynchro() {
-		return lastSynchro;
-	}
-
-	public void setLastSynchro(Date lastSynchro) {
-		this.lastSynchro = lastSynchro;
-	}
-
-	public int getCount() {
-		return count;
-	}
-
-	public void setCount(int count) {
-		this.count = count;
-	}
-
-	public int getTricTracId() {
-		return tricTracId;
-	}
-
-	public void setTricTracId(int tricTracId) {
-		this.tricTracId = tricTracId;
-	}
-
-	@Override
-	public String toString() {
-		return name + " (" + count + ")";
+	public void setState(DbState state) {
+		this.state = state;
 	}
 }

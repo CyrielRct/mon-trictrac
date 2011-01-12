@@ -65,8 +65,8 @@ public class Home extends TabActivity {
 		tabHost.addTab(spec);
 
 		// 
-		intent = new Intent().setClass(this, PartyList.class);
-		spec = tabHost.newTabSpec("partylist").setIndicator(res.getString(R.string.tab_party),
+		intent = new Intent().setClass(this, PlayerList.class);
+		spec = tabHost.newTabSpec("partylist").setIndicator(res.getString(R.string.tab_player),
 				res.getDrawable(R.drawable.play)).setContent(intent);
 		tabHost.addTab(spec);
 

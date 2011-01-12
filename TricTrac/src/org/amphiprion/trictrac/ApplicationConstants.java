@@ -41,9 +41,16 @@ public class ApplicationConstants {
 	public static final int MENU_ID_CHOOSE_EXISTING_SEARCH = 7;
 	public static final int MENU_ID_CLEAR_SEARCH = 8;
 	public static final int MENU_ID_SYNCHRO_GAME = 9;
+	public static final int MENU_ID_ADD_PLAYER = 10;
+	public static final int MENU_ID_EDIT_PLAYER = 11;
+	public static final int MENU_ID_DELETE_PLAYER = 12;
+	public static final int MENU_ID_CREATE_PARTY = 13;
 
 	public static final int ACTIVITY_RETURN_CREATE_COLLECTION = 0;
 	public static final int ACTIVITY_RETURN_UPDATE_COLLECTION = 1;
 	public static final int ACTIVITY_RETURN_CREATE_SEARCH = 2;
 	public static final int ACTIVITY_RETURN_UPDATE_SEARCH = 3;
+	public static final int ACTIVITY_RETURN_CREATE_PLAYER = 4;
+	public static final int ACTIVITY_RETURN_UPDATE_PLAYER = 5;
+	public static final int ACTIVITY_RETURN_CREATE_PARTY = 6;
 }

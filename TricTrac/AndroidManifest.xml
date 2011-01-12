@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.amphiprion.trictrac"
-      android:versionCode="2"
-      android:versionName="1.0.1">
+      android:versionCode="3"
+      android:versionName="1.1.0">
     <application android:debuggable="false" android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".Home"
                   android:label="@string/app_name">
@@ -31,7 +31,13 @@
         <activity android:name=".EditSearch"
                   android:label="@string/app_name">
         </activity>
-        <activity android:name=".PartyList"
+        <activity android:name=".PlayerList"
+                  android:label="@string/app_name">
+        </activity>
+        <activity android:name=".EditPlayer"
+                  android:label="@string/app_name">
+        </activity>
+        <activity android:name=".EditParty"
                   android:label="@string/app_name">
         </activity>
 

@@ -19,21 +19,17 @@
  */
 package org.amphiprion.trictrac.entity;
 
-import java.io.Serializable;
-
 /**
  * This entity represente a Game.
  * 
  * @author amphiprion
  * 
  */
-public class Game implements Serializable {
+public class Game extends Entity {
 	/**
 	 * Serial UID.
 	 */
 	private static final long serialVersionUID = 1L;
-	/** The uid. */
-	private String id;
 	/** The game name. */
 	private String name;
 	/** The image name. */
@@ -64,16 +60,7 @@ public class Game implements Serializable {
 	 *            the identifier
 	 */
 	public Game(String id) {
-		this.id = id;
-	}
-
-	/**
-	 * Return identifier.
-	 * 
-	 * @return the identifier
-	 */
-	public String getId() {
-		return id;
+		super(id);
 	}
 
 	/**
