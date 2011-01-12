@@ -102,7 +102,7 @@ public class GameDao extends AbstractDao {
 
 		sql += buildWhere(search, filter);
 
-		sql += " order by " + Game.DbField.NAME + " asc limit " + pageSize + " offset " + (pageIndex * pageSize);
+		sql += " order by " + Game.DbField.NAME + " asc limit " + (pageSize + 1) + " offset " + (pageIndex * pageSize);
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { collection.getId() });
 		ArrayList<Game> result = new ArrayList<Game>();

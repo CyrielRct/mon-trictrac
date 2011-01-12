@@ -30,30 +30,41 @@ import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Search;
 import org.amphiprion.trictrac.handler.GameHandler;
+import org.amphiprion.trictrac.task.LoadGamesTask;
+import org.amphiprion.trictrac.task.LoadGamesTask.LoadGameListener;
 import org.amphiprion.trictrac.view.GameSummaryView;
+import org.amphiprion.trictrac.view.MyScrollView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.Button;
+import android.view.ViewTreeObserver.OnScrollChangedListener;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.LinearLayout.LayoutParams;
 
 /**
  * @author amphiprion
  * 
  */
-public class GameList extends Activity {
+public class GameList extends Activity implements LoadGameListener {
 
 	private static final int PAGE_SIZE = 20;
 
@@ -61,10 +72,12 @@ public class GameList extends Activity {
 	private Search search;
 	private int loadedPage;
 	private List<Game> games;
-	private Button next;
 	private String query;
-	private ScrollView scrollView;
+	private MyScrollView scrollView;
 	private Game current;
+	private boolean allLoaded;
+	private boolean loading;
+	private LoadGamesTask task;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +85,24 @@ public class GameList extends Activity {
 		setContentView(R.layout.game_list);
 		handleIntent(getIntent());
 
-		scrollView = (ScrollView) findViewById(R.id.scroll_view);
-		next = (Button) findViewById(R.id.btNextPage);
-		next.setOnClickListener(new View.OnClickListener() {
+		final Rect r = new Rect();
+		scrollView = (MyScrollView) findViewById(R.id.scroll_view);
+		scrollView.setOnScrollChanged(new OnScrollChangedListener() {
 			@Override
-			public void onClick(View v) {
-				loadNextPage();
+			public void onScrollChanged() {
+				if (!allLoaded && !loading) {
+					LinearLayout ln = ((LinearLayout) scrollView.getChildAt(0));
+					if (ln.getChildCount() > 3) {
+						boolean b = ln.getChildAt(ln.getChildCount() - 3).getLocalVisibleRect(r);
+						if (b) {
+							loading = true;
+							loadNextPage();
+						}
+					}
+				}
 			}
 		});
+
 		init();
 	}
 
@@ -169,14 +192,13 @@ public class GameList extends Activity {
 			games.clear();
 		}
 		loadNextPage();
-		buildList();
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putSerializable("GAMES", (Serializable) games);
 		outState.putInt("PAGE", loadedPage);
-		outState.putInt("NEXT", next.getVisibility());
+		outState.putBoolean("ALL_LOADED", allLoaded);
 		outState.putString("FILTER", query);
 		outState.putSerializable("SEARCH", search);
 		outState.putInt("SCROLL_X", scrollView.getScrollX());
@@ -188,7 +210,7 @@ public class GameList extends Activity {
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		games = (List<Game>) savedInstanceState.getSerializable("GAMES");
 		loadedPage = savedInstanceState.getInt("PAGE");
-		next.setVisibility(savedInstanceState.getInt("NEXT"));
+		allLoaded = savedInstanceState.getBoolean("ALL_LOADED");
 		query = savedInstanceState.getString("FILTER");
 		search = (Search) savedInstanceState.getSerializable("SEARCH");
 		buildList();
@@ -206,20 +228,48 @@ public class GameList extends Activity {
 		if (loadedPage == 0) {
 			int nb = GameDao.getInstance(this).getGameCount(collection, search, query);
 			Toast.makeText(this, getResources().getString(R.string.message_nb_result, nb), Toast.LENGTH_LONG).show();
-		}
-		List<Game> newGames = GameDao.getInstance(this).getGames(collection, loadedPage, PAGE_SIZE, search, query);
-		if (newGames != null && newGames.size() > 0) {
-			games.addAll(newGames);
-			loadedPage++;
-			if (newGames.size() == PAGE_SIZE) {
-				next.setVisibility(View.VISIBLE);
-			} else {
-				next.setVisibility(View.GONE);
-			}
-			buildList();
+			List<Game> newGames = GameDao.getInstance(this).getGames(collection, loadedPage, PAGE_SIZE, search, query);
+			importEnded(true, newGames);
 		} else {
-			next.setVisibility(View.GONE);
+			task = new LoadGamesTask(this, collection, loadedPage, PAGE_SIZE, search, query);
+			task.execute();
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (task != null) {
+			task.cancel(true);
+		}
+		super.onDestroy();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void importEnded(boolean succeed, List<Game> newGames) {
+		if (succeed) {
+			task = null;
+			if (newGames != null && newGames.size() > 0) {
+				if (newGames.size() == PAGE_SIZE + 1) {
+					newGames.remove(PAGE_SIZE);
+					allLoaded = false;
+				} else {
+					allLoaded = true;
+				}
+			} else {
+				allLoaded = true;
+			}
+			if (loadedPage != 0) {
+				addElementToList(newGames);
+			} else {
+				games = newGames;
+				buildList();
+			}
+			loadedPage++;
+		}
+		loading = false;
 	}
 
 	private void buildList() {
@@ -231,11 +281,20 @@ public class GameList extends Activity {
 			title += " [" + query + "]";
 		}
 		setTitle(title);
-
 		LinearLayout ln = (LinearLayout) findViewById(R.id.game_list);
 		ln.removeAllViews();
+		addElementToList(games);
+	}
 
-		for (final Game game : games) {
+	private void addElementToList(List<Game> newGames) {
+		LinearLayout ln = (LinearLayout) findViewById(R.id.game_list);
+		if (newGames != games) {
+			games.addAll(newGames);
+			if (ln.getChildCount() > 0) {
+				ln.removeViewAt(ln.getChildCount() - 1);
+			}
+		}
+		for (final Game game : newGames) {
 			GameSummaryView view = new GameSummaryView(this, game);
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -260,6 +319,44 @@ public class GameList extends Activity {
 
 			ln.addView(view);
 		}
+
+		if (!allLoaded) {
+			LinearLayout lnExpand = new LinearLayout(this);
+			LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			lnExpand.setLayoutParams(lp);
+			ImageView im = new ImageView(this);
+			LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			imglp.gravity = Gravity.CENTER_VERTICAL;
+			imglp.rightMargin = 5;
+			im.setLayoutParams(imglp);
+
+			im.setImageDrawable(getResources().getDrawable(R.drawable.loading));
+			lnExpand.addView(im);
+
+			LinearLayout accountLayout = new LinearLayout(this);
+			LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
+			accountLayout.setLayoutParams(aclp);
+
+			TextView tv = new TextView(this);
+			tv.setText(getResources().getText(R.string.loading));
+			LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			tv.setLayoutParams(tlp);
+			accountLayout.addView(tv);
+			lnExpand.addView(accountLayout);
+
+			ln.addView(lnExpand);
+			Animation a = new RotateAnimation(0, 360, 23.5f, 23.5f);
+			a.setInterpolator(new LinearInterpolator());
+			a.setRepeatCount(Animation.INFINITE);
+			a.setDuration(3000);
+			// maybe other configuration as needed
+
+			im.startAnimation(a);
+		}
 	}
 
 	@Override
@@ -279,6 +376,14 @@ public class GameList extends Activity {
 			buildList();
 		}
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Context getContext() {
+		return this;
 	}
 
 }

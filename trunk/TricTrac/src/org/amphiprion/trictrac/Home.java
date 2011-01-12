@@ -60,16 +60,15 @@ public class Home extends TabActivity {
 
 		// 
 		intent = new Intent().setClass(this, SearchList.class);
-		spec = tabHost.newTabSpec("categorylist").setIndicator(res.getString(R.string.tab_search),
+		spec = tabHost.newTabSpec("searchlist").setIndicator(res.getString(R.string.tab_search),
 				res.getDrawable(R.drawable.search)).setContent(intent);
 		tabHost.addTab(spec);
 
 		// 
-		// intent = new Intent().setClass(this, ReportList.class);
-		// spec =
-		// tabHost.newTabSpec("reportlist").setIndicator(res.getString(R.string.report_tab),
-		// res.getDrawable(R.drawable.report_tab_icon)).setContent(intent);
-		// tabHost.addTab(spec);
+		intent = new Intent().setClass(this, PartyList.class);
+		spec = tabHost.newTabSpec("partylist").setIndicator(res.getString(R.string.tab_party),
+				res.getDrawable(R.drawable.play)).setContent(intent);
+		tabHost.addTab(spec);
 
 		tabHost.setCurrentTab(0);
 
