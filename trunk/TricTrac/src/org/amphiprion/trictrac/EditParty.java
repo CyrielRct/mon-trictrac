@@ -56,6 +56,7 @@ import android.widget.TextView;
 public class EditParty extends Activity implements OnPlayStatClickedListener {
 	private Party party;
 
+	private ImageView[] imgs;
 	private List<PlayStat> playStats;
 	private List<Player> players;
 
@@ -94,7 +95,23 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 
 		final TextView txtCity = (TextView) findViewById(R.id.txtCity);
 		final TextView txtEvent = (TextView) findViewById(R.id.txtEvent);
-		final TextView txtRating = (TextView) findViewById(R.id.stRating);
+		imgs = new ImageView[5];
+		imgs[0] = (ImageView) findViewById(R.id.imgRating1);
+		imgs[1] = (ImageView) findViewById(R.id.imgRating2);
+		imgs[2] = (ImageView) findViewById(R.id.imgRating3);
+		imgs[3] = (ImageView) findViewById(R.id.imgRating4);
+		imgs[4] = (ImageView) findViewById(R.id.imgRating5);
+		for (int i = 0; i < 5; i++) {
+			final int happy = i + 1;
+			imgs[i].setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					party.setHappyness(happy);
+					updateHappyness();
+				}
+			});
+		}
+
 		final TextView txtDuration = (TextView) findViewById(R.id.txtDuration);
 		final TextView txtComment = (TextView) findViewById(R.id.txtComment);
 
@@ -110,7 +127,7 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 						dateAdapter.add(party.getDate());
 					}
 					txtEvent.setText("" + party.getEvent());
-					txtRating.setText("" + party.getHappyness());
+					updateHappyness();
 					txtDuration.setText("" + party.getDuration());
 					txtComment.setText("" + party.getComment());
 				}
@@ -133,11 +150,7 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 				party.setDate((Date) cbDate.getSelectedItem());
 				party.setCity("" + txtCity.getText());
 				party.setEvent("" + txtEvent.getText());
-				if ("".equals("" + txtRating.getText())) {
-					party.setHappyness(0);
-				} else {
-					party.setHappyness(Integer.parseInt("" + txtRating.getText()));
-				}
+
 				if ("".equals("" + txtDuration.getText())) {
 					party.setDuration(0);
 				} else {
@@ -163,6 +176,21 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 		});
 
 		buildPlayStatList();
+	}
+
+	private void updateHappyness() {
+		for (int i = 0; i < 5; i++) {
+
+			if ((i + 1) == party.getHappyness()) {
+				imgs[i].setBackgroundDrawable(getResources().getDrawable(
+						getResources().getIdentifier("happy_" + (i + 1) + "_on", "drawable",
+								ApplicationConstants.PACKAGE)));
+			} else {
+				imgs[i].setBackgroundDrawable(getResources().getDrawable(
+						getResources().getIdentifier("happy_" + (i + 1) + "_off", "drawable",
+								ApplicationConstants.PACKAGE)));
+			}
+		}
 	}
 
 	private void buildPlayStatList() {
