@@ -62,4 +62,10 @@ public class Player extends Entity implements Serializable {
 	public void setTricTracId(String tricTracId) {
 		this.tricTracId = tricTracId;
 	}
+
+	@Override
+	public String toString() {
+		return pseudo;
+	}
+
 }

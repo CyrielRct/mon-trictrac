@@ -51,16 +51,15 @@
 					<TextView android:layout_width="wrap_content"
 						android:layout_height="wrap_content" android:textColor="#000000"
 						android:text="@string/duration" />
-			<EditText android:layout_width="wrap_content" 
-				android:layout_height="wrap_content" android:id="@+id/txtDuration"
-				android:inputType="number"></EditText>
+			<EditText android:layout_height="wrap_content" android:id="@+id/txtDuration"
+				android:inputType="number" android:layout_width="fill_parent"></EditText>
 				</LinearLayout>
 			</LinearLayout>
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:textColor="#000000"
 				android:text="@string/comment" />
 			<EditText android:layout_width="fill_parent"
-				android:layout_height="wrap_content" android:id="@+id/txtComment"></EditText>
+				android:layout_height="wrap_content" android:id="@+id/txtComment" android:inputType="textMultiLine" android:lines="3"></EditText>
 
 			<TextView android:layout_height="wrap_content" android:text="@string/play_stats"
 				android:background="#333333" android:layout_width="fill_parent"

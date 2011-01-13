@@ -19,16 +19,25 @@
  */
 package org.amphiprion.trictrac.view;
 
-import org.amphiprion.trictrac.R;
-import org.amphiprion.trictrac.entity.PlayStat;
+import java.util.List;
 
+import org.amphiprion.trictrac.R;
+import org.amphiprion.trictrac.adapter.PlayerAdapter;
+import org.amphiprion.trictrac.entity.PlayStat;
+import org.amphiprion.trictrac.entity.Player;
+
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 /**
@@ -45,8 +54,14 @@ public class PlayStatView extends LinearLayout {
 
 	/** The imageview. */
 	private ImageView img;
-	/** The edit text. */
-	private EditText txt;
+
+	private LinearLayout playStatLayout;
+	private Button bt;
+
+	private TextView txtPlayerName;
+	private TextView txtRank;
+	private TextView txtScore;
+	private List<Player> players;
 
 	/**
 	 * Construct a play stat view.
@@ -56,8 +71,10 @@ public class PlayStatView extends LinearLayout {
 	 * @param playStat
 	 *            the play stat entity
 	 */
-	public PlayStatView(Context context, PlayStat playStat, OnPlayStatClickedListener playStatClickedListener) {
+	public PlayStatView(Context context, PlayStat playStat, OnPlayStatClickedListener playStatClickedListener,
+			List<Player> players) {
 		super(context);
+		this.players = players;
 		this.playStat = playStat;
 		this.playStatClickedListener = playStatClickedListener;
 
@@ -69,6 +86,8 @@ public class PlayStatView extends LinearLayout {
 		addView(createIcon());
 
 		addView(createCategoryLayout());
+
+		addView(createEditButton());
 	}
 
 	/**
@@ -112,30 +131,34 @@ public class PlayStatView extends LinearLayout {
 	 * @return the view
 	 */
 	private View createCategoryLayout() {
-		LinearLayout accountLayout = new LinearLayout(getContext());
+		playStatLayout = new LinearLayout(getContext());
 		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
 				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
-		accountLayout.setOrientation(VERTICAL);
-		accountLayout.setLayoutParams(aclp);
-		EditText t = new EditText(getContext());
+		playStatLayout.setOrientation(VERTICAL);
+		playStatLayout.setLayoutParams(aclp);
+		txtPlayerName = new TextView(getContext());
 		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
 				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
-		t.setLayoutParams(tlp);
+		txtPlayerName.setLayoutParams(tlp);
 		if (playStat != null) {
-			t.setText(playStat.getPlayerId());
+			if (playStat.getPlayer() == null) {
+				txtPlayerName.setText(getResources().getText(R.string.default_player));
+			} else {
+				txtPlayerName.setText(playStat.getPlayer().getPseudo());
+			}
 		} else {
-			t.setText("");
-			t.setVisibility(INVISIBLE);
+			txtPlayerName.setText("");
+			playStatLayout.setVisibility(INVISIBLE);
 		}
-		t.setTextSize(16);
-		t.setTypeface(Typeface.DEFAULT_BOLD);
-		t.setTextColor(getContext().getResources().getColor(R.color.black));
-		accountLayout.addView(t);
+		txtPlayerName.setTextSize(16);
+		txtPlayerName.setTypeface(Typeface.DEFAULT_BOLD);
+		txtPlayerName.setTextColor(getContext().getResources().getColor(R.color.black));
+		playStatLayout.addView(txtPlayerName);
 
 		LinearLayout hl = new LinearLayout(getContext());
-		LayoutParams hlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		LayoutParams hlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		hl.setLayoutParams(hlp);
 
 		LinearLayout vl1 = new LinearLayout(getContext());
@@ -143,16 +166,13 @@ public class PlayStatView extends LinearLayout {
 				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		vl1.setLayoutParams(vl1p);
 		vl1.setOrientation(VERTICAL);
-		TextView tv1 = new TextView(getContext());
-		tv1.setText(getResources().getText(R.string.rank));
-		vl1.addView(tv1);
-
-		EditText t1 = new EditText(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-
-		t1.setLayoutParams(tlp);
-		vl1.addView(t1);
+		txtRank = new TextView(getContext());
+		if (playStat == null) {
+			txtRank.setText(getResources().getText(R.string.rank));
+		} else {
+			txtRank.setText(getResources().getText(R.string.rank) + ": " + playStat.getRank());
+		}
+		vl1.addView(txtRank);
 
 		hl.addView(vl1);
 
@@ -161,26 +181,35 @@ public class PlayStatView extends LinearLayout {
 				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		vl2.setLayoutParams(vl2p);
 		vl2.setOrientation(VERTICAL);
-		TextView tv2 = new TextView(getContext());
-		tv2.setText(getResources().getText(R.string.score));
-		vl2.addView(tv2);
-
-		EditText t2 = new EditText(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-
-		t2.setLayoutParams(tlp);
-		vl2.addView(t2);
+		txtScore = new TextView(getContext());
+		if (playStat == null) {
+			txtScore.setText(getResources().getText(R.string.score));
+		} else {
+			txtScore.setText(getResources().getText(R.string.score) + ": " + playStat.getScore());
+		}
+		vl2.addView(txtScore);
 
 		hl.addView(vl2);
-		accountLayout.addView(hl);
+		playStatLayout.addView(hl);
 
-		txt = t;
-		return accountLayout;
+		return playStatLayout;
 	}
 
-	public interface OnRuleClickedListener {
-		void ruleClicked(PlayStatView view);
+	private Button createEditButton() {
+		bt = new Button(getContext());
+		bt.setText("...");
+		if (playStat == null) {
+			bt.setVisibility(INVISIBLE);
+		}
+		bt.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				editStat();
+			}
+		});
+		return bt;
 	}
 
 	/**
@@ -194,17 +223,46 @@ public class PlayStatView extends LinearLayout {
 		if (this.playStat == null) {
 			this.playStat = playStat;
 			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.remove));
-			txt.setVisibility(VISIBLE);
+			playStatLayout.setVisibility(VISIBLE);
+			bt.setVisibility(VISIBLE);
+			editStat();
 		}
 	}
 
-	/**
-	 * Update the filter of the play stat entity.
-	 */
-	public void updatePlayStatFilter() {
-		if (playStat != null) {
-			playStat.setPlayerId(txt.getText().toString());
+	private void editStat() {
+		final AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+		final View vvv = LayoutInflater.from(getContext()).inflate(R.layout.edit_play_stat, null);
+		final EditText txtRank1 = (EditText) vvv.findViewById(R.id.txtRank);
+		final EditText txtScore1 = (EditText) vvv.findViewById(R.id.txtScore);
+		final Spinner cbPlayer1 = (Spinner) vvv.findViewById(R.id.cbPlayer);
+		cbPlayer1.setAdapter(new PlayerAdapter(getContext(), players));
+		txtRank1.setText("" + playStat.getRank());
+		txtScore1.setText("" + playStat.getScore());
+		if (playStat.getPlayer() != null) {
+			cbPlayer1.setSelection(players.indexOf(new Player(playStat.getPlayer().getId())));
 		}
+		alert.setView(vvv);
+		alert.setPositiveButton(getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				playStat.setRank(Integer.parseInt("" + txtRank1.getText()));
+				playStat.setScore(Integer.parseInt("" + txtScore1.getText()));
+				playStat.setPlayer((Player) cbPlayer1.getSelectedItem());
+				txtRank.setText(getResources().getText(R.string.rank) + ": " + playStat.getRank());
+				txtScore.setText(getResources().getText(R.string.score) + ": " + playStat.getScore());
+				txtPlayerName.setText(playStat.getPlayer().getPseudo());
+			}
+		});
+
+		alert.setNegativeButton(getResources().getText(R.string.cancel), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				dialog.cancel();
+				if (playStat.getPlayer() == null) {
+					playStatClickedListener.playStatClicked(PlayStatView.this);
+				}
+			}
+		});
+		alert.show();
+
 	}
 
 	public interface OnPlayStatClickedListener {

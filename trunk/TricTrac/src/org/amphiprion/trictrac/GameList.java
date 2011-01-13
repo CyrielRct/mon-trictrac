@@ -25,9 +25,11 @@ import java.util.List;
 
 import org.amphiprion.trictrac.adapter.SearchAdapter;
 import org.amphiprion.trictrac.dao.GameDao;
+import org.amphiprion.trictrac.dao.PartyDao;
 import org.amphiprion.trictrac.dao.SearchDao;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.Game;
+import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.Search;
 import org.amphiprion.trictrac.handler.GameHandler;
 import org.amphiprion.trictrac.task.LoadGamesTask;
@@ -364,6 +366,7 @@ public class GameList extends Activity implements LoadGameListener {
 			current = ((GameSummaryView) v).getGame();
 			menu.add(1, ApplicationConstants.MENU_ID_SYNCHRO_GAME, 0, R.string.synch_game);
 			menu.add(2, ApplicationConstants.MENU_ID_CREATE_PARTY, 1, R.string.add_party);
+			menu.add(2, ApplicationConstants.MENU_ID_VIEW_PARTIES, 2, R.string.view_parties);
 		}
 	}
 
@@ -377,8 +380,30 @@ public class GameList extends Activity implements LoadGameListener {
 			Intent i = new Intent(this, EditParty.class);
 			i.putExtra("GAME", current);
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_PARTIES) {
+			viewParties();
 		}
 		return true;
+	}
+
+	private void viewParties() {
+		Intent i = new Intent(this, PartyList.class);
+		i.putExtra("GAME", current);
+		// startActivityForResult(i,
+		// ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY);
+		startActivity(i);
+
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK) {
+			if (requestCode == ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY) {
+				Party party = (Party) data.getSerializableExtra("PARTY");
+				PartyDao.getInstance(this).persist(party);
+				viewParties();
+			}
+		}
 	}
 
 	/**
