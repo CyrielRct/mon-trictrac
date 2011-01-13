@@ -167,4 +167,5 @@ public class Party extends Entity implements Serializable {
 	public void setGameId(String gameId) {
 		this.gameId = gameId;
 	}
+
 }

@@ -45,6 +45,9 @@ public class ApplicationConstants {
 	public static final int MENU_ID_EDIT_PLAYER = 11;
 	public static final int MENU_ID_DELETE_PLAYER = 12;
 	public static final int MENU_ID_CREATE_PARTY = 13;
+	public static final int MENU_ID_EDIT_PARTY = 14;
+	public static final int MENU_ID_DELETE_PARTY = 15;
+	public static final int MENU_ID_VIEW_PARTIES = 16;
 
 	public static final int ACTIVITY_RETURN_CREATE_COLLECTION = 0;
 	public static final int ACTIVITY_RETURN_UPDATE_COLLECTION = 1;
@@ -53,4 +56,5 @@ public class ApplicationConstants {
 	public static final int ACTIVITY_RETURN_CREATE_PLAYER = 4;
 	public static final int ACTIVITY_RETURN_UPDATE_PLAYER = 5;
 	public static final int ACTIVITY_RETURN_CREATE_PARTY = 6;
+	public static final int ACTIVITY_RETURN_UPDATE_PARTY = 7;
 }

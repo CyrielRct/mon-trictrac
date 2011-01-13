@@ -71,6 +71,7 @@
 
 <!-- Party -->
 	<string name="add_party">Créer une partie</string>
+	<string name="view_parties">Voir les parties</string>
 	<string name="edit_party">Editer la partie</string>
 	<string name="delete_party">Supprimer la partie</string>
 	
@@ -82,5 +83,13 @@
 	<string name="play_stats">Joueurs</string>
 	<string name="rank">Classement</string>
 	<string name="score">Score</string>
+	<string name="default_player">Joueur générique</string>
+	
+	<string name="my_parties">Mes parties: %1$s</string>
+	<string name="empty_party_list">\nUtiliser le Menu pour créer une nouvelle
+		partie.\n\nPour effectuer une action sur une partie, faire un
+		clic long sur celle-ci.</string>
 </resources>
+
+
 

@@ -25,9 +25,11 @@ import java.util.List;
 
 import org.amphiprion.trictrac.adapter.DateAdapter;
 import org.amphiprion.trictrac.dao.PlayStatDao;
+import org.amphiprion.trictrac.dao.PlayerDao;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.PlayStat;
+import org.amphiprion.trictrac.entity.Player;
 import org.amphiprion.trictrac.view.DatePickerSpinner;
 import org.amphiprion.trictrac.view.PlayStatView;
 import org.amphiprion.trictrac.view.PlayStatView.OnPlayStatClickedListener;
@@ -55,6 +57,7 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 	private Party party;
 
 	private List<PlayStat> playStats;
+	private List<Player> players;
 
 	/**
 	 * {@inheritDoc}
@@ -66,6 +69,11 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.edit_party);
 
+		players = PlayerDao.getInstance(this).getPlayers();
+		Player unknowPlayer = new Player(null);
+		unknowPlayer.setPseudo("" + getResources().getText(R.string.default_player));
+
+		players.add(0, unknowPlayer);
 		Game game = (Game) getIntent().getSerializableExtra("GAME");
 		ImageView imgGame = (ImageView) findViewById(R.id.img_game);
 		File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/"
@@ -96,7 +104,11 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 				party = (Party) intent.getExtras().getSerializable("PARTY");
 				if (party != null) {
 					txtCity.setText(party.getCity());
-					dateAdapter.add(party.getDate());
+					if (party.getDate() == null) {
+						dateAdapter.add(new Date());
+					} else {
+						dateAdapter.add(party.getDate());
+					}
 					txtEvent.setText("" + party.getEvent());
 					txtRating.setText("" + party.getHappyness());
 					txtDuration.setText("" + party.getDuration());
@@ -132,6 +144,7 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 					party.setDuration(Integer.parseInt("" + txtDuration.getText()));
 				}
 				party.setComment("" + txtComment.getText());
+				party.setStats(playStats);
 
 				Intent i = new Intent();
 				i.putExtra("PARTY", party);
@@ -154,20 +167,19 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 
 	private void buildPlayStatList() {
 		playStats = PlayStatDao.getInstance(this).getPlayStat(party);
-
 		LinearLayout ln = (LinearLayout) findViewById(R.id.play_stats_list);
 		ln.removeAllViews();
 		for (PlayStat playStat : playStats) {
-			ln.addView(new PlayStatView(this, playStat, this));
+			ln.addView(new PlayStatView(this, playStat, this, players));
 		}
-		ln.addView(new PlayStatView(this, null, this));
+		ln.addView(new PlayStatView(this, null, this, players));
 	}
 
 	@Override
 	public void playStatClicked(PlayStatView view) {
 		LinearLayout ln = (LinearLayout) findViewById(R.id.play_stats_list);
 		if (view.getPlayStat() == null) {
-			ln.addView(new PlayStatView(this, null, this));
+			ln.addView(new PlayStatView(this, null, this, players));
 			PlayStat playStat = new PlayStat();
 			playStat.setPartyId(party.getId());
 			view.setPlayStat(playStat);

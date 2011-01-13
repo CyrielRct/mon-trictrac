@@ -22,12 +22,15 @@ package org.amphiprion.trictrac.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.amphiprion.trictrac.ApplicationConstants;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.PlayStat;
+import org.amphiprion.trictrac.entity.Player;
 import org.amphiprion.trictrac.entity.Entity.DbState;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
 /**
  * @author amphiprion
@@ -56,12 +59,17 @@ public class PlayStatDao extends AbstractDao {
 	}
 
 	private void create(PlayStat playStat) {
+		Log.d(ApplicationConstants.PACKAGE, "on cree stat:" + playStat.getPartyId() + "  >>" + playStat.getPlayer());
 		String sql = "insert into PLAY_STAT (" + PlayStat.DbField.ID + "," + PlayStat.DbField.FK_PLAYER + ","
 				+ PlayStat.DbField.RANK + "," + PlayStat.DbField.SCORE + "," + PlayStat.DbField.FK_PARTY
 				+ ") values (?,?,?,?,?)";
 		Object[] params = new Object[5];
 		params[0] = playStat.getId();
-		params[1] = playStat.getPlayerId();
+		if (playStat.getPlayer() == null) {
+			params[1] = null;
+		} else {
+			params[1] = playStat.getPlayer().getId();
+		}
 		params[2] = playStat.getRank();
 		params[3] = playStat.getScore();
 		params[4] = playStat.getPartyId();
@@ -73,7 +81,11 @@ public class PlayStatDao extends AbstractDao {
 		String sql = "update PLAY_STAT set " + PlayStat.DbField.FK_PLAYER + "=?," + PlayStat.DbField.RANK + "=?,"
 				+ PlayStat.DbField.SCORE + "=? where " + PlayStat.DbField.ID + "=?";
 		Object[] params = new Object[4];
-		params[0] = playStat.getPlayerId();
+		if (playStat.getPlayer() == null) {
+			params[0] = null;
+		} else {
+			params[0] = playStat.getPlayer().getId();
+		}
 		params[1] = playStat.getRank();
 		params[2] = playStat.getScore();
 		params[3] = playStat.getId();
@@ -104,19 +116,26 @@ public class PlayStatDao extends AbstractDao {
 	}
 
 	public List<PlayStat> getPlayStat(Party party) {
-		String sql = "SELECT " + PlayStat.DbField.ID + "," + PlayStat.DbField.FK_PLAYER + "," + PlayStat.DbField.RANK
-				+ "," + PlayStat.DbField.SCORE + "," + PlayStat.DbField.FK_PARTY + " from PLAY_STAT order by "
-				+ PlayStat.DbField.RANK;
+		String sql = "SELECT s." + PlayStat.DbField.ID + ",s." + PlayStat.DbField.FK_PLAYER + ",s."
+				+ PlayStat.DbField.RANK + ",s." + PlayStat.DbField.SCORE + ",p." + Player.DbField.PSEUDO
+				+ " from PLAY_STAT s left join PLAYER p on p." + Player.DbField.ID + "=s." + PlayStat.DbField.FK_PLAYER
+				+ " where s." + PlayStat.DbField.FK_PARTY + "=? order by " + PlayStat.DbField.RANK;
 
-		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { party.getId() });
 		ArrayList<PlayStat> result = new ArrayList<PlayStat>();
 		if (cursor.moveToFirst()) {
 			do {
 				PlayStat entity = new PlayStat(cursor.getString(0));
-				entity.setPlayerId(cursor.getString(1));
+
+				String pId = cursor.getString(1);
 				entity.setRank(cursor.getInt(2));
 				entity.setScore(cursor.getInt(3));
-				entity.setPartyId(cursor.getString(4));
+				entity.setPartyId(party.getId());
+				if (pId != null) {
+					Player p = new Player(pId);
+					p.setPseudo(cursor.getString(4));
+					entity.setPlayer(p);
+				}
 				result.add(entity);
 			} while (cursor.moveToNext());
 		}
