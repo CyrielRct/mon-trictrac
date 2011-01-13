@@ -48,6 +48,9 @@ public class Game extends Entity {
 	private int luck = -1;
 	private int strategy = -1;
 	private int diplomaty = -1;
+	// auto computed
+	private int nbParty;
+	private double happyness;
 
 	public enum DbField {
 		ID, NAME, IMAGE_NAME, TYPE, FAMILIES, MECHANISMS, THEMES, MIN_PLAYER, MAX_PLAYER, MIN_AGE, MAX_AGE, DURATION, DIFFICULTY, LUCK, STRATEGY, DIPLOMATY
@@ -195,5 +198,21 @@ public class Game extends Entity {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public int getNbParty() {
+		return nbParty;
+	}
+
+	public void setNbParty(int nbParty) {
+		this.nbParty = nbParty;
+	}
+
+	public double getHappyness() {
+		return happyness;
+	}
+
+	public void setHappyness(double happyness) {
+		this.happyness = happyness;
 	}
 }

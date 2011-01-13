@@ -134,6 +134,7 @@ public class GameSummaryView extends LinearLayout {
 
 		accountLayout.addView(createMainStatsLayout());
 		accountLayout.addView(createLevelsLayout());
+		accountLayout.addView(createParties());
 		return accountLayout;
 	}
 
@@ -316,4 +317,32 @@ public class GameSummaryView extends LinearLayout {
 		}
 		return im;
 	}
+
+	private View createParties() {
+		LinearLayout accountLayout = new LinearLayout(getContext());
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		accountLayout.setLayoutParams(aclp);
+		TextView t = new TextView(getContext());
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		t.setLayoutParams(tlp);
+		t.setText(getResources().getString(R.string.game_parties_nb, game.getNbParty()));
+		t.setTextSize(10);
+		accountLayout.addView(t);
+
+		if (game.getNbParty() > 0) {
+			t = new TextView(getContext());
+			tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			t.setLayoutParams(tlp);
+			t.setText(" "
+					+ getResources()
+							.getString(R.string.game_parties_happyness, game.getHappyness() / game.getNbParty()));
+			t.setTextSize(10);
+			accountLayout.addView(t);
+		}
+		return accountLayout;
+	}
+
 }

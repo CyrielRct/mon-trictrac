@@ -57,4 +57,5 @@ public class ApplicationConstants {
 	public static final int ACTIVITY_RETURN_UPDATE_PLAYER = 5;
 	public static final int ACTIVITY_RETURN_CREATE_PARTY = 6;
 	public static final int ACTIVITY_RETURN_UPDATE_PARTY = 7;
+	public static final int ACTIVITY_RETURN_VIEW_PARTIES = 8;
 }

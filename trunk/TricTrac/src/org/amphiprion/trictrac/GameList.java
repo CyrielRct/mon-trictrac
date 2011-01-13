@@ -389,9 +389,7 @@ public class GameList extends Activity implements LoadGameListener {
 	private void viewParties() {
 		Intent i = new Intent(this, PartyList.class);
 		i.putExtra("GAME", current);
-		// startActivityForResult(i,
-		// ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY);
-		startActivity(i);
+		startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_VIEW_PARTIES);
 
 	}
 
@@ -403,6 +401,9 @@ public class GameList extends Activity implements LoadGameListener {
 				PartyDao.getInstance(this).persist(party);
 				viewParties();
 			}
+		}
+		if (requestCode == ApplicationConstants.ACTIVITY_RETURN_VIEW_PARTIES) {
+			init();
 		}
 	}
 
