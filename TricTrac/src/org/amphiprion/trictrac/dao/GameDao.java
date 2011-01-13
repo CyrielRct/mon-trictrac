@@ -25,6 +25,7 @@ import java.util.List;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
 import org.amphiprion.trictrac.entity.Game;
+import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.Search;
 import org.amphiprion.trictrac.entity.Entity.DbState;
 
@@ -98,8 +99,11 @@ public class GameDao extends AbstractDao {
 				+ Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + ","
 				+ Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + ","
 				+ Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
-				+ Game.DbField.DIPLOMATY + " from COLLECTION_GAME join GAME on " + CollectionGame.DbField.FK_GAME + "="
-				+ Game.DbField.ID + " where " + CollectionGame.DbField.FK_COLLECTION + "=?";
+				+ Game.DbField.DIPLOMATY + ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g."
+				+ Game.DbField.ID + "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p."
+				+ Party.DbField.FK_GAME + "=g." + Game.DbField.ID + ") from COLLECTION_GAME join GAME g on "
+				+ CollectionGame.DbField.FK_GAME + "=" + Game.DbField.ID + " where "
+				+ CollectionGame.DbField.FK_COLLECTION + "=?";
 
 		sql += buildWhere(search, filter);
 
@@ -125,6 +129,8 @@ public class GameDao extends AbstractDao {
 				a.setLuck(cursor.getInt(13));
 				a.setStrategy(cursor.getInt(14));
 				a.setDiplomaty(cursor.getInt(15));
+				a.setNbParty(cursor.getInt(16));
+				a.setHappyness(cursor.getInt(17));
 				result.add(a);
 			} while (cursor.moveToNext());
 		}
