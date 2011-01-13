@@ -80,5 +80,7 @@
 	<string name="rating">Appréciation</string>
 	<string name="comment">Commentaire</string>
 	<string name="play_stats">Joueurs</string>
+	<string name="rank">Classement</string>
+	<string name="score">Score</string>
 </resources>
 

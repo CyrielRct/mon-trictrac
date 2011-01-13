@@ -29,6 +29,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * View used to display a rule in the rule list.
@@ -132,10 +133,49 @@ public class PlayStatView extends LinearLayout {
 		t.setTextColor(getContext().getResources().getColor(R.color.black));
 		accountLayout.addView(t);
 
+		LinearLayout hl = new LinearLayout(getContext());
+		LayoutParams hlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		hl.setLayoutParams(hlp);
+
+		LinearLayout vl1 = new LinearLayout(getContext());
+		LayoutParams vl1p = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		vl1.setLayoutParams(vl1p);
+		vl1.setOrientation(VERTICAL);
+		TextView tv1 = new TextView(getContext());
+		tv1.setText(getResources().getText(R.string.rank));
+		vl1.addView(tv1);
+
+		EditText t1 = new EditText(getContext());
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+
+		t1.setLayoutParams(tlp);
+		vl1.addView(t1);
+
+		hl.addView(vl1);
+
+		LinearLayout vl2 = new LinearLayout(getContext());
+		LayoutParams vl2p = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		vl2.setLayoutParams(vl2p);
+		vl2.setOrientation(VERTICAL);
+		TextView tv2 = new TextView(getContext());
+		tv2.setText(getResources().getText(R.string.score));
+		vl2.addView(tv2);
+
+		EditText t2 = new EditText(getContext());
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+
+		t2.setLayoutParams(tlp);
+		vl2.addView(t2);
+
+		hl.addView(vl2);
+		accountLayout.addView(hl);
+
 		txt = t;
-		// TextView desc = new TextView(getContext());
-		// desc.setText("" + DateUtil.format(operation.getDate()));
-		// accountLayout.addView(desc);
 		return accountLayout;
 	}
 
