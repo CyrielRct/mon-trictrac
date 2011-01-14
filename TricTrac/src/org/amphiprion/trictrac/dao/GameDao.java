@@ -144,13 +144,22 @@ public class GameDao extends AbstractDao {
 			sql += " and " + Game.DbField.NAME + " like '%" + encodeString(filter) + "%'";
 		}
 		if (search != null) {
-			if (search.getMinPlayer() != 0) {
-				sql += " and " + Game.DbField.MIN_PLAYER + "<=" + search.getMinPlayer();
-				sql += " and " + Game.DbField.MAX_PLAYER + ">=" + search.getMinPlayer();
-			}
-			if (search.getMaxPlayer() != 0) {
-				sql += " and " + Game.DbField.MIN_PLAYER + "<=" + search.getMaxPlayer();
-				sql += " and " + Game.DbField.MAX_PLAYER + ">=" + search.getMaxPlayer();
+			if (search.isExactly()) {
+				if (search.getMinPlayer() != 0) {
+					sql += " and " + Game.DbField.MIN_PLAYER + "=" + search.getMinPlayer();
+				}
+				if (search.getMaxPlayer() != 0) {
+					sql += " and " + Game.DbField.MAX_PLAYER + "=" + search.getMaxPlayer();
+				}
+			} else {
+				if (search.getMinPlayer() != 0) {
+					sql += " and " + Game.DbField.MIN_PLAYER + "<=" + search.getMinPlayer();
+					sql += " and " + Game.DbField.MAX_PLAYER + ">=" + search.getMinPlayer();
+				}
+				if (search.getMaxPlayer() != 0) {
+					sql += " and " + Game.DbField.MIN_PLAYER + "<=" + search.getMaxPlayer();
+					sql += " and " + Game.DbField.MAX_PLAYER + ">=" + search.getMaxPlayer();
+				}
 			}
 
 			if (search.getMinDifficulty() != 0) {

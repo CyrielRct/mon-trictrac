@@ -14,9 +14,9 @@
 	<!-- Collections -->
 	<string name="collection_title">Liste des ludothèques</string>
 	<string name="collection_name">Nom de la ludothèque</string>
-	<string name="collection_trictrac_id">Identifiant TricTrac (numérique)</string>
-	<string name="import_game">Importation des jeux: %1$s</string>
-	<string name="empty_collection_list">\nUtiliser le Menu pour créer une nouvelle
+	<string name="collection_trictrac_id">Identifiant Tric Trac (numérique)</string>
+	<string name="import_game">Importation des jeux : %1$s</string>
+	<string name="empty_collection_list">\nUtiliser le menu pour créer une nouvelle
 		ludothèque.\n\nPour effectuer une action sur une ludothèque, faire un
 		clic long sur celle-ci.</string>
 	<string name="add_collection">Ajouter une ludothèque</string>
@@ -36,7 +36,7 @@
 	<string name="synch_game">Synchroniser le jeu</string>
 	<string name="loading">Chargement en cours...</string>
 	<string name="game_parties_nb">%1$s partie(s).</string>
-	<string name="game_parties_happyness">Satisfaction: %1$s</string>
+	<string name="game_parties_happyness">Satisfaction : %1$s</string>
 	<!-- Search -->
 	<string name="collection_choice_title">Choisir la collection</string>
 	<string name="search_choice_title">Choisir le filtre</string>
@@ -48,16 +48,17 @@
 		<item>Par nom</item>
 		<item>Filtre existant</item>
 	</string-array>
-	<string name="min_player">Jouable à</string>
-	<string name="max_player">et</string>
+	<string name="min_player">Jouable de</string>
+	<string name="max_player">à</string>
+	<string name="exactly">Exclusivement</string>
 	<string name="min_level">Minimum</string>
 	<string name="max_level">Maximum</string>
 	<string name="search">Rechercher</string>
 	<string name="search_name">Nom du filtre</string>
 	<string name="add_search">Ajouter un filtre</string>
-	<string name="edit_search">Editer le filter</string>
+	<string name="edit_search">Editer le filtre</string>
 	<string name="delete_search">Supprimer le filtre</string>
-	<string name="empty_search_list">\nUtiliser le Menu pour créer un nouveau
+	<string name="empty_search_list">\nUtiliser le menu pour créer un nouveau
 		filtre de recherche.\n\nPour effectuer une action sur un filtre, faire un
 		clic long sur celui-ci.</string>
 
@@ -66,8 +67,8 @@
 	<string name="edit_player">Editer le joueur</string>
 	<string name="delete_player">Supprimer le joueur</string>
 	<string name="player_name">Pseudo</string>
-	<string name="player_trictrac_id">Identifiant TricTrac</string>
-	<string name="empty_player_list">\nUtiliser le Menu pour créer un nouveau
+	<string name="player_trictrac_id">Identifiant Tric Trac</string>
+	<string name="empty_player_list">\nUtiliser le menu pour créer un nouveau
 		joueur.\n\nPour effectuer une action sur un joueur, faire un
 		clic long sur celui-ci.</string>
 
@@ -87,8 +88,8 @@
 	<string name="score">Score</string>
 	<string name="default_player">Joueur générique</string>
 	
-	<string name="my_parties">Mes parties: %1$s</string>
-	<string name="empty_party_list">\nUtiliser le Menu pour créer une nouvelle
+	<string name="my_parties">Mes parties : %1$s</string>
+	<string name="empty_party_list">\nUtiliser le menu pour créer une nouvelle
 		partie.\n\nPour effectuer une action sur une partie, faire un
 		clic long sur celle-ci.</string>
 </resources>
