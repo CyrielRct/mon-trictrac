@@ -19,7 +19,6 @@
  */
 package org.amphiprion.trictrac.entity;
 
-
 /**
  * @author amphiprion
  * 
@@ -32,12 +31,13 @@ public class Search extends Entity {
 	private static final long serialVersionUID = 1L;
 
 	public enum DbField {
-		ID, NAME, MIN_PLAYER, MAX_PLAYER, MIN_DIFFICULTY, MAX_DIFFICULTY, MIN_LUCK, MAX_LUCK, MIN_STRATEGY, MAX_STRATEGY, MIN_DIPLOMACY, MAX_DIPLOMACY, MIN_DURATION, MAX_DURATION
+		ID, NAME, MIN_PLAYER, MAX_PLAYER, MIN_DIFFICULTY, MAX_DIFFICULTY, MIN_LUCK, MAX_LUCK, MIN_STRATEGY, MAX_STRATEGY, MIN_DIPLOMACY, MAX_DIPLOMACY, MIN_DURATION, MAX_DURATION, EXACTLY
 	}
 
 	private String name;
 	private int minPlayer;
 	private int maxPlayer;
+	private boolean exactly;
 	private int minDifficulty;
 	private int maxDifficulty;
 	private int minLuck;
@@ -159,6 +159,14 @@ public class Search extends Entity {
 
 	public void setMaxDuration(int maxDuration) {
 		this.maxDuration = maxDuration;
+	}
+
+	public boolean isExactly() {
+		return exactly;
+	}
+
+	public void setExactly(boolean exactly) {
+		this.exactly = exactly;
 	}
 
 	@Override

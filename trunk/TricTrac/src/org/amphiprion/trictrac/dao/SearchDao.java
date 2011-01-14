@@ -74,7 +74,7 @@ public class SearchDao extends AbstractDao {
 				+ "," + Search.DbField.MIN_LUCK + "," + Search.DbField.MAX_LUCK + "," + Search.DbField.MIN_STRATEGY
 				+ "," + Search.DbField.MAX_STRATEGY + "," + Search.DbField.MIN_DIPLOMACY + ","
 				+ Search.DbField.MAX_DIPLOMACY + "," + Search.DbField.MIN_DURATION + "," + Search.DbField.MAX_DURATION
-				+ " from SEARCH order by " + Search.DbField.NAME + " asc";
+				+ "," + Search.DbField.EXACTLY + " from SEARCH order by " + Search.DbField.NAME + " asc";
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
 		ArrayList<Search> result = new ArrayList<Search>();
 		if (cursor.moveToFirst()) {
@@ -93,6 +93,7 @@ public class SearchDao extends AbstractDao {
 				entity.setMaxDiplomacy(cursor.getInt(11));
 				entity.setMinDuration(cursor.getInt(12));
 				entity.setMaxDuration(cursor.getInt(13));
+				entity.setExactly(cursor.getInt(14) == 1);
 				result.add(entity);
 			} while (cursor.moveToNext());
 		}
@@ -120,8 +121,9 @@ public class SearchDao extends AbstractDao {
 				+ "," + Search.DbField.MAX_DIFFICULTY + "," + Search.DbField.MIN_LUCK + "," + Search.DbField.MAX_LUCK
 				+ "," + Search.DbField.MIN_STRATEGY + "," + Search.DbField.MAX_STRATEGY + ","
 				+ Search.DbField.MIN_DIPLOMACY + "," + Search.DbField.MAX_DIPLOMACY + "," + Search.DbField.MIN_DURATION
-				+ "," + Search.DbField.MAX_DURATION + ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		Object[] params = new Object[14];
+				+ "," + Search.DbField.MAX_DURATION + "," + Search.DbField.EXACTLY
+				+ ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		Object[] params = new Object[15];
 		params[0] = search.getId();
 		params[1] = search.getName();
 		params[2] = search.getMinPlayer();
@@ -136,6 +138,7 @@ public class SearchDao extends AbstractDao {
 		params[11] = search.getMaxDiplomacy();
 		params[12] = search.getMinDuration();
 		params[13] = search.getMaxDuration();
+		params[14] = (search.isExactly() ? 1 : 0);
 
 		execSQL(sql, params);
 	}
@@ -152,9 +155,9 @@ public class SearchDao extends AbstractDao {
 				+ Search.DbField.MAX_DIFFICULTY + "=?," + Search.DbField.MIN_LUCK + "=?," + Search.DbField.MAX_LUCK
 				+ "=?," + Search.DbField.MIN_STRATEGY + "=?," + Search.DbField.MAX_STRATEGY + "=?,"
 				+ Search.DbField.MIN_DIPLOMACY + "=?," + Search.DbField.MAX_DIPLOMACY + "=?,"
-				+ Search.DbField.MIN_DURATION + "=?," + Search.DbField.MAX_DURATION + "=? WHERE " + Search.DbField.ID
-				+ "=?";
-		Object[] params = new Object[14];
+				+ Search.DbField.MIN_DURATION + "=?," + Search.DbField.MAX_DURATION + "=?," + Search.DbField.EXACTLY
+				+ "=? WHERE " + Search.DbField.ID + "=?";
+		Object[] params = new Object[15];
 		params[0] = search.getName();
 		params[1] = search.getMinPlayer();
 		params[2] = search.getMaxPlayer();
@@ -168,7 +171,8 @@ public class SearchDao extends AbstractDao {
 		params[10] = search.getMaxDiplomacy();
 		params[11] = search.getMinDuration();
 		params[12] = search.getMaxDuration();
-		params[13] = search.getId();
+		params[13] = (search.isExactly() ? 1 : 0);
+		params[14] = search.getId();
 
 		execSQL(sql, params);
 	}

@@ -114,6 +114,8 @@ public class EditSearch extends Activity {
 			txtMaxPlayer.setText("" + search.getMaxPlayer());
 			checked = true;
 		}
+		CheckBox chkExactly = (CheckBox) findViewById(R.id.chkExclusive);
+		chkExactly.setChecked(search.isExactly());
 		chkPlayer.setChecked(checked);
 
 		// Difficulty
@@ -202,6 +204,8 @@ public class EditSearch extends Activity {
 			if (!"".equals("" + txtMaxPlayer.getText())) {
 				search.setMaxPlayer(Integer.parseInt("" + txtMaxPlayer.getText()));
 			}
+			CheckBox chkExactly = (CheckBox) findViewById(R.id.chkExclusive);
+			search.setExactly(chkExactly.isChecked());
 		}
 
 		// Difficulty
