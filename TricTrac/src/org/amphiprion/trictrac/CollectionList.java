@@ -59,9 +59,11 @@ public class CollectionList extends Activity implements ImportCollectionListener
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
 
-		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, 1, R.string.add_collection);
+		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, 0, R.string.add_collection);
 		addAccount.setIcon(android.R.drawable.ic_menu_add);
 
+		MenuItem preference = menu.add(1, ApplicationConstants.MENU_ID_PREFERENCE, 1, R.string.preference);
+		preference.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -71,6 +73,8 @@ public class CollectionList extends Activity implements ImportCollectionListener
 			Intent i = new Intent(this, EditCollection.class);
 			// i.putExtra("COLLECTION", collection);
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_COLLECTION);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_PREFERENCE) {
+			Home.openPreference(this);
 		}
 		return true;
 	}

@@ -20,18 +20,42 @@
 package org.amphiprion.trictrac;
 
 import java.io.File;
+import java.util.List;
 
+import org.amphiprion.trictrac.GameList.ClickAction;
+import org.amphiprion.trictrac.dao.CollectionDao;
+import org.amphiprion.trictrac.entity.Collection;
+import org.amphiprion.trictrac.entity.CollectionGame;
+import org.amphiprion.trictrac.task.ImportCollectionTask;
+import org.amphiprion.trictrac.task.ImportCollectionTask.ImportCollectionListener;
 import org.amphiprion.trictrac.util.DateUtil;
 
+import android.app.AlertDialog;
 import android.app.TabActivity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Spinner;
 import android.widget.TabHost;
 
-public class Home extends TabActivity {
+public class Home extends TabActivity implements ImportCollectionListener {
 	private static boolean init = false;
+	private boolean cleanOnDestroy = true;
+	private List<Collection> collectionsToUpdate;
+
+	/** Possible action on startup. */
+	private enum StartupAction {
+		NOTHING, SYNCH_COLLECTION
+	}
+
+	private StartupAction startupAction;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -44,6 +68,36 @@ public class Home extends TabActivity {
 			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY).mkdirs();
 		}
 
+		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+		startupAction = StartupAction.values()[pref.getInt(StartupAction.class.getName(), 0)];
+
+	}
+
+	@Override
+	protected void onPostCreate(Bundle icicle) {
+		super.onPostCreate(icicle);
+		if (!init && startupAction == StartupAction.SYNCH_COLLECTION) {
+			collectionsToUpdate = CollectionDao.getInstance(this).getCollections();
+			importNextCollection();
+		} else {
+			init();
+		}
+
+	}
+
+	private void importNextCollection() {
+		if (!collectionsToUpdate.isEmpty()) {
+			ImportCollectionTask task = new ImportCollectionTask(this);
+			Collection current = collectionsToUpdate.get(0);
+			collectionsToUpdate.remove(0);
+			task.execute(current);
+		} else {
+			init();
+		}
+	}
+
+	private void init() {
+		init = true;
 		Resources res = getResources(); // Resource object to get Drawables
 		TabHost tabHost = getTabHost(); // The activity TabHost
 		TabHost.TabSpec spec; // Resusable TabSpec for each tab
@@ -72,18 +126,66 @@ public class Home extends TabActivity {
 
 		tabHost.setCurrentTab(0);
 
-		// ImportCollectionTask task = new ImportCollectionTask(this);
-		// String userId = "15938";
-		// task.execute(userId);
-		// handler.parse("15938");
-		// handler.parse("7684");
 	}
 
-	// @Override
-	// public void importEnded(boolean succeed, List<Game> games) {
-	// // ((TextView) findViewById(R.id.toto)).setText(succeed + "--- " +
-	// // games.size());
-	// // Toast.makeText(this, "loaded=" + games.size(), Toast.LENGTH_LONG);
-	// }
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		cleanOnDestroy = false;
+		return super.onRetainNonConfigurationInstance();
+	}
 
+	@Override
+	protected void onRestoreInstanceState(Bundle state) {
+		cleanOnDestroy = true;
+		super.onRestoreInstanceState(state);
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (cleanOnDestroy) {
+			init = false;
+		}
+		super.onDestroy();
+	}
+
+	@Override
+	public Context getContext() {
+		return this;
+	}
+
+	@Override
+	public void importEnded(boolean succeed, Collection collection, List<CollectionGame> links) {
+		if (succeed) {
+			CollectionDao.getInstance(this).updateLinks(collection.getId(), links);
+		}
+		importNextCollection();
+	}
+
+	public static void openPreference(final Context context) {
+		final SharedPreferences pref = context.getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+
+		final AlertDialog.Builder alert = new AlertDialog.Builder(context);
+		final View vvv = LayoutInflater.from(context).inflate(R.layout.preferences, null);
+		final Spinner cbStartup = (Spinner) vvv.findViewById(R.id.cbStartup);
+		cbStartup.setSelection(pref.getInt(StartupAction.class.getName(), 0));
+		final Spinner cbGameClick = (Spinner) vvv.findViewById(R.id.cbGameClick);
+		cbGameClick.setSelection(pref.getInt(ClickAction.class.getName(), 0));
+		alert.setView(vvv);
+		alert.setPositiveButton(context.getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				Editor edit = pref.edit();
+				edit.putInt(StartupAction.class.getName(), cbStartup.getSelectedItemPosition());
+				edit.putInt(ClickAction.class.getName(), cbGameClick.getSelectedItemPosition());
+				edit.commit();
+			}
+		});
+
+		alert.setNegativeButton(context.getResources().getText(R.string.cancel), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				dialog.cancel();
+			}
+		});
+		alert.show();
+
+	}
 }

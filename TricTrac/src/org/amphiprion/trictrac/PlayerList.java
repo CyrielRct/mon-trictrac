@@ -57,6 +57,8 @@ public class PlayerList extends Activity {
 		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_PLAYER, 1, R.string.add_player);
 		addAccount.setIcon(android.R.drawable.ic_menu_add);
 
+		MenuItem preference = menu.add(1, ApplicationConstants.MENU_ID_PREFERENCE, 1, R.string.preference);
+		preference.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -66,6 +68,8 @@ public class PlayerList extends Activity {
 			Intent i = new Intent(this, EditPlayer.class);
 			// i.putExtra("PLAYER", current);
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_PLAYER);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_PREFERENCE) {
+			Home.openPreference(this);
 		}
 		return true;
 	}

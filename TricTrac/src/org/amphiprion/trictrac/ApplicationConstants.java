@@ -31,6 +31,8 @@ public class ApplicationConstants {
 	/** Directory name on SD. */
 	public static final String DIRECTORY = "MyTricTrac";
 
+	public static final String GLOBAL_PREFERENCE = "mytrictrac_pref";
+
 	public static final int MENU_ID_ADD_COLLECTION = 0;
 	public static final int MENU_ID_EDIT_COLLECTION = 1;
 	public static final int MENU_ID_DELETE_COLLECTION = 2;
@@ -48,6 +50,8 @@ public class ApplicationConstants {
 	public static final int MENU_ID_EDIT_PARTY = 14;
 	public static final int MENU_ID_DELETE_PARTY = 15;
 	public static final int MENU_ID_VIEW_PARTIES = 16;
+	public static final int MENU_ID_VIEW_GAME_TRICTRAC = 17;
+	public static final int MENU_ID_PREFERENCE = 18;
 
 	public static final int ACTIVITY_RETURN_CREATE_COLLECTION = 0;
 	public static final int ACTIVITY_RETURN_UPDATE_COLLECTION = 1;

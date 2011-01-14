@@ -43,6 +43,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -81,10 +82,21 @@ public class GameList extends Activity implements LoadGameListener {
 	private boolean loading;
 	private LoadGamesTask task;
 
+	/** Possible action on game simple click. */
+	public enum ClickAction {
+		TRIC_TRAC, PARTIES, NOTHING
+	}
+
+	private ClickAction clickAction;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_list);
+
+		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+		clickAction = ClickAction.values()[pref.getInt(ClickAction.class.getName(), 0)];
+
 		handleIntent(getIntent());
 
 		final Rect r = new Rect();
@@ -301,12 +313,14 @@ public class GameList extends Activity implements LoadGameListener {
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					String url = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + game.getId();
-					Intent i = new Intent(Intent.ACTION_VIEW);
-
-					i.setData(Uri.parse(url));
-
-					startActivity(i);
+					switch (clickAction) {
+					case TRIC_TRAC:
+						gotoTricTracGame(game.getId());
+						break;
+					case PARTIES:
+						viewParties(game);
+						break;
+					}
 				}
 			});
 			view.setOnLongClickListener(new View.OnLongClickListener() {
@@ -359,14 +373,25 @@ public class GameList extends Activity implements LoadGameListener {
 		}
 	}
 
+	private void gotoTricTracGame(String gameId) {
+		String url = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + gameId;
+		Intent i = new Intent(Intent.ACTION_VIEW);
+
+		i.setData(Uri.parse(url));
+
+		startActivity(i);
+
+	}
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		menu.clear();
 		if (v instanceof GameSummaryView) {
 			current = ((GameSummaryView) v).getGame();
-			menu.add(1, ApplicationConstants.MENU_ID_SYNCHRO_GAME, 0, R.string.synch_game);
-			menu.add(2, ApplicationConstants.MENU_ID_CREATE_PARTY, 1, R.string.add_party);
-			menu.add(2, ApplicationConstants.MENU_ID_VIEW_PARTIES, 2, R.string.view_parties);
+			menu.add(1, ApplicationConstants.MENU_ID_VIEW_GAME_TRICTRAC, 0, R.string.goto_trictrac_name);
+			menu.add(1, ApplicationConstants.MENU_ID_SYNCHRO_GAME, 1, R.string.synch_game);
+			menu.add(2, ApplicationConstants.MENU_ID_CREATE_PARTY, 2, R.string.add_party);
+			menu.add(2, ApplicationConstants.MENU_ID_VIEW_PARTIES, 3, R.string.view_parties);
 		}
 	}
 
@@ -381,16 +406,18 @@ public class GameList extends Activity implements LoadGameListener {
 			i.putExtra("GAME", current);
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_PARTIES) {
-			viewParties();
+			viewParties(current);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_GAME_TRICTRAC) {
+			gotoTricTracGame(current.getId());
 		}
+
 		return true;
 	}
 
-	private void viewParties() {
+	private void viewParties(Game game) {
 		Intent i = new Intent(this, PartyList.class);
-		i.putExtra("GAME", current);
+		i.putExtra("GAME", game);
 		startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_VIEW_PARTIES);
-
 	}
 
 	@Override
@@ -399,7 +426,7 @@ public class GameList extends Activity implements LoadGameListener {
 			if (requestCode == ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY) {
 				Party party = (Party) data.getSerializableExtra("PARTY");
 				PartyDao.getInstance(this).persist(party);
-				viewParties();
+				viewParties(current);
 			}
 		}
 		if (requestCode == ApplicationConstants.ACTIVITY_RETURN_VIEW_PARTIES) {

@@ -28,6 +28,7 @@ import org.amphiprion.trictrac.handler.CollectionHandler;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 
 /**
@@ -50,6 +51,7 @@ public class ImportCollectionTask extends AsyncTask<Collection, Integer, List<Co
 	protected List<CollectionGame> doInBackground(Collection... collections) {
 		CollectionHandler handler = new CollectionHandler(caller.getContext(), this);
 		collection = collections[0];
+		progress.setTitle("" + collection.getName());
 		handler.parse(collection);
 		return handler.getCollectionGames();
 	}
@@ -60,8 +62,13 @@ public class ImportCollectionTask extends AsyncTask<Collection, Integer, List<Co
 
 	@Override
 	protected void onPreExecute() {
-		progress = ProgressDialog.show(caller.getContext(), "", caller.getContext().getString(R.string.import_game, 0),
-				true);
+		progress = ProgressDialog.show(caller.getContext(), "plop", caller.getContext().getString(R.string.import_game,
+				0), true, true, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				caller.importEnded(false, null, null);
+			}
+		});
 	}
 
 	@Override
