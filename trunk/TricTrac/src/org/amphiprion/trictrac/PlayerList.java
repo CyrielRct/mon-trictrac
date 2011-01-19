@@ -30,6 +30,7 @@ import org.amphiprion.trictrac.view.PlayerSummaryView;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -45,11 +46,14 @@ import android.widget.TextView;
  */
 public class PlayerList extends Activity implements ITaskListener {
 	private Player current;
+	private String ownerId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.player_list);
+		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+		ownerId = pref.getString("ACCOUNT_PLAYER_ID", "");
 		buildList();
 	}
 
@@ -133,7 +137,7 @@ public class PlayerList extends Activity implements ITaskListener {
 		List<Player> players = PlayerDao.getInstance(this).getPlayers();
 		if (players.size() > 0) {
 			for (Player player : players) {
-				PlayerSummaryView view = new PlayerSummaryView(this, player);
+				PlayerSummaryView view = new PlayerSummaryView(this, player, ownerId.equals(player.getId()));
 
 				view.setOnLongClickListener(new View.OnLongClickListener() {
 					@Override

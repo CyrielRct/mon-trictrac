@@ -39,6 +39,7 @@ import android.widget.TextView;
 public class PlayerSummaryView extends LinearLayout {
 	/** the linked player. */
 	private Player player;
+	private boolean isOwner;
 
 	/**
 	 * Construct an account view.
@@ -47,9 +48,12 @@ public class PlayerSummaryView extends LinearLayout {
 	 *            the context
 	 * @param player
 	 *            the player entity
+	 * @param isOwner
+	 *            true if it is the player account
 	 */
-	public PlayerSummaryView(Context context, Player player) {
+	public PlayerSummaryView(Context context, Player player, boolean isOwner) {
 		super(context);
+		this.isOwner = isOwner;
 		this.player = player;
 		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
 				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -81,8 +85,13 @@ public class PlayerSummaryView extends LinearLayout {
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
 		img.setLayoutParams(imglp);
-
-		img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.play));
+		if (isOwner) {
+			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.player_myself));
+		} else if (player.getTrictracId() != null) {
+			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.player_synch));
+		} else {
+			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.player_new));
+		}
 		return img;
 	}
 
