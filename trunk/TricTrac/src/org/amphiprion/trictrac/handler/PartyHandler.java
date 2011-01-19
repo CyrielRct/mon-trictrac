@@ -53,7 +53,6 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 /**
  * This handler is used to synchronize parties with trictrac.
@@ -66,6 +65,8 @@ public class PartyHandler {
 	private String memberId = null;
 	private Context context;
 	private List<Cookie> cookies = new ArrayList<Cookie>();
+	private String ownerId;
+	private String login;
 
 	/**
 	 * {@inheritDoc}
@@ -76,8 +77,9 @@ public class PartyHandler {
 
 		SharedPreferences pref = context.getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
 
-		String login = pref.getString("LOGIN", "");
+		login = pref.getString("LOGIN", "");
 		String pwd = pref.getString("PWD", "");
+		ownerId = pref.getString("ACCOUNT_PLAYER_ID", "");
 
 		String s = "http://www.trictrac.net/";
 
@@ -133,6 +135,11 @@ public class PartyHandler {
 	 * Synchronize the all players with trictrac.
 	 */
 	public void synchronizePlayers(IProgressTask task) throws Exception {
+		synchronizePlayers(task, true);
+	}
+
+	private void synchronizePlayers(IProgressTask task, boolean firstPass) throws Exception {
+		int nbTotal = 0;
 		int deb = 0;
 		while (true) {
 			String start = "http://www.trictrac.net/index.php3?id=jeux&rub=membre&inf=joueurs_select&choix=&choix2=&deb="
@@ -154,17 +161,23 @@ public class PartyHandler {
 					pos = line.indexOf("<", pos);
 					String name = line.substring(first + 1, pos);
 
-					Player p = PlayerDao.getInstance(context).getPlayer(id);
+					Player p = PlayerDao.getInstance(context).getPlayerByTrictracId(id);
 					if (p == null) {
-						// player created on trictrac > create in Android
-						p = new Player();
-						p.setPseudo(name);
-						p.setTrictracId(id);
-						PlayerDao.getInstance(context).persist(p);
+						p = PlayerDao.getInstance(context).getPlayerByName(name);
+						if (p == null) {
+							// player created on trictrac > create in Android
+							p = new Player();
+							p.setPseudo(name);
+							p.setTrictracId(id);
+							PlayerDao.getInstance(context).persist(p);
+						} else {
+							p.setTrictracId(id);
+							PlayerDao.getInstance(context).persist(p);
+						}
 					} else {
 						// TODO merge
 					}
-					task.publishProgress(deb + finded);
+					task.publishProgress(++nbTotal);
 					finded++;
 				}
 			}
@@ -177,7 +190,28 @@ public class PartyHandler {
 		}
 		// now send to trictrac player created on Android
 		List<Player> players = PlayerDao.getInstance(context).getLocalPlayers();
-		// TODO
+		boolean created = false;
+		for (Player player : players) {
+			if (!ownerId.equals(player.getId())) {
+				String s = "http://www.trictrac.net/jeux/centre/membre/include/joueurs_gestion.php";
+				String data = "MAX_FILE_SIZE=1000000&slash=ok&categorie=&pseudo="
+						+ URLEncoder.encode(player.getPseudo()) + "&id_adversaire=" + player.getTricTracProfileId();
+				data += "&nation=" + URLEncoder.encode("Non évalué");
+				data += "&nom=&annee=&adresse=&ville=&postal=&mail=&commentaire=";
+				data += "&slash2=ok&date=" + DateUtil.yyyymmddFormat.format(new Date());
+				data += "&modif_date=" + DateUtil.yyyymmddFormat.format(new Date()) + " 00:00:00";
+				data += "&act=inser&table=membres_adv&gestion=joueurs&refabo=" + memberId;
+				data += "&auteur_fiche=" + URLEncoder.encode(login);
+				// data +="&upload' value="7684_1295478655">
+				data += "&sequence=no";
+				send(s, data).close();
+				created = true;
+				task.publishProgress(++nbTotal);
+			}
+		}
+		if (firstPass && created) {
+			synchronizePlayers(task, false);
+		}
 	}
 
 	public void collectParties() {
@@ -344,29 +378,13 @@ public class PartyHandler {
 			for (String item : items) {
 				int pos = item.indexOf("=");
 				nameValuePairs.add(new BasicNameValuePair(item.substring(0, pos), item.substring(pos + 1)));
-				Log.d(ApplicationConstants.PACKAGE, "POST:" + item);
+				// Log.d(ApplicationConstants.PACKAGE, "POST:" + item);
 			}
 			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			// Execute HTTP Post Request
 			HttpResponse response = httpclient.execute(httpPost);
 			return response.getEntity().getContent();
 		}
-		/*
-		 * URL url = new URL(s); URLConnection conn = url.openConnection();
-		 * conn.addRequestProperty("referer", "http://www.trictrac.net");
-		 * 
-		 * OutputStreamWriter wr = null; if (data != null) {
-		 * conn.setDoOutput(true); if (cookies != null) { for (String cookie :
-		 * cookies) { conn.addRequestProperty("cookie", cookie.split(";",
-		 * 2)[0]); } }
-		 * 
-		 * conn.setRequestProperty("content-type",
-		 * "application/x-www-form-urlencoded"); wr = new
-		 * OutputStreamWriter(conn.getOutputStream()); wr.write(data);
-		 * wr.flush(); wr.close(); } else { if (cookies != null) { for (String
-		 * cookie : cookies) { conn.addRequestProperty("cookie",
-		 * cookie.split(";", 2)[0]); } } } return conn.getInputStream();
-		 */
 	}
 
 	/**
