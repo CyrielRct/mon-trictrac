@@ -23,9 +23,13 @@ import java.io.File;
 import java.util.List;
 
 import org.amphiprion.trictrac.GameList.ClickAction;
+import org.amphiprion.trictrac.adapter.PlayerAdapter;
 import org.amphiprion.trictrac.dao.CollectionDao;
+import org.amphiprion.trictrac.dao.PlayerDao;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
+import org.amphiprion.trictrac.entity.Player;
+import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.task.ImportCollectionTask;
 import org.amphiprion.trictrac.task.ImportCollectionTask.ImportCollectionListener;
 import org.amphiprion.trictrac.util.DateUtil;
@@ -41,9 +45,12 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.Spinner;
 import android.widget.TabHost;
+import android.widget.TextView;
 
 public class Home extends TabActivity implements ImportCollectionListener {
 	private static boolean init = false;
@@ -176,6 +183,88 @@ public class Home extends TabActivity implements ImportCollectionListener {
 				Editor edit = pref.edit();
 				edit.putInt(StartupAction.class.getName(), cbStartup.getSelectedItemPosition());
 				edit.putInt(ClickAction.class.getName(), cbGameClick.getSelectedItemPosition());
+				edit.commit();
+			}
+		});
+
+		alert.setNegativeButton(context.getResources().getText(R.string.cancel), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				dialog.cancel();
+			}
+		});
+		alert.show();
+
+	}
+
+	public static void openAccount(final Context context) {
+		final SharedPreferences pref = context.getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+
+		final AlertDialog.Builder alert = new AlertDialog.Builder(context);
+		final View vvv = LayoutInflater.from(context).inflate(R.layout.trictrac_account, null);
+
+		final TextView txtLogin = (TextView) vvv.findViewById(R.id.txtLogin);
+		final String originalLogin = pref.getString("LOGIN", "");
+		txtLogin.setText(originalLogin);
+		final TextView txtPwd = (TextView) vvv.findViewById(R.id.txtPwd);
+		txtPwd.setText(pref.getString("PWD", ""));
+
+		final Player newPlayer = new Player();
+		newPlayer.setPseudo(context.getString(R.string.create_player, "" + txtLogin.getText()));
+		final List<Player> players = PlayerDao.getInstance(context).getLocalPlayers();
+		players.add(0, newPlayer);
+
+		Player existingPlayer = new Player(pref.getString("ACCOUNT_PLAYER_ID", null));
+
+		PlayerAdapter adapter = new PlayerAdapter(context, players);
+		final Spinner cbPlayers = (Spinner) vvv.findViewById(R.id.cbAccountPlayer);
+		cbPlayers.setAdapter(adapter);
+		if (existingPlayer.getId() != null) {
+			cbPlayers.setSelection(players.indexOf(existingPlayer));
+			cbPlayers.setEnabled(false);
+		}
+		cbPlayers.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				// be sure txtLogin lost focus before opening combo
+				txtPwd.requestFocus();
+				return false;
+			}
+		});
+
+		txtLogin.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (!hasFocus) {
+					boolean found = false;
+					for (int i = 1; i < players.size(); i++) {
+						if (players.get(i).getPseudo().equalsIgnoreCase("" + txtLogin.getText())) {
+							cbPlayers.setEnabled(false);
+							cbPlayers.setSelection(i);
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						cbPlayers.setEnabled(true);
+						newPlayer.setPseudo(context.getString(R.string.create_player, "" + txtLogin.getText()));
+					}
+				}
+			}
+		});
+
+		alert.setView(vvv);
+		alert.setPositiveButton(context.getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				Editor edit = pref.edit();
+				edit.putString("LOGIN", "" + txtLogin.getText());
+				edit.putString("PWD", "" + txtPwd.getText());
+				Player selectedPlayer = (Player) cbPlayers.getSelectedItem();
+				if (selectedPlayer.getState() == DbState.NEW) {
+					selectedPlayer.setPseudo("" + txtLogin.getText());
+					PlayerDao.getInstance(context).persist(selectedPlayer);
+				}
+				edit.putString("ACCOUNT_PLAYER_ID", selectedPlayer.getId());
 				edit.commit();
 			}
 		});

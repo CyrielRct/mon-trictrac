@@ -23,9 +23,12 @@ import java.util.List;
 
 import org.amphiprion.trictrac.dao.PlayerDao;
 import org.amphiprion.trictrac.entity.Player;
+import org.amphiprion.trictrac.task.ITaskListener;
+import org.amphiprion.trictrac.task.SynchronizePlayersTask;
 import org.amphiprion.trictrac.view.PlayerSummaryView;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -40,7 +43,7 @@ import android.widget.TextView;
  * @author amphiprion
  * 
  */
-public class PlayerList extends Activity {
+public class PlayerList extends Activity implements ITaskListener {
 	private Player current;
 
 	@Override
@@ -54,10 +57,16 @@ public class PlayerList extends Activity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
 
-		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_PLAYER, 1, R.string.add_player);
+		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_PLAYER, 0, R.string.add_player);
 		addAccount.setIcon(android.R.drawable.ic_menu_add);
 
-		MenuItem preference = menu.add(1, ApplicationConstants.MENU_ID_PREFERENCE, 1, R.string.preference);
+		MenuItem synchPlayer = menu.add(0, ApplicationConstants.MENU_ID_SYNCH_PLAYER, 1, R.string.synch_players);
+		synchPlayer.setIcon(android.R.drawable.ic_menu_share);
+
+		MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 2, R.string.trictrac_account);
+		account.setIcon(android.R.drawable.ic_menu_info_details);
+
+		MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, 3, R.string.preference);
 		preference.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
@@ -70,6 +79,11 @@ public class PlayerList extends Activity {
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_PLAYER);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_PREFERENCE) {
 			Home.openPreference(this);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_ACCOUNT) {
+			Home.openAccount(this);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_SYNCH_PLAYER) {
+			SynchronizePlayersTask task = new SynchronizePlayersTask(this);
+			task.execute();
 		}
 		return true;
 	}
@@ -138,6 +152,16 @@ public class PlayerList extends Activity {
 			tv.setText(R.string.empty_player_list);
 			ln.addView(tv);
 		}
+	}
+
+	@Override
+	public Context getContext() {
+		return this;
+	}
+
+	@Override
+	public void taskEnded(boolean success) {
+		buildList();
 	}
 
 }

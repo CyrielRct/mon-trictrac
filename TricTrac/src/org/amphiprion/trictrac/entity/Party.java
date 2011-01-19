@@ -35,7 +35,7 @@ public class Party extends Entity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public enum DbField {
-		ID, CITY, EVENT, HAPPYNESS, DURATION, COMMENT, PLAY_DATE, FK_GAME
+		ID, CITY, EVENT, HAPPYNESS, DURATION, COMMENT, PLAY_DATE, FK_GAME, TRICTRAC_ID
 	}
 
 	private String city;
@@ -46,6 +46,7 @@ public class Party extends Entity implements Serializable {
 	private String comment;
 	private Date date;
 	private String gameId;
+	private String trictracId;
 
 	public Party() {
 		super();
@@ -166,6 +167,21 @@ public class Party extends Entity implements Serializable {
 
 	public void setGameId(String gameId) {
 		this.gameId = gameId;
+	}
+
+	/**
+	 * @return the trictracId
+	 */
+	public String getTrictracId() {
+		return trictracId;
+	}
+
+	/**
+	 * @param trictracId
+	 *            the trictracId to set
+	 */
+	public void setTrictracId(String trictracId) {
+		this.trictracId = trictracId;
 	}
 
 }

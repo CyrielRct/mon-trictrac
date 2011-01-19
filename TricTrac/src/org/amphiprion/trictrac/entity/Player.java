@@ -33,11 +33,12 @@ public class Player extends Entity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public enum DbField {
-		ID, PSEUDO, TRICTRAC_ID
+		ID, PSEUDO, TRICTRAC_PROFILE_ID, TRICTRAC_ID
 	}
 
 	private String pseudo;
-	private String tricTracId;
+	private String tricTracProfileId;
+	private String trictracId;
 
 	public Player() {
 		super();
@@ -55,12 +56,27 @@ public class Player extends Entity implements Serializable {
 		this.pseudo = pseudo;
 	}
 
-	public String getTricTracId() {
-		return tricTracId;
+	public String getTricTracProfileId() {
+		return tricTracProfileId;
 	}
 
-	public void setTricTracId(String tricTracId) {
-		this.tricTracId = tricTracId;
+	public void setTricTracProfileId(String tricTracProfileId) {
+		this.tricTracProfileId = tricTracProfileId;
+	}
+
+	/**
+	 * @return the trictracId
+	 */
+	public String getTrictracId() {
+		return trictracId;
+	}
+
+	/**
+	 * @param trictracId
+	 *            the trictracId to set
+	 */
+	public void setTrictracId(String trictracId) {
+		this.trictracId = trictracId;
 	}
 
 	@Override
