@@ -57,22 +57,24 @@ public class PlayerDao extends AbstractDao {
 
 	private void create(Player player) {
 		String sql = "insert into PLAYER (" + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
-				+ Player.DbField.TRICTRAC_ID + ") values (?,?,?)";
-		Object[] params = new Object[3];
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ") values (?,?,?,?)";
+		Object[] params = new Object[4];
 		params[0] = player.getId();
 		params[1] = player.getPseudo();
-		params[2] = player.getTricTracId();
+		params[2] = player.getTricTracProfileId();
+		params[3] = player.getTrictracId();
 
 		execSQL(sql, params);
 	}
 
 	private void update(Player player) {
-		String sql = "update PLAYER set " + Player.DbField.PSEUDO + "=?," + Player.DbField.TRICTRAC_ID + "=? where "
-				+ Player.DbField.ID + "=?";
-		Object[] params = new Object[3];
+		String sql = "update PLAYER set " + Player.DbField.PSEUDO + "=?," + Player.DbField.TRICTRAC_PROFILE_ID + "=?,"
+				+ Player.DbField.TRICTRAC_ID + "=? where " + Player.DbField.ID + "=?";
+		Object[] params = new Object[4];
 		params[0] = player.getPseudo();
-		params[1] = player.getTricTracId();
-		params[2] = player.getId();
+		params[1] = player.getTricTracProfileId();
+		params[2] = player.getTrictracId();
+		params[3] = player.getId();
 
 		execSQL(sql, params);
 	}
@@ -103,8 +105,9 @@ public class PlayerDao extends AbstractDao {
 	}
 
 	public List<Player> getPlayers() {
-		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + "," + Player.DbField.TRICTRAC_ID
-				+ " from PLAYER order by " + Player.DbField.PSEUDO;
+		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + " from PLAYER order by "
+				+ Player.DbField.PSEUDO;
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
 		ArrayList<Player> result = new ArrayList<Player>();
@@ -112,12 +115,50 @@ public class PlayerDao extends AbstractDao {
 			do {
 				Player entity = new Player(cursor.getString(0));
 				entity.setPseudo(cursor.getString(1));
-				entity.setTricTracId(cursor.getString(2));
+				entity.setTricTracProfileId(cursor.getString(2));
+				entity.setTrictracId(cursor.getString(3));
 				result.add(entity);
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
 		return result;
 
+	}
+
+	public List<Player> getLocalPlayers() {
+		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + " from PLAYER where "
+				+ Player.DbField.TRICTRAC_ID + " is null";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
+		ArrayList<Player> result = new ArrayList<Player>();
+		if (cursor.moveToFirst()) {
+			do {
+				Player entity = new Player(cursor.getString(0));
+				entity.setPseudo(cursor.getString(1));
+				entity.setTricTracProfileId(cursor.getString(2));
+				entity.setTrictracId(cursor.getString(3));
+				result.add(entity);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return result;
+	}
+
+	public Player getPlayer(String trictracId) {
+		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + " from PLAYER where "
+				+ Player.DbField.TRICTRAC_ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { trictracId });
+		Player entity = null;
+		if (cursor.moveToFirst()) {
+			entity = new Player(cursor.getString(0));
+			entity.setPseudo(cursor.getString(1));
+			entity.setTricTracProfileId(cursor.getString(2));
+			entity.setTrictracId(cursor.getString(3));
+		}
+		cursor.close();
+		return entity;
 	}
 }

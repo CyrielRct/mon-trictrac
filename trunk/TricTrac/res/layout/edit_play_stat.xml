@@ -19,7 +19,7 @@
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:text="@string/score" />
 			<EditText android:layout_width="fill_parent"
-				android:layout_height="wrap_content" android:id="@+id/txtScore" android:inputType="number" android:selectAllOnFocus="true"></EditText>
+				android:layout_height="wrap_content" android:id="@+id/txtScore" android:selectAllOnFocus="true" android:inputType="numberSigned"></EditText>
 </LinearLayout>
 	</ScrollView>
 	

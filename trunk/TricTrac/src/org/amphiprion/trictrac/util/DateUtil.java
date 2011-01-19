@@ -35,6 +35,9 @@ public class DateUtil {
 	/** The default date format. */
 	public static SimpleDateFormat defaultDateFormat;
 
+	/** the yyyy-MM-dd format. */
+	public static SimpleDateFormat yyyymmddFormat = new SimpleDateFormat("yyyy-MM-dd");
+
 	/**
 	 * Initialize the currency utility.
 	 * 

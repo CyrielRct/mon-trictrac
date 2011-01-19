@@ -95,6 +95,20 @@
 		partie.\n\nPour effectuer une action sur une partie, faire un
 		clic long sur celle-ci.</string>
 
+	<!-- Synch Parties -->
+	<string name="synch_parties">Synchroniser les parties</string>
+	<string name="synch_players">Synchroniser les joueurs</string>
+	<string name="download_parties">Récupération depuis TricTrac: %1$s</string>
+	<string name="download_players">Récupération depuis TricTrac: %1$s</string>
+	<string name="upload_parties">Envoie vers TricTrac: %1$s</string>
+	
+	<!-- Trictrac Account -->
+	<string name="trictrac_account">Compte Tric Trac</string>
+	<string name="login">Identifiant</string>
+	<string name="pwd">Mot de passe</string>
+	<string name="account_player">Joueur correspondant</string>
+	<string name="create_player">Créer %1$s</string>
+	
 	<!-- Preferences -->
 	<string name="preference">Préférences</string>
 	<string name="pref_startup">Synchronisation des ludothèques</string>

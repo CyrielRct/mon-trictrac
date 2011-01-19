@@ -63,7 +63,10 @@ public class SearchList extends Activity {
 		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_SEARCH, 1, R.string.add_search);
 		addAccount.setIcon(android.R.drawable.ic_menu_add);
 
-		MenuItem preference = menu.add(1, ApplicationConstants.MENU_ID_PREFERENCE, 1, R.string.preference);
+		MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 1, R.string.trictrac_account);
+		account.setIcon(android.R.drawable.ic_menu_info_details);
+
+		MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, 2, R.string.preference);
 		preference.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
@@ -76,6 +79,8 @@ public class SearchList extends Activity {
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_SEARCH);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_PREFERENCE) {
 			Home.openPreference(this);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_ACCOUNT) {
+			Home.openAccount(this);
 		}
 		return true;
 	}

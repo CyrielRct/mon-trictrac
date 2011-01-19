@@ -62,9 +62,9 @@ public class PartyDao extends AbstractDao {
 
 			String sql = "insert into PARTY (" + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + ","
 					+ Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
-					+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.FK_GAME
-					+ ") values (?,?,?,?,?,?,?,?)";
-			Object[] params = new Object[8];
+					+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.FK_GAME + ","
+					+ Party.DbField.TRICTRAC_ID + ") values (?,?,?,?,?,?,?,?,?)";
+			Object[] params = new Object[9];
 			params[0] = party.getId();
 			params[1] = dateToString(party.getDate());
 			params[2] = party.getCity();
@@ -73,6 +73,7 @@ public class PartyDao extends AbstractDao {
 			params[5] = party.getDuration();
 			params[6] = party.getComment();
 			params[7] = party.getGameId();
+			params[8] = party.getTrictracId();
 
 			execSQL(sql, params);
 
@@ -93,8 +94,9 @@ public class PartyDao extends AbstractDao {
 		try {
 			String sql = "update PARTY set " + Party.DbField.PLAY_DATE + "=?," + Party.DbField.CITY + "=?,"
 					+ Party.DbField.EVENT + "=?," + Party.DbField.HAPPYNESS + "=?," + Party.DbField.DURATION + "=?,"
-					+ Party.DbField.COMMENT + "=?," + Party.DbField.FK_GAME + "=? where " + Party.DbField.ID + "=?";
-			Object[] params = new Object[8];
+					+ Party.DbField.COMMENT + "=?," + Party.DbField.FK_GAME + "=?," + Party.DbField.TRICTRAC_ID
+					+ "=? where " + Party.DbField.ID + "=?";
+			Object[] params = new Object[9];
 			params[0] = dateToString(party.getDate());
 			params[1] = party.getCity();
 			params[2] = party.getEvent();
@@ -102,7 +104,8 @@ public class PartyDao extends AbstractDao {
 			params[4] = party.getDuration();
 			params[5] = party.getComment();
 			params[6] = party.getGameId();
-			params[7] = party.getId();
+			params[7] = party.getTrictracId();
+			params[8] = party.getId();
 
 			execSQL(sql, params);
 
@@ -146,8 +149,8 @@ public class PartyDao extends AbstractDao {
 	public List<Party> getParties(Game game) {
 		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
 				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
-				+ Party.DbField.COMMENT + " from PARTY where " + Party.DbField.FK_GAME + "=? order by "
-				+ Party.DbField.PLAY_DATE + " desc";
+				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + " from PARTY where "
+				+ Party.DbField.FK_GAME + "=? order by " + Party.DbField.PLAY_DATE + " desc";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { game.getId() });
 		ArrayList<Party> result = new ArrayList<Party>();
@@ -160,6 +163,7 @@ public class PartyDao extends AbstractDao {
 				entity.setHappyness(cursor.getInt(4));
 				entity.setDuration(cursor.getInt(5));
 				entity.setComment(cursor.getString(6));
+				entity.setTrictracId(cursor.getString(7));
 				entity.setGameId(game.getId());
 				result.add(entity);
 			} while (cursor.moveToNext());

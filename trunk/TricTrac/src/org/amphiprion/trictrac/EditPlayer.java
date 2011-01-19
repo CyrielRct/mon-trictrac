@@ -56,7 +56,7 @@ public class EditPlayer extends Activity {
 			if (intent.getExtras() != null) {
 				player = (Player) intent.getExtras().getSerializable("PLAYER");
 				txtName.setText(player.getPseudo());
-				txtTricTracId.setText("" + player.getTricTracId());
+				txtTricTracId.setText("" + player.getTricTracProfileId());
 			}
 		}
 		if (player == null) {
@@ -72,7 +72,7 @@ public class EditPlayer extends Activity {
 			@Override
 			public void onClick(View v) {
 				player.setPseudo("" + txtName.getText());
-				player.setTricTracId("" + txtTricTracId.getText());
+				player.setTricTracProfileId("" + txtTricTracId.getText());
 
 				Intent i = new Intent();
 				i.putExtra("PLAYER", player);
