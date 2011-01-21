@@ -19,6 +19,7 @@
  */
 package org.amphiprion.trictrac;
 
+import java.util.Date;
 import java.util.List;
 
 import org.amphiprion.trictrac.dao.PlayerDao;
@@ -97,10 +98,12 @@ public class PlayerList extends Activity implements ITaskListener {
 		if (resultCode == RESULT_OK) {
 			if (requestCode == ApplicationConstants.ACTIVITY_RETURN_CREATE_PLAYER) {
 				Player player = (Player) data.getSerializableExtra("PLAYER");
+				player.setLastUpdateDate(new Date());
 				PlayerDao.getInstance(this).persist(player);
 				buildList();
 			} else if (requestCode == ApplicationConstants.ACTIVITY_RETURN_UPDATE_PLAYER) {
 				Player player = (Player) data.getSerializableExtra("PLAYER");
+				player.setLastUpdateDate(new Date());
 				PlayerDao.getInstance(this).persist(player);
 				buildList();
 			}

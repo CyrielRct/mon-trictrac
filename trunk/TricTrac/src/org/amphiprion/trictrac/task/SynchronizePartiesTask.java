@@ -20,46 +20,76 @@
 package org.amphiprion.trictrac.task;
 
 import java.util.Date;
+import java.util.List;
 
+import org.amphiprion.trictrac.ApplicationConstants;
 import org.amphiprion.trictrac.R;
+import org.amphiprion.trictrac.dao.PartyDao;
+import org.amphiprion.trictrac.entity.Party;
+import org.amphiprion.trictrac.handler.PartyHandler;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.util.Log;
 
 /**
  * @author amphiprion
  * 
  */
-public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> {
+public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> implements IProgressTask {
 	private ProgressDialog progress;
 	private Context context;
+	private ITaskListener listener;
+	private int messageId;
+	private String title;
 
 	/**
 	 * Default constructor.
 	 */
-	public SynchronizePartiesTask(Context context) {
-		this.context = context;
+	public SynchronizePartiesTask(ITaskListener listener) {
+		this.listener = listener;
+		context = listener.getContext();
 	}
 
 	@Override
 	protected Void doInBackground(Date... dates) {
-		// CollectionHandler handler = new
-		// CollectionHandler(caller.getContext(), this);
-		// collection = collections[0];
-		// progress.setTitle("" + collection.getName());
-		// handler.parse(collection);
+		try {
+			messageId = R.string.download_players;
+			title = "" + context.getText(R.string.synch_players);
+			publishProgress(0);
+			PartyHandler handler = new PartyHandler(context, dates[0]);
+			// syncronize playsers
+			handler.synchronizePlayers(this);
+
+			title = "" + context.getText(R.string.synch_parties);
+			// download parties
+			// TODO download parties
+			messageId = R.string.download_parties;
+
+			// upload new parties
+			messageId = R.string.upload_parties;
+			int nb = 0;
+			List<Party> parties = PartyDao.getInstance(context).getLocalParties();
+			for (Party party : parties) {
+				publishProgress(++nb);
+				handler.publishParties(party);
+			}
+		} catch (Exception e) {
+			Log.e(ApplicationConstants.PACKAGE, "synch player failed", e);
+			cancel(true);
+		}
 		return null;
 	}
 
-	public void publishProgress(int gameNumber) {
-		publishProgress(R.string.import_game, gameNumber);
+	public void publishProgress(int nb) {
+		publishProgress(messageId, nb);
 	}
 
 	@Override
 	protected void onPreExecute() {
-		progress = ProgressDialog.show(context, "plop", context.getString(R.string.download_parties, 0), true, true,
+		progress = ProgressDialog.show(context, "...", context.getString(R.string.download_parties, 0), true, true,
 				new DialogInterface.OnCancelListener() {
 					@Override
 					public void onCancel(DialogInterface dialog) {
@@ -70,14 +100,13 @@ public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> {
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
+		progress.setTitle(title);
 		progress.setMessage(context.getResources().getString(values[0], values[1]));
 	}
 
 	@Override
 	protected void onPostExecute(Void result) {
 		progress.cancel();
-
-		if (!isCancelled()) {
-		}
+		listener.taskEnded(!isCancelled());
 	}
 }

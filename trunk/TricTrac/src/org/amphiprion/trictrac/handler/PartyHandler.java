@@ -169,13 +169,23 @@ public class PartyHandler {
 							p = new Player();
 							p.setPseudo(name);
 							p.setTrictracId(id);
+							Date date = new Date();
+							p.setLastUpdateDate(date);
+							p.setLastSyncDate(date);
 							PlayerDao.getInstance(context).persist(p);
 						} else {
 							p.setTrictracId(id);
+							Date date = new Date();
+							p.setLastUpdateDate(date);
+							p.setLastSyncDate(date);
 							PlayerDao.getInstance(context).persist(p);
 						}
 					} else {
 						// TODO merge
+						Date date = new Date();
+						p.setLastUpdateDate(date);
+						p.setLastSyncDate(date);
+						PlayerDao.getInstance(context).persist(p);
 					}
 					task.publishProgress(++nbTotal);
 					finded++;
@@ -228,6 +238,7 @@ public class PartyHandler {
 	 */
 	public void publishParties(Party party) throws Exception {
 		List<PlayStat> stats = PlayStatDao.getInstance(context).getPlayStat(party);
+		party.setStats(stats);
 
 		Calendar d = Calendar.getInstance();
 		d.setTime(party.getDate());
@@ -254,7 +265,13 @@ public class PartyHandler {
 				+ "&online=1";
 		int i = 0;
 		for (PlayStat stat : stats) {
-			data += "&joueur_" + i + "=" + stat.getPlayer().getTrictracId();
+			if (stat.getPlayer() == null) {
+				data += "&joueur_" + i + "=y";
+			} else if (!ownerId.equals(stat.getPlayer().getId())) {
+				data += "&joueur_" + i + "=" + stat.getPlayer().getTrictracId();
+			} else {
+				data += "&joueur_" + i + "=x";
+			}
 			data += "&place_" + i + "=" + stat.getRank();
 			data += "&score_" + i + "=" + stat.getScore();
 			i++;
@@ -270,7 +287,7 @@ public class PartyHandler {
 		data += "&refabo=" + memberId;
 		data += "&id_membre=" + memberId;
 		data += "&id_jeu=" + gameId;
-		data += "&nbj=2";
+		data += "&nbj=" + stats.size();
 		data += "&ref_base=" + gameId;
 		data += "&sequence=no";
 		send(start, data).close();
@@ -280,6 +297,9 @@ public class PartyHandler {
 		if (newPartyIds.size() > 0) {
 			String id = newPartyIds.get(0);
 			party.setTrictracId(id);
+			Date date = new Date();
+			party.setLastSyncDate(date);
+			party.setLastUpdateDate(date);
 			PartyDao.getInstance(context).persist(party);
 		}
 

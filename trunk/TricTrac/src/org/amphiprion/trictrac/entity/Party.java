@@ -35,7 +35,7 @@ public class Party extends Entity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public enum DbField {
-		ID, CITY, EVENT, HAPPYNESS, DURATION, COMMENT, PLAY_DATE, FK_GAME, TRICTRAC_ID
+		ID, CITY, EVENT, HAPPYNESS, DURATION, COMMENT, PLAY_DATE, FK_GAME, TRICTRAC_ID, SYNC_DATE, UPDATE_DATE
 	}
 
 	private String city;
@@ -47,6 +47,8 @@ public class Party extends Entity implements Serializable {
 	private Date date;
 	private String gameId;
 	private String trictracId;
+	private Date lastSyncDate;
+	private Date lastUpdateDate;
 
 	public Party() {
 		super();
@@ -182,6 +184,36 @@ public class Party extends Entity implements Serializable {
 	 */
 	public void setTrictracId(String trictracId) {
 		this.trictracId = trictracId;
+	}
+
+	/**
+	 * @return the lastSyncDate
+	 */
+	public Date getLastSyncDate() {
+		return lastSyncDate;
+	}
+
+	/**
+	 * @param lastSyncDate
+	 *            the lastSyncDate to set
+	 */
+	public void setLastSyncDate(Date lastSyncDate) {
+		this.lastSyncDate = lastSyncDate;
+	}
+
+	/**
+	 * @return the lastUpdateDate
+	 */
+	public Date getLastUpdateDate() {
+		return lastUpdateDate;
+	}
+
+	/**
+	 * @param lastUpdateDate
+	 *            the lastUpdateDate to set
+	 */
+	public void setLastUpdateDate(Date lastUpdateDate) {
+		this.lastUpdateDate = lastUpdateDate;
 	}
 
 }

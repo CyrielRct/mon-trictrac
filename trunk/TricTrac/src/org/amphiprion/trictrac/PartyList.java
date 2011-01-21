@@ -19,6 +19,7 @@
  */
 package org.amphiprion.trictrac;
 
+import java.util.Date;
 import java.util.List;
 
 import org.amphiprion.trictrac.dao.PartyDao;
@@ -81,10 +82,12 @@ public class PartyList extends Activity {
 		if (resultCode == RESULT_OK) {
 			if (requestCode == ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY) {
 				Party party = (Party) data.getSerializableExtra("PARTY");
+				party.setLastUpdateDate(new Date());
 				PartyDao.getInstance(this).persist(party);
 				buildList();
 			} else if (requestCode == ApplicationConstants.ACTIVITY_RETURN_UPDATE_PARTY) {
 				Party party = (Party) data.getSerializableExtra("PARTY");
+				party.setLastUpdateDate(new Date());
 				PartyDao.getInstance(this).persist(party);
 				buildList();
 			}

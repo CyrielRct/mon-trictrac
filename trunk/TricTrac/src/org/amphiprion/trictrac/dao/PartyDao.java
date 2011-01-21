@@ -20,6 +20,7 @@
 package org.amphiprion.trictrac.dao;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.amphiprion.trictrac.entity.Game;
@@ -57,14 +58,15 @@ public class PartyDao extends AbstractDao {
 	}
 
 	private void create(Party party) {
+		party.setLastUpdateDate(new Date());
 		getDatabase().beginTransaction();
 		try {
 
 			String sql = "insert into PARTY (" + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + ","
 					+ Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
 					+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.FK_GAME + ","
-					+ Party.DbField.TRICTRAC_ID + ") values (?,?,?,?,?,?,?,?,?)";
-			Object[] params = new Object[9];
+					+ Party.DbField.TRICTRAC_ID + "," + Party.DbField.UPDATE_DATE + ") values (?,?,?,?,?,?,?,?,?,?)";
+			Object[] params = new Object[10];
 			params[0] = party.getId();
 			params[1] = dateToString(party.getDate());
 			params[2] = party.getCity();
@@ -74,6 +76,7 @@ public class PartyDao extends AbstractDao {
 			params[6] = party.getComment();
 			params[7] = party.getGameId();
 			params[8] = party.getTrictracId();
+			params[9] = dateToString(party.getLastUpdateDate());
 
 			execSQL(sql, params);
 
@@ -94,9 +97,10 @@ public class PartyDao extends AbstractDao {
 		try {
 			String sql = "update PARTY set " + Party.DbField.PLAY_DATE + "=?," + Party.DbField.CITY + "=?,"
 					+ Party.DbField.EVENT + "=?," + Party.DbField.HAPPYNESS + "=?," + Party.DbField.DURATION + "=?,"
-					+ Party.DbField.COMMENT + "=?," + Party.DbField.FK_GAME + "=?," + Party.DbField.TRICTRAC_ID
-					+ "=? where " + Party.DbField.ID + "=?";
-			Object[] params = new Object[9];
+					+ Party.DbField.COMMENT + "=?," + Party.DbField.FK_GAME + "=?," + Party.DbField.TRICTRAC_ID + "=?,"
+					+ Party.DbField.UPDATE_DATE + "=?," + Party.DbField.SYNC_DATE + "=? where " + Party.DbField.ID
+					+ "=?";
+			Object[] params = new Object[11];
 			params[0] = dateToString(party.getDate());
 			params[1] = party.getCity();
 			params[2] = party.getEvent();
@@ -105,7 +109,9 @@ public class PartyDao extends AbstractDao {
 			params[5] = party.getComment();
 			params[6] = party.getGameId();
 			params[7] = party.getTrictracId();
-			params[8] = party.getId();
+			params[8] = dateToString(party.getLastUpdateDate());
+			params[9] = dateToString(party.getLastSyncDate());
+			params[10] = party.getId();
 
 			execSQL(sql, params);
 
@@ -149,10 +155,26 @@ public class PartyDao extends AbstractDao {
 	public List<Party> getParties(Game game) {
 		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
 				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
-				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + " from PARTY where "
+				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + ","
+				+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + " from PARTY where "
 				+ Party.DbField.FK_GAME + "=? order by " + Party.DbField.PLAY_DATE + " desc";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { game.getId() });
+		return fillEntities(cursor);
+	}
+
+	public List<Party> getLocalParties() {
+		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
+				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
+				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + ","
+				+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + " from PARTY where "
+				+ Party.DbField.TRICTRAC_ID + " is null";
+
+		Cursor cursor = getDatabase().rawQuery(sql, null);
+		return fillEntities(cursor);
+	}
+
+	private List<Party> fillEntities(Cursor cursor) {
 		ArrayList<Party> result = new ArrayList<Party>();
 		if (cursor.moveToFirst()) {
 			do {
@@ -164,12 +186,13 @@ public class PartyDao extends AbstractDao {
 				entity.setDuration(cursor.getInt(5));
 				entity.setComment(cursor.getString(6));
 				entity.setTrictracId(cursor.getString(7));
-				entity.setGameId(game.getId());
+				entity.setGameId(cursor.getString(8));
+				entity.setLastUpdateDate(stringToDate(cursor.getString(9)));
+				entity.setLastSyncDate(stringToDate(cursor.getString(10)));
 				result.add(entity);
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
 		return result;
-
 	}
 }
