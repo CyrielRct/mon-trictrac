@@ -20,6 +20,7 @@
 package org.amphiprion.trictrac;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import org.amphiprion.trictrac.GameList.ClickAction;
@@ -262,6 +263,7 @@ public class Home extends TabActivity implements ImportCollectionListener {
 				Player selectedPlayer = (Player) cbPlayers.getSelectedItem();
 				if (selectedPlayer.getState() == DbState.NEW) {
 					selectedPlayer.setPseudo("" + txtLogin.getText());
+					selectedPlayer.setLastUpdateDate(new Date());
 					PlayerDao.getInstance(context).persist(selectedPlayer);
 				}
 				edit.putString("ACCOUNT_PLAYER_ID", selectedPlayer.getId());

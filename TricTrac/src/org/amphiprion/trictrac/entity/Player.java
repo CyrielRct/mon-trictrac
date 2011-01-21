@@ -20,6 +20,7 @@
 package org.amphiprion.trictrac.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author amphiprion
@@ -33,12 +34,14 @@ public class Player extends Entity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public enum DbField {
-		ID, PSEUDO, TRICTRAC_PROFILE_ID, TRICTRAC_ID
+		ID, PSEUDO, TRICTRAC_PROFILE_ID, TRICTRAC_ID, SYNC_DATE, UPDATE_DATE
 	}
 
 	private String pseudo;
 	private String tricTracProfileId;
 	private String trictracId;
+	private Date lastSyncDate;
+	private Date lastUpdateDate;
 
 	public Player() {
 		super();
@@ -77,6 +80,36 @@ public class Player extends Entity implements Serializable {
 	 */
 	public void setTrictracId(String trictracId) {
 		this.trictracId = trictracId;
+	}
+
+	/**
+	 * @return the lastSyncDate
+	 */
+	public Date getLastSyncDate() {
+		return lastSyncDate;
+	}
+
+	/**
+	 * @param lastSyncDate
+	 *            the lastSyncDate to set
+	 */
+	public void setLastSyncDate(Date lastSyncDate) {
+		this.lastSyncDate = lastSyncDate;
+	}
+
+	/**
+	 * @return the lastUpdateDate
+	 */
+	public Date getLastUpdateDate() {
+		return lastUpdateDate;
+	}
+
+	/**
+	 * @param lastUpdateDate
+	 *            the lastUpdateDate to set
+	 */
+	public void setLastUpdateDate(Date lastUpdateDate) {
+		this.lastUpdateDate = lastUpdateDate;
 	}
 
 	@Override

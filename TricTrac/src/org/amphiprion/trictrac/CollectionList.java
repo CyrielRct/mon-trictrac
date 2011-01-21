@@ -19,24 +19,32 @@
  */
 package org.amphiprion.trictrac;
 
+import java.util.Date;
 import java.util.List;
 
 import org.amphiprion.trictrac.dao.CollectionDao;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
+import org.amphiprion.trictrac.task.ITaskListener;
 import org.amphiprion.trictrac.task.ImportCollectionTask;
+import org.amphiprion.trictrac.task.SynchronizePartiesTask;
 import org.amphiprion.trictrac.task.ImportCollectionTask.ImportCollectionListener;
 import org.amphiprion.trictrac.view.CollectionSummaryView;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -44,7 +52,7 @@ import android.widget.TextView;
  * @author amphiprion
  * 
  */
-public class CollectionList extends Activity implements ImportCollectionListener {
+public class CollectionList extends Activity implements ImportCollectionListener, ITaskListener {
 	private Collection current;
 
 	@Override
@@ -61,6 +69,9 @@ public class CollectionList extends Activity implements ImportCollectionListener
 
 		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, 0, R.string.add_collection);
 		addAccount.setIcon(android.R.drawable.ic_menu_add);
+
+		MenuItem synchParty = menu.add(0, ApplicationConstants.MENU_ID_SYNCH_PARTY, 1, R.string.synch_parties);
+		synchParty.setIcon(android.R.drawable.ic_menu_share);
 
 		MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 1, R.string.trictrac_account);
 		account.setIcon(android.R.drawable.ic_menu_info_details);
@@ -80,6 +91,23 @@ public class CollectionList extends Activity implements ImportCollectionListener
 			Home.openPreference(this);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_ACCOUNT) {
 			Home.openAccount(this);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_SYNCH_PARTY) {
+			SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+			long time = pref.getLong("SYNCH_PARTY_DATE", new Date(100, 0, 1).getTime());
+
+			OnDateSetListener l = new OnDateSetListener() {
+				@Override
+				public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+					Date date = new Date(year - 1900, monthOfYear, dayOfMonth);
+					SynchronizePartiesTask task = new SynchronizePartiesTask(CollectionList.this);
+					task.execute(date);
+				}
+			};
+
+			Date date = new Date(time);
+			DatePickerDialog dlg = new DatePickerDialog(getContext(), l, date.getYear() + 1900, date.getMonth(), date
+					.getDate());
+			dlg.show();
 		}
 		return true;
 	}
@@ -177,5 +205,15 @@ public class CollectionList extends Activity implements ImportCollectionListener
 			CollectionDao.getInstance(this).updateLinks(collection.getId(), links);
 		}
 		buildList();
+	}
+
+	@Override
+	public void taskEnded(boolean success) {
+		if (success) {
+			SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+			Editor editor = pref.edit();
+			editor.putLong("SYNCH_PARTY_DATE", new Date().getTime());
+			editor.commit();
+		}
 	}
 }

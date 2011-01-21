@@ -20,6 +20,7 @@
 package org.amphiprion.trictrac.dao;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.amphiprion.trictrac.entity.PlayStat;
@@ -56,25 +57,31 @@ public class PlayerDao extends AbstractDao {
 	}
 
 	private void create(Player player) {
+		player.setLastUpdateDate(new Date());
 		String sql = "insert into PLAYER (" + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
-				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ") values (?,?,?,?)";
-		Object[] params = new Object[4];
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ","
+				+ Player.DbField.UPDATE_DATE + ") values (?,?,?,?,?)";
+		Object[] params = new Object[5];
 		params[0] = player.getId();
 		params[1] = player.getPseudo();
 		params[2] = player.getTricTracProfileId();
 		params[3] = player.getTrictracId();
+		params[4] = dateToString(player.getLastUpdateDate());
 
 		execSQL(sql, params);
 	}
 
 	private void update(Player player) {
 		String sql = "update PLAYER set " + Player.DbField.PSEUDO + "=?," + Player.DbField.TRICTRAC_PROFILE_ID + "=?,"
-				+ Player.DbField.TRICTRAC_ID + "=? where " + Player.DbField.ID + "=?";
-		Object[] params = new Object[4];
+				+ Player.DbField.TRICTRAC_ID + "=?," + Player.DbField.UPDATE_DATE + "=?," + Player.DbField.SYNC_DATE
+				+ "=? where " + Player.DbField.ID + "=?";
+		Object[] params = new Object[6];
 		params[0] = player.getPseudo();
 		params[1] = player.getTricTracProfileId();
 		params[2] = player.getTrictracId();
-		params[3] = player.getId();
+		params[3] = dateToString(player.getLastUpdateDate());
+		params[4] = dateToString(player.getLastSyncDate());
+		params[5] = player.getId();
 
 		execSQL(sql, params);
 	}
@@ -106,7 +113,8 @@ public class PlayerDao extends AbstractDao {
 
 	public List<Player> getPlayers() {
 		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
-				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + " from PLAYER order by "
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ","
+				+ Player.DbField.UPDATE_DATE + "," + Player.DbField.SYNC_DATE + " from PLAYER order by "
 				+ Player.DbField.PSEUDO;
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
@@ -117,6 +125,8 @@ public class PlayerDao extends AbstractDao {
 				entity.setPseudo(cursor.getString(1));
 				entity.setTricTracProfileId(cursor.getString(2));
 				entity.setTrictracId(cursor.getString(3));
+				entity.setLastUpdateDate(stringToDate(cursor.getString(4)));
+				entity.setLastSyncDate(stringToDate(cursor.getString(5)));
 				result.add(entity);
 			} while (cursor.moveToNext());
 		}
@@ -127,7 +137,8 @@ public class PlayerDao extends AbstractDao {
 
 	public List<Player> getLocalPlayers() {
 		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
-				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + " from PLAYER where "
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ","
+				+ Player.DbField.UPDATE_DATE + "," + Player.DbField.SYNC_DATE + " from PLAYER where "
 				+ Player.DbField.TRICTRAC_ID + " is null";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
@@ -138,6 +149,8 @@ public class PlayerDao extends AbstractDao {
 				entity.setPseudo(cursor.getString(1));
 				entity.setTricTracProfileId(cursor.getString(2));
 				entity.setTrictracId(cursor.getString(3));
+				entity.setLastUpdateDate(stringToDate(cursor.getString(4)));
+				entity.setLastSyncDate(stringToDate(cursor.getString(5)));
 				result.add(entity);
 			} while (cursor.moveToNext());
 		}
@@ -147,7 +160,8 @@ public class PlayerDao extends AbstractDao {
 
 	public Player getPlayerByTrictracId(String trictracId) {
 		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
-				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + " from PLAYER where "
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ","
+				+ Player.DbField.UPDATE_DATE + "," + Player.DbField.SYNC_DATE + " from PLAYER where "
 				+ Player.DbField.TRICTRAC_ID + "=?";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { trictracId });
@@ -157,6 +171,8 @@ public class PlayerDao extends AbstractDao {
 			entity.setPseudo(cursor.getString(1));
 			entity.setTricTracProfileId(cursor.getString(2));
 			entity.setTrictracId(cursor.getString(3));
+			entity.setLastUpdateDate(stringToDate(cursor.getString(4)));
+			entity.setLastSyncDate(stringToDate(cursor.getString(5)));
 		}
 		cursor.close();
 		return entity;
@@ -164,7 +180,8 @@ public class PlayerDao extends AbstractDao {
 
 	public Player getPlayerByName(String name) {
 		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
-				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + " from PLAYER where UPPER("
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ","
+				+ Player.DbField.UPDATE_DATE + "," + Player.DbField.SYNC_DATE + " from PLAYER where UPPER("
 				+ Player.DbField.PSEUDO + ")=?";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { name.toUpperCase() });
@@ -174,6 +191,8 @@ public class PlayerDao extends AbstractDao {
 			entity.setPseudo(cursor.getString(1));
 			entity.setTricTracProfileId(cursor.getString(2));
 			entity.setTrictracId(cursor.getString(3));
+			entity.setLastUpdateDate(stringToDate(cursor.getString(4)));
+			entity.setLastSyncDate(stringToDate(cursor.getString(5)));
 		}
 		cursor.close();
 		return entity;

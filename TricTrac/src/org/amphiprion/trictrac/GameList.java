@@ -21,6 +21,7 @@ package org.amphiprion.trictrac;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.amphiprion.trictrac.adapter.SearchAdapter;
@@ -425,6 +426,7 @@ public class GameList extends Activity implements LoadGameListener {
 		if (resultCode == RESULT_OK) {
 			if (requestCode == ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY) {
 				Party party = (Party) data.getSerializableExtra("PARTY");
+				party.setLastUpdateDate(new Date());
 				PartyDao.getInstance(this).persist(party);
 				viewParties(current);
 			}

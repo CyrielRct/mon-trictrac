@@ -37,6 +37,7 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 	private ProgressDialog progress;
 	private Context context;
 	private ITaskListener listener;
+	private String title;
 
 	/**
 	 * Default constructor.
@@ -50,6 +51,7 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 	protected Void doInBackground(Void... voids) {
 
 		try {
+			title = "" + context.getText(R.string.synch_players);
 			PartyHandler handler = new PartyHandler(context, null);
 			handler.synchronizePlayers(this);
 
@@ -62,18 +64,19 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 
 	@Override
 	public void publishProgress(int nb) {
+		progress.setTitle(title);
 		publishProgress(R.string.download_players, nb);
 	}
 
 	@Override
 	protected void onPreExecute() {
-		progress = ProgressDialog.show(context, context.getResources().getText(R.string.synch_players), context
-				.getString(R.string.download_players, 0), true, true, new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				cancel(true);
-			}
-		});
+		progress = ProgressDialog.show(context, "...", context.getString(R.string.download_players, 0), true, true,
+				new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						cancel(true);
+					}
+				});
 	}
 
 	@Override
