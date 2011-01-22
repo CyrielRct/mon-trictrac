@@ -107,6 +107,7 @@ public class CollectionList extends Activity implements ImportCollectionListener
 			Date date = new Date(time);
 			DatePickerDialog dlg = new DatePickerDialog(getContext(), l, date.getYear() + 1900, date.getMonth(), date
 					.getDate());
+			dlg.setTitle(getResources().getText(R.string.synch_start_date));
 			dlg.show();
 		}
 		return true;

@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.amphiprion.trictrac.ApplicationConstants;
+import org.amphiprion.trictrac.R;
 import org.amphiprion.trictrac.dao.GameDao;
 import org.amphiprion.trictrac.dao.PartyDao;
 import org.amphiprion.trictrac.dao.PlayStatDao;
@@ -165,6 +166,7 @@ public class PartyHandler {
 				int first = line.indexOf(pattern);
 
 				if (first != -1) {
+					task.publishProgress(++nbTotal);
 					int pos = line.indexOf("'", first + pattern.length());
 					String id = line.substring(first + pattern.length(), pos);
 					first = line.indexOf(">", pos);
@@ -191,13 +193,20 @@ public class PartyHandler {
 							PlayerDao.getInstance(context).persist(p);
 						}
 					} else {
-						// TODO merge player
 						Date date = new Date();
+						if (p.getLastUpdateDate().after(p.getLastSyncDate())) {
+							task.publishProgress(R.string.upload_players, nbTotal);
+							// mise à jour depuis Android, on envoie vers
+							// trictrac
+							uploadPlayer(p, true);
+						} else {
+							// on recup trictrac au cas où il y aurait une modif
+							p.setPseudo(name);
+						}
 						p.setLastUpdateDate(date);
 						p.setLastSyncDate(date);
 						PlayerDao.getInstance(context).persist(p);
 					}
-					task.publishProgress(++nbTotal);
 					finded++;
 				}
 			}
@@ -208,46 +217,60 @@ public class PartyHandler {
 				deb += finded;
 			}
 		}
+		nbTotal = 0;
 		// now send to trictrac player created on Android
 		List<Player> players = PlayerDao.getInstance(context).getLocalPlayers();
 		boolean created = false;
 		for (Player player : players) {
 			if (!ownerId.equals(player.getId())) {
-				String s = "http://www.trictrac.net/jeux/centre/membre/include/joueurs_gestion.php";
-				List<BasicNameValuePair> data = new ArrayList<BasicNameValuePair>();
-				data.add(new BasicNameValuePair("MAX_FILE_SIZE", "1000000"));
-				data.add(new BasicNameValuePair("slash", "ok"));
-				data.add(new BasicNameValuePair("categorie", ""));
-				data.add(new BasicNameValuePair("pseudo", player.getPseudo()));
-				data.add(new BasicNameValuePair("id_adversaire", player.getTricTracProfileId()));
-				data.add(new BasicNameValuePair("nation", "Non évalué"));
-				data.add(new BasicNameValuePair("nom", ""));
-				data.add(new BasicNameValuePair("annee", ""));
-				data.add(new BasicNameValuePair("adresse", ""));
-				data.add(new BasicNameValuePair("ville", ""));
-				data.add(new BasicNameValuePair("postal", ""));
-				data.add(new BasicNameValuePair("mail", ""));
-				data.add(new BasicNameValuePair("commentaire", ""));
-				data.add(new BasicNameValuePair("slash2", "ok"));
-				data.add(new BasicNameValuePair("date", DateUtil.yyyymmddFormat.format(new Date())));
-				data
-						.add(new BasicNameValuePair("modif_date", DateUtil.yyyymmddFormat.format(new Date())
-								+ " 00:00:00"));
-				data.add(new BasicNameValuePair("act", "inser"));
-				data.add(new BasicNameValuePair("table", "membres_adv"));
-				data.add(new BasicNameValuePair("gestion", "joueurs"));
-				data.add(new BasicNameValuePair("refabo", memberId));
-				data.add(new BasicNameValuePair("auteur_fiche", login));
-				data.add(new BasicNameValuePair("sequence", "no"));
-
-				send(s, data).close();
+				task.publishProgress(R.string.upload_players, ++nbTotal);
+				uploadPlayer(player, false);
 				created = true;
-				task.publishProgress(++nbTotal);
 			}
 		}
 		if (firstPass && created) {
 			synchronizePlayers(task, false);
 		}
+	}
+
+	private void uploadPlayer(Player player, boolean isUpdate) throws Exception {
+		String s = "http://www.trictrac.net/jeux/centre/membre/include/joueurs_gestion.php";
+		List<BasicNameValuePair> data = new ArrayList<BasicNameValuePair>();
+		data.add(new BasicNameValuePair("MAX_FILE_SIZE", "1000000"));
+		data.add(new BasicNameValuePair("slash", "ok"));
+		data.add(new BasicNameValuePair("categorie", ""));
+		data.add(new BasicNameValuePair("pseudo", player.getPseudo()));
+		data.add(new BasicNameValuePair("id_adversaire", player.getTricTracProfileId()));
+		if (!isUpdate) {
+			data.add(new BasicNameValuePair("nation", "Non évalué"));
+			data.add(new BasicNameValuePair("nom", ""));
+			data.add(new BasicNameValuePair("annee", ""));
+			data.add(new BasicNameValuePair("adresse", ""));
+			data.add(new BasicNameValuePair("ville", ""));
+			data.add(new BasicNameValuePair("postal", ""));
+			data.add(new BasicNameValuePair("mail", ""));
+			data.add(new BasicNameValuePair("commentaire", ""));
+		}
+		data.add(new BasicNameValuePair("slash2", "ok"));
+		data.add(new BasicNameValuePair("date", DateUtil.yyyymmddFormat.format(new Date())));
+		data.add(new BasicNameValuePair("modif_date", DateUtil.yyyymmddFormat.format(new Date()) + " 00:00:00"));
+		if (isUpdate) {
+			data.add(new BasicNameValuePair("act", "modif"));
+		} else {
+			data.add(new BasicNameValuePair("act", "inser"));
+		}
+		data.add(new BasicNameValuePair("table", "membres_adv"));
+		data.add(new BasicNameValuePair("gestion", "joueurs"));
+		data.add(new BasicNameValuePair("refabo", memberId));
+		if (isUpdate) {
+			data.add(new BasicNameValuePair("ref_base", player.getTrictracId()));
+			data.add(new BasicNameValuePair("upload", memberId + "_" + player.getTrictracId() + "_"
+					+ new Date().getTime()));
+		}
+		data.add(new BasicNameValuePair("auteur_fiche", login));
+		data.add(new BasicNameValuePair("sequence", "no"));
+
+		send(s, data).close();
 	}
 
 	/**

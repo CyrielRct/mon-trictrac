@@ -25,4 +25,6 @@ package org.amphiprion.trictrac.task;
  */
 public interface IProgressTask {
 	void publishProgress(int nb);
+
+	void publishProgress(int message, int nb);
 }
