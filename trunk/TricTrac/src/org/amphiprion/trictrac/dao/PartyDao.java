@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
+import org.amphiprion.trictrac.entity.PartyForList;
 import org.amphiprion.trictrac.entity.PlayStat;
 import org.amphiprion.trictrac.entity.Entity.DbState;
 
@@ -151,6 +152,44 @@ public class PartyDao extends AbstractDao {
 		} finally {
 			getDatabase().endTransaction();
 		}
+	}
+
+	/**
+	 * 
+	 * @param game
+	 *            can be null
+	 * @param pageIndex
+	 * @param pageSize
+	 * @return
+	 */
+	public List<PartyForList> getParties(Game game, int pageIndex, int pageSize) {
+		String sql = "SELECT p." + Party.DbField.ID + ",p." + Party.DbField.PLAY_DATE + ",p." + Party.DbField.CITY
+				+ ",p." + Party.DbField.EVENT + ",p." + Party.DbField.HAPPYNESS + ",p." + Party.DbField.TRICTRAC_ID
+				+ ",p." + Party.DbField.FK_GAME + ",g." + Game.DbField.NAME + " from PARTY p join GAME g on p."
+				+ Party.DbField.FK_GAME + "=g." + Game.DbField.ID;
+		if (game != null) {
+			sql += " where " + Party.DbField.FK_GAME + "='" + game.getId() + "'";
+		}
+		sql += " order by g." + Game.DbField.NAME + " asc,p." + Party.DbField.PLAY_DATE + " desc";
+		sql += " limit " + (pageSize + 1) + " offset " + (pageIndex * pageSize);
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
+		ArrayList<PartyForList> result = new ArrayList<PartyForList>();
+		if (cursor.moveToFirst()) {
+			do {
+				PartyForList entity = new PartyForList(cursor.getString(0));
+				entity.setDate(stringToDate(cursor.getString(1)));
+				entity.setCity(cursor.getString(2));
+				entity.setEvent(cursor.getString(3));
+				entity.setHappyness(cursor.getInt(4));
+				entity.setTrictracId(cursor.getString(5));
+				entity.setGameId(cursor.getString(6));
+				entity.setGameName(cursor.getString(7));
+				result.add(entity);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return result;
 	}
 
 	public List<Party> getParties(Game game) {

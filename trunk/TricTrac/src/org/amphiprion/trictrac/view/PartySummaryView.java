@@ -21,7 +21,7 @@ package org.amphiprion.trictrac.view;
 
 import org.amphiprion.trictrac.ApplicationConstants;
 import org.amphiprion.trictrac.R;
-import org.amphiprion.trictrac.entity.Party;
+import org.amphiprion.trictrac.entity.PartyForList;
 import org.amphiprion.trictrac.util.DateUtil;
 
 import android.content.Context;
@@ -40,7 +40,7 @@ import android.widget.TextView;
  */
 public class PartySummaryView extends LinearLayout {
 	/** the linked party. */
-	private Party party;
+	private PartyForList party;
 
 	/**
 	 * Construct an account view.
@@ -50,7 +50,7 @@ public class PartySummaryView extends LinearLayout {
 	 * @param party
 	 *            the party entity
 	 */
-	public PartySummaryView(Context context, Party party) {
+	public PartySummaryView(Context context, PartyForList party) {
 		super(context);
 		this.party = party;
 		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
@@ -67,7 +67,7 @@ public class PartySummaryView extends LinearLayout {
 	/**
 	 * @return the party
 	 */
-	public Party getParty() {
+	public PartyForList getParty() {
 		return party;
 	}
 

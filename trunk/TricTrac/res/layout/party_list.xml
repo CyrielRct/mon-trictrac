@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent" android:background="#FFFFFF">
-	<ScrollView android:layout_weight="1" android:layout_width="fill_parent"
+	<view class="org.amphiprion.trictrac.view.MyScrollView"
+		android:layout_weight="1" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:background="#FFFFFF"
 		android:id="@+id/scroll_view">
 		<LinearLayout android:id="@+id/party_list"
@@ -11,5 +12,5 @@
 
 		</LinearLayout>
 
-	</ScrollView>
+	</view>
 </LinearLayout>
