@@ -65,8 +65,9 @@ public class PartyDao extends AbstractDao {
 			String sql = "insert into PARTY (" + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + ","
 					+ Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
 					+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.FK_GAME + ","
-					+ Party.DbField.TRICTRAC_ID + "," + Party.DbField.UPDATE_DATE + ") values (?,?,?,?,?,?,?,?,?,?)";
-			Object[] params = new Object[10];
+					+ Party.DbField.TRICTRAC_ID + "," + Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE
+					+ ") values (?,?,?,?,?,?,?,?,?,?,?)";
+			Object[] params = new Object[11];
 			params[0] = party.getId();
 			params[1] = dateToString(party.getDate());
 			params[2] = party.getCity();
@@ -77,6 +78,7 @@ public class PartyDao extends AbstractDao {
 			params[7] = party.getGameId();
 			params[8] = party.getTrictracId();
 			params[9] = dateToString(party.getLastUpdateDate());
+			params[10] = dateToString(party.getLastSyncDate());
 
 			execSQL(sql, params);
 
@@ -112,7 +114,6 @@ public class PartyDao extends AbstractDao {
 			params[8] = dateToString(party.getLastUpdateDate());
 			params[9] = dateToString(party.getLastSyncDate());
 			params[10] = party.getId();
-
 			execSQL(sql, params);
 
 			sql = "delete FROM PLAY_STAT where " + PlayStat.DbField.FK_PARTY + "=?";
