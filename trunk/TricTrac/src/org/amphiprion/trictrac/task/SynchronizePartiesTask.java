@@ -87,6 +87,10 @@ public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> imple
 		publishProgress(messageId, nb);
 	}
 
+	public void publishProgress(int messageId, int nb) {
+		super.publishProgress(messageId, nb);
+	}
+
 	@Override
 	protected void onPreExecute() {
 		progress = ProgressDialog.show(context, "...", context.getString(R.string.download_parties, 0), true, true,

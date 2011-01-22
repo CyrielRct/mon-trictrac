@@ -96,11 +96,13 @@
 		clic long sur celle-ci.</string>
 
 	<!-- Synch Parties -->
+	<string name="synch_start_date">Synchroniser à partir du</string>
 	<string name="synch_parties">Synchroniser les parties</string>
 	<string name="synch_players">Synchroniser les joueurs</string>
 	<string name="download_parties">Récupération depuis TricTrac: %1$s</string>
 	<string name="download_players">Récupération depuis TricTrac: %1$s</string>
 	<string name="upload_parties">Envoie vers TricTrac: %1$s</string>
+	<string name="upload_players">Envoie vers TricTrac: %1$s</string>
 	
 	<!-- Trictrac Account -->
 	<string name="trictrac_account">Compte Tric Trac</string>

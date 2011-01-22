@@ -51,6 +51,7 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 	protected Void doInBackground(Void... voids) {
 
 		try {
+			publishProgress(0);
 			title = "" + context.getText(R.string.synch_players);
 			PartyHandler handler = new PartyHandler(context, null);
 			handler.synchronizePlayers(this);
@@ -64,8 +65,11 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 
 	@Override
 	public void publishProgress(int nb) {
-		progress.setTitle(title);
 		publishProgress(R.string.download_players, nb);
+	}
+
+	public void publishProgress(int messageId, int nb) {
+		super.publishProgress(messageId, nb);
 	}
 
 	@Override
@@ -81,6 +85,7 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
+		progress.setTitle(title);
 		progress.setMessage(context.getResources().getString(values[0], values[1]));
 	}
 
