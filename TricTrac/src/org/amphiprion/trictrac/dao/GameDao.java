@@ -87,6 +87,24 @@ public class GameDao extends AbstractDao {
 	}
 
 	/**
+	 * Return true if the given game exists in android database.
+	 * 
+	 * @param id
+	 *            the game id
+	 * @return true if exists
+	 */
+	public boolean exists(String id) {
+		String sql = "SELECT 1 from GAME where " + Game.DbField.ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
+		if (cursor.moveToFirst()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Return all existing games of a given collection.
 	 * 
 	 * @param collection
