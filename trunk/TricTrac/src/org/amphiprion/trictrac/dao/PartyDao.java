@@ -174,6 +174,38 @@ public class PartyDao extends AbstractDao {
 		return fillEntities(cursor);
 	}
 
+	public Party getParty(String id) {
+		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
+				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
+				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + ","
+				+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + " from PARTY where " + Party.DbField.ID
+				+ "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
+		List<Party> parties = fillEntities(cursor);
+		if (parties.isEmpty()) {
+			return null;
+		} else {
+			return parties.get(0);
+		}
+	}
+
+	public Party getPartyByTrictracId(String trictracId) {
+		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
+				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
+				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + ","
+				+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + " from PARTY where "
+				+ Party.DbField.TRICTRAC_ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { trictracId });
+		List<Party> parties = fillEntities(cursor);
+		if (parties.isEmpty()) {
+			return null;
+		} else {
+			return parties.get(0);
+		}
+	}
+
 	private List<Party> fillEntities(Cursor cursor) {
 		ArrayList<Party> result = new ArrayList<Party>();
 		if (cursor.moveToFirst()) {

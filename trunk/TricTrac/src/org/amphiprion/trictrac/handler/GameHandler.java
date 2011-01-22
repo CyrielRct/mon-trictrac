@@ -45,11 +45,13 @@ public class GameHandler {
 	private static final String AGE_PATTERN = "            <font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'>            <FONT COLOR=\"#999999\">Age :";
 	private static final String DURATION_PATTERN = "            <font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'>            <FONT COLOR=\"#999999\">Dur&eacute;e :";
 	private static final String LEVELS_PATTERN = "<img src='/jeux/centre/imagerie/barre_";
+	private static final String NAME_PATTERN = "    <td colspan=\"2\"><font style='COLOR: #004B56; FONT-FAMILY: arial; FONT-SIZE: 20px; font-weight: BOLD'><i>";
 
 	private enum Step {
-		TYPE(TYPE_PATTERN), FAMILY(FAMILY_PATTERN), MECHANISM(MECHANISM_PATTERN), THEME(THEME_PATTERN), PLAYER(
-				PLAYER_PATTERN), AGE(AGE_PATTERN), DURATION(DURATION_PATTERN), LEVEL_DIFFICULTY(LEVELS_PATTERN), LEVEL_LUCK(
-				LEVELS_PATTERN), LEVEL_STRATEGY(LEVELS_PATTERN), LEVEL_DIPLOMATY(LEVELS_PATTERN);
+		NAME(NAME_PATTERN), TYPE(TYPE_PATTERN), FAMILY(FAMILY_PATTERN), MECHANISM(MECHANISM_PATTERN), THEME(
+				THEME_PATTERN), PLAYER(PLAYER_PATTERN), AGE(AGE_PATTERN), DURATION(DURATION_PATTERN), LEVEL_DIFFICULTY(
+				LEVELS_PATTERN), LEVEL_LUCK(LEVELS_PATTERN), LEVEL_STRATEGY(LEVELS_PATTERN), LEVEL_DIPLOMATY(
+				LEVELS_PATTERN);
 		private String pattern;
 
 		private Step(String pattern) {
@@ -80,7 +82,7 @@ public class GameHandler {
 	 *            the user id
 	 */
 	public void parse(Game game) {
-		step = Step.TYPE;
+		step = Step.NAME;
 		try {
 			String uri = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + game.getId();
 			URL url = new URL(uri);
@@ -91,7 +93,12 @@ public class GameHandler {
 			String ligne;
 			while ((ligne = br.readLine()) != null) {
 
-				if (step == Step.TYPE && ligne.startsWith(step.getPattern())) {
+				if (step == Step.NAME && ligne.startsWith(step.getPattern())) {
+					int start = step.getPattern().length();
+					int end = ligne.indexOf("<", step.getPattern().length());
+					game.setName(ligne.substring(start, end));
+					step = step.next();
+				} else if (step == Step.TYPE && ligne.startsWith(step.getPattern())) {
 					int start = ligne.indexOf(">", step.getPattern().length());
 					int end = ligne.indexOf("<", step.getPattern().length());
 					game.setType(ligne.substring(start + 1, end));
@@ -160,7 +167,9 @@ public class GameHandler {
 					int min = 0;
 					int max = 0;
 					if (p1 == -1) {
-						min = Integer.parseInt(s);
+						if (s.length() > 0) {
+							min = Integer.parseInt(s);
+						}
 						max = min;
 					} else {
 						min = Integer.parseInt(s.substring(0, p1));

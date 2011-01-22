@@ -178,6 +178,26 @@ public class PlayerDao extends AbstractDao {
 		return entity;
 	}
 
+	public Player getPlayerById(String id) {
+		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
+				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ","
+				+ Player.DbField.UPDATE_DATE + "," + Player.DbField.SYNC_DATE + " from PLAYER where "
+				+ Player.DbField.ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
+		Player entity = null;
+		if (cursor.moveToFirst()) {
+			entity = new Player(cursor.getString(0));
+			entity.setPseudo(cursor.getString(1));
+			entity.setTricTracProfileId(cursor.getString(2));
+			entity.setTrictracId(cursor.getString(3));
+			entity.setLastUpdateDate(stringToDate(cursor.getString(4)));
+			entity.setLastSyncDate(stringToDate(cursor.getString(5)));
+		}
+		cursor.close();
+		return entity;
+	}
+
 	public Player getPlayerByName(String name) {
 		String sql = "SELECT " + Player.DbField.ID + "," + Player.DbField.PSEUDO + ","
 				+ Player.DbField.TRICTRAC_PROFILE_ID + "," + Player.DbField.TRICTRAC_ID + ","

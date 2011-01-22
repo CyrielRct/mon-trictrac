@@ -65,8 +65,8 @@ public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> imple
 
 			title = "" + context.getText(R.string.synch_parties);
 			// download parties
-			// TODO download parties
 			messageId = R.string.download_parties;
+			handler.synchronizeParties(this);
 
 			// upload new parties
 			messageId = R.string.upload_parties;
