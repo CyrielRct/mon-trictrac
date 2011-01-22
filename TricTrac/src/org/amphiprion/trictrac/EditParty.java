@@ -136,6 +136,7 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 		if (party == null) {
 			// its a creation
 			party = new Party();
+			party.setLastUpdateDate(new Date());
 			party.setGameId(game.getId());
 			setTitle(R.string.add_party);
 			dateAdapter.add(new Date());
@@ -216,6 +217,7 @@ public class EditParty extends Activity implements OnPlayStatClickedListener {
 			ln.removeView(view);
 			playStats.remove(view.getPlayStat());
 		} else {
+			playStats.remove(view.getPlayStat());
 			view.getPlayStat().setState(PlayStat.DbState.DELETE);
 			ln.removeView(view);
 		}

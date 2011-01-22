@@ -74,7 +74,7 @@ public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> imple
 			List<Party> parties = PartyDao.getInstance(context).getLocalParties();
 			for (Party party : parties) {
 				publishProgress(++nb);
-				handler.publishParties(party);
+				handler.uploadParty(party, false);
 			}
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "synch player failed", e);

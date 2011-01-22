@@ -101,6 +101,9 @@ public class Party extends Entity implements Serializable {
 	 */
 	public void setStats(List<PlayStat> stats) {
 		this.stats = stats;
+		for (PlayStat ps : this.stats) {
+			ps.setPartyId(getId());
+		}
 	}
 
 	/**

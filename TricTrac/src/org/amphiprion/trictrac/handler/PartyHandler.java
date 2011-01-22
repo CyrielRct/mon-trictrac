@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -310,7 +309,24 @@ public class PartyHandler {
 					PartyDao.getInstance(context).persist(party);
 				}
 			} else {
-				// TODO merge party
+				if (party.getLastUpdateDate().after(party.getLastSyncDate())) {
+					// update from android > send data to TricTrac
+					uploadParty(party, true);
+				} else {
+					// on recup trictrac au cas où il y aurait une modif
+					Party ttParty = retrieveTrictracParty(partyId);
+					party.setCity(ttParty.getCity());
+					party.setComment(ttParty.getComment());
+					party.setDate(ttParty.getDate());
+					party.setDuration(ttParty.getDuration());
+					party.setEvent(ttParty.getEvent());
+					party.setHappyness(ttParty.getHappyness());
+					party.setStats(ttParty.getStats());
+					Date sync = new Date();
+					party.setLastUpdateDate(sync);
+					party.setLastSyncDate(sync);
+					PartyDao.getInstance(context).persist(party);
+				}
 			}
 		}
 	}
@@ -506,7 +522,7 @@ public class PartyHandler {
 	 * @throws Exception
 	 *             if an error occurs
 	 */
-	public void publishParties(Party party) throws Exception {
+	public void uploadParty(Party party, boolean isUpdate) throws Exception {
 		List<PlayStat> stats = PlayStatDao.getInstance(context).getPlayStat(party);
 		party.setStats(stats);
 
@@ -524,11 +540,13 @@ public class PartyHandler {
 		String year = "" + d.get(Calendar.YEAR);
 
 		String gameId = party.getGameId();
-		List<String> oldPartyIds = collectPartyIds(memberId, gameId, day, month, year, day, month, year);
-
-		String city = URLEncoder.encode(party.getCity());
-		String event = URLEncoder.encode(party.getEvent());
-		String comment = URLEncoder.encode(party.getComment());
+		List<String> oldPartyIds = null;
+		if (!isUpdate) {
+			oldPartyIds = collectPartyIds(memberId, gameId, day, month, year, day, month, year);
+		}
+		String city = party.getCity();
+		String event = party.getEvent();
+		String comment = party.getComment();
 
 		String start = "http://www.trictrac.net/jeux/centre/membre/include/gestion_partie_solo.php";
 		List<BasicNameValuePair> data = new ArrayList<BasicNameValuePair>();
@@ -537,7 +555,9 @@ public class PartyHandler {
 		data.add(new BasicNameValuePair("dannee", year));
 		data.add(new BasicNameValuePair("ville", city));
 		data.add(new BasicNameValuePair("occasion", event));
-		data.add(new BasicNameValuePair("online", "1"));
+		if (!isUpdate) {
+			data.add(new BasicNameValuePair("online", "1"));
+		}
 		int i = 0;
 		for (PlayStat stat : stats) {
 			if (stat.getPlayer() == null) {
@@ -557,28 +577,42 @@ public class PartyHandler {
 		data.add(new BasicNameValuePair("cache_h", "jeux"));
 		data.add(new BasicNameValuePair("slash", "ok"));
 		data.add(new BasicNameValuePair("date", DateUtil.yyyymmddFormat.format(new Date())));
-		data.add(new BasicNameValuePair("act", "inser"));
+		if (!isUpdate) {
+			data.add(new BasicNameValuePair("act", "inser"));
+		} else {
+			data.add(new BasicNameValuePair("act", "modif"));
+		}
 		data.add(new BasicNameValuePair("table", "membres_parties"));
 		data.add(new BasicNameValuePair("gestion", "fiches_jeux"));
 		data.add(new BasicNameValuePair("refabo", memberId));
 		data.add(new BasicNameValuePair("id_membre", memberId));
 		data.add(new BasicNameValuePair("id_jeu", gameId));
 		data.add(new BasicNameValuePair("nbj", "" + stats.size()));
-		data.add(new BasicNameValuePair("ref_base", gameId));
+		if (!isUpdate) {
+			data.add(new BasicNameValuePair("ref_base", gameId));
+		} else {
+			data.add(new BasicNameValuePair("ref_base", party.getTrictracId()));
+		}
 		data.add(new BasicNameValuePair("sequence", "no"));
 		send(start, data).close();
 
-		List<String> newPartyIds = collectPartyIds(memberId, gameId, day, month, year, day, month, year);
-		newPartyIds.removeAll(oldPartyIds);
-		if (newPartyIds.size() > 0) {
-			String id = newPartyIds.get(0);
-			party.setTrictracId(id);
+		if (!isUpdate) {
+			List<String> newPartyIds = collectPartyIds(memberId, gameId, day, month, year, day, month, year);
+			newPartyIds.removeAll(oldPartyIds);
+			if (newPartyIds.size() > 0) {
+				String id = newPartyIds.get(0);
+				party.setTrictracId(id);
+				Date date = new Date();
+				party.setLastSyncDate(date);
+				party.setLastUpdateDate(date);
+				PartyDao.getInstance(context).persist(party);
+			}
+		} else {
 			Date date = new Date();
 			party.setLastSyncDate(date);
 			party.setLastUpdateDate(date);
 			PartyDao.getInstance(context).persist(party);
 		}
-
 	}
 
 	/**
