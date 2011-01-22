@@ -128,8 +128,14 @@ public class Home extends TabActivity implements ImportCollectionListener {
 
 		// 
 		intent = new Intent().setClass(this, PlayerList.class);
-		spec = tabHost.newTabSpec("partylist").setIndicator(res.getString(R.string.tab_player),
+		spec = tabHost.newTabSpec("playerlist").setIndicator(res.getString(R.string.tab_player),
 				res.getDrawable(R.drawable.play)).setContent(intent);
+		tabHost.addTab(spec);
+
+		// 
+		intent = new Intent().setClass(this, PartyList.class);
+		spec = tabHost.newTabSpec("partylist").setIndicator(res.getString(R.string.tab_party),
+				res.getDrawable(R.drawable.party)).setContent(intent);
 		tabHost.addTab(spec);
 
 		tabHost.setCurrentTab(0);

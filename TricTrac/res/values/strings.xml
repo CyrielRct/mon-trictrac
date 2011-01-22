@@ -11,6 +11,7 @@
 	<string name="tab_collection">Ludothèques</string>
 	<string name="tab_search">Filtres</string>
 	<string name="tab_player">Joueurs</string>
+	<string name="tab_party">Parties</string>
 	<!-- Collections -->
 	<string name="collection_title">Liste des ludothèques</string>
 	<string name="collection_name">Nom de la ludothèque</string>
