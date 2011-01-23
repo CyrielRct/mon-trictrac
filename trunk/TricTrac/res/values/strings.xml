@@ -126,6 +126,12 @@
 		<item>Voir les parties</item>
 		<item>Aucune action</item>
 	</string-array>
+
+	<!-- TricTrac Game List -->
+	<string name="menu_search_trictrac">Chercher un jeu sur Tric Trac</string>
+	<string name="empty_trictrac_game_list">\nUtiliser la loupe pour lancer une recherche de jeu sur le site Tric Trac.</string>
+
+
 </resources>
 
 

@@ -27,4 +27,6 @@ public interface IProgressTask {
 	void publishProgress(int nb);
 
 	void publishProgress(int message, int nb);
+
+	boolean isCancelled();
 }

@@ -156,6 +156,50 @@ public class GameDao extends AbstractDao {
 		return result;
 	}
 
+	/**
+	 * Return the given game or null if not exists.
+	 * 
+	 * @param id
+	 *            the id
+	 * @return the game
+	 */
+	public Game getGame(String id) {
+		String sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + ","
+				+ Game.DbField.TYPE + "," + Game.DbField.FAMILIES + "," + Game.DbField.MECHANISMS + ","
+				+ Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + ","
+				+ Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + ","
+				+ Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
+				+ Game.DbField.DIPLOMATY + ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g."
+				+ Game.DbField.ID + "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p."
+				+ Party.DbField.FK_GAME + "=g." + Game.DbField.ID + ") from GAME g where " + Game.DbField.ID + "=?";
+
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
+		Game result = null;
+		if (cursor.moveToFirst()) {
+			Game a = new Game(cursor.getString(0));
+			a.setName(cursor.getString(1));
+			a.setImageName(cursor.getString(2));
+			a.setType(cursor.getString(3));
+			a.setFamilies(cursor.getString(4));
+			a.setMechanisms(cursor.getString(5));
+			a.setThemes(cursor.getString(6));
+			a.setMinPlayer(cursor.getInt(7));
+			a.setMaxPlayer(cursor.getInt(8));
+			a.setMinAge(cursor.getInt(9));
+			a.setMaxAge(cursor.getInt(10));
+			a.setDuration(cursor.getInt(11));
+			a.setDifficulty(cursor.getInt(12));
+			a.setLuck(cursor.getInt(13));
+			a.setStrategy(cursor.getInt(14));
+			a.setDiplomaty(cursor.getInt(15));
+			a.setNbParty(cursor.getInt(16));
+			a.setHappyness(cursor.getInt(17));
+			result = a;
+		}
+		cursor.close();
+		return result;
+	}
+
 	private String buildWhere(Search search, String filter) {
 		String sql = "";
 		if (filter != null) {
