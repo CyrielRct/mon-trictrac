@@ -143,7 +143,11 @@ public class PartyList extends Activity implements LoadPartyListener {
 			addAccount.setIcon(android.R.drawable.ic_menu_add);
 		}
 
-		MenuItem synchParty = menu.add(0, ApplicationConstants.MENU_ID_SYNCH_PARTY, 1, R.string.synch_parties);
+		MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1,
+				R.string.menu_search_trictrac);
+		searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
+
+		MenuItem synchParty = menu.add(1, ApplicationConstants.MENU_ID_SYNCH_PARTY, 2, R.string.synch_parties);
 		synchParty.setIcon(android.R.drawable.ic_menu_share);
 		return true;
 	}
@@ -155,6 +159,9 @@ public class PartyList extends Activity implements LoadPartyListener {
 			i.putExtra("GAME", game);
 			// i.putExtra("PARTY", current);
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_PARTY);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME) {
+			Intent i = new Intent(this, TricTracGameList.class);
+			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_SEARCH_TRICTRAC_GAME);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_SYNCH_PARTY) {
 			SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
 			long time = pref.getLong("SYNCH_PARTY_DATE", new Date(100, 0, 1).getTime());
@@ -202,6 +209,8 @@ public class PartyList extends Activity implements LoadPartyListener {
 				Party party = (Party) data.getSerializableExtra("PARTY");
 				party.setLastUpdateDate(new Date());
 				PartyDao.getInstance(this).persist(party);
+				init();
+			} else if (requestCode == ApplicationConstants.ACTIVITY_RETURN_SEARCH_TRICTRAC_GAME) {
 				init();
 			} else if (requestCode == ApplicationConstants.ACTIVITY_RETURN_UPDATE_PARTY) {
 				Party party = (Party) data.getSerializableExtra("PARTY");

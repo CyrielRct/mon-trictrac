@@ -62,10 +62,14 @@ public class CollectionList extends Activity implements ImportCollectionListener
 		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, 0, R.string.add_collection);
 		addAccount.setIcon(android.R.drawable.ic_menu_add);
 
-		MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 1, R.string.trictrac_account);
+		MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1,
+				R.string.menu_search_trictrac);
+		searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
+
+		MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 2, R.string.trictrac_account);
 		account.setIcon(android.R.drawable.ic_menu_info_details);
 
-		MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, 2, R.string.preference);
+		MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, 3, R.string.preference);
 		preference.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
@@ -76,6 +80,9 @@ public class CollectionList extends Activity implements ImportCollectionListener
 			Intent i = new Intent(this, EditCollection.class);
 			// i.putExtra("COLLECTION", collection);
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_COLLECTION);
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME) {
+			Intent i = new Intent(this, TricTracGameList.class);
+			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_SEARCH_TRICTRAC_GAME);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_PREFERENCE) {
 			Home.openPreference(this);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_ACCOUNT) {
