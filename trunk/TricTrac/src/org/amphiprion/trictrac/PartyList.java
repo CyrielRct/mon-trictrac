@@ -45,6 +45,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -66,6 +67,8 @@ import android.widget.LinearLayout.LayoutParams;
 public class PartyList extends Activity implements LoadPartyListener {
 	private static final int PAGE_SIZE = 20;
 
+	public static PartyList instance;
+
 	private int loadedPage;
 	private List<PartyForList> parties;
 	private MyScrollView scrollView;
@@ -79,14 +82,8 @@ public class PartyList extends Activity implements LoadPartyListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		instance = this;
 		setContentView(R.layout.party_list);
-
-		game = (Game) getIntent().getSerializableExtra("GAME");
-		if (game == null) {
-			setTitle(getResources().getString(R.string.my_parties));
-		} else {
-			setTitle(getResources().getString(R.string.my_parties, game.getName()));
-		}
 
 		final Rect r = new Rect();
 		scrollView = (MyScrollView) findViewById(R.id.scroll_view);
@@ -106,8 +103,27 @@ public class PartyList extends Activity implements LoadPartyListener {
 			}
 		});
 
-		init();
+		handleIntent(getIntent());
 
+	}
+
+	public void handleIntent(Intent intent) {
+		game = (Game) intent.getSerializableExtra("GAME");
+		if (game == null) {
+			Home.setTopTitle(getResources().getString(R.string.my_parties, ""));
+		} else {
+			Home.setTopTitle(getResources().getString(R.string.my_parties, game.getName()));
+		}
+		init();
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && game != null) {
+			Home.goToParties(this, null);
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 	private void init() {

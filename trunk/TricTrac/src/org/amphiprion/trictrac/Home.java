@@ -29,7 +29,9 @@ import org.amphiprion.trictrac.dao.CollectionDao;
 import org.amphiprion.trictrac.dao.PlayerDao;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
+import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Player;
+import org.amphiprion.trictrac.entity.Search;
 import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.task.ImportCollectionTask;
 import org.amphiprion.trictrac.task.ImportCollectionTask.ImportCollectionListener;
@@ -43,20 +45,28 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnFocusChangeListener;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TabHost.TabSpec;
 
 public class Home extends TabActivity implements ImportCollectionListener {
 	private static boolean init = false;
 	private boolean cleanOnDestroy = true;
 	private List<Collection> collectionsToUpdate;
+	private static TabHost tabHost;
+	private static TabSpec browserSpec;
+	private static TabActivity instance;
+	private static String[] titles;
 
 	/** Possible action on startup. */
 	private enum StartupAction {
@@ -69,6 +79,9 @@ public class Home extends TabActivity implements ImportCollectionListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		instance = this;
+		getWindow().requestFeature(Window.FEATURE_PROGRESS);
+
 		setContentView(R.layout.main);
 
 		if (!init) {
@@ -107,17 +120,17 @@ public class Home extends TabActivity implements ImportCollectionListener {
 	private void init() {
 		init = true;
 		Resources res = getResources(); // Resource object to get Drawables
-		TabHost tabHost = getTabHost(); // The activity TabHost
+		titles = new String[5];
+
+		tabHost = getTabHost(); // The activity TabHost
 		TabHost.TabSpec spec; // Resusable TabSpec for each tab
 		Intent intent; // Reusable Intent for each tab
 
 		// Create an Intent to launch an Activity for the tab (to be reused)
-		intent = new Intent().setClass(this, CollectionList.class);
-
+		intent = new Intent().setClass(this, CollectionActivityGroup.class);
 		// Initialize a TabSpec for each tab and add it to the TabHost
 		spec = tabHost.newTabSpec("collectionlist").setIndicator(res.getString(R.string.tab_collection),
 				res.getDrawable(R.drawable.collection)).setContent(intent);
-
 		tabHost.addTab(spec);
 
 		// 
@@ -138,8 +151,69 @@ public class Home extends TabActivity implements ImportCollectionListener {
 				res.getDrawable(R.drawable.party)).setContent(intent);
 		tabHost.addTab(spec);
 
+		// 
+		intent = new Intent().setClass(this, Browser.class);
+		intent.setData(Uri.parse("http://www.trictrac.net/"));
+		spec = tabHost.newTabSpec("browser").setIndicator(res.getString(R.string.tab_browser),
+				res.getDrawable(R.drawable.internet)).setContent(intent);
+		tabHost.addTab(spec);
+		browserSpec = spec;
+
+		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
+
+			@Override
+			public void onTabChanged(String tabId) {
+				if (Browser.instance != null) {
+					if (tabHost.getCurrentTab() != 4) {
+						Browser.instance.emptyPage();
+					} else {
+						Browser.instance.restorePage();
+					}
+				}
+				if (titles[tabHost.getCurrentTab()] == null) {
+					titles[tabHost.getCurrentTab()] = "" + getResources().getText(R.string.app_name);
+				}
+				setTitle(titles[tabHost.getCurrentTab()]);
+			}
+		});
+
 		tabHost.setCurrentTab(0);
 
+	}
+
+	public static void goToParties(Context context, Game game) {
+		tabHost.setCurrentTab(3);
+		Intent intent = new Intent().setClass(context, PartyList.class);
+		intent.putExtra("GAME", game);
+		PartyList.instance.handleIntent(intent);
+	}
+
+	public static void setTopProgress(int progress) {
+		instance.getWindow().setFeatureInt(Window.FEATURE_PROGRESS, progress);
+	}
+
+	public static void setTopTitle(String title) {
+		Home.instance.setTitle(title);
+		titles[tabHost.getCurrentTab()] = title;
+	}
+
+	public static void browse(Context context, String url) {
+		Intent intent = new Intent().setClass(context, Browser.class);
+		intent.setData(Uri.parse(url));
+		browserSpec.setContent(intent);
+		tabHost.setCurrentTab(4);
+	}
+
+	public static void gotToCollection(Context context) {
+		titles[0] = "" + context.getResources().getText(R.string.app_name);
+		setTopTitle(titles[0]);
+		tabHost.setCurrentTab(0);
+		CollectionActivityGroup.instance.showCollectionList();
+	}
+
+	public static void gotToCollection(Context context, Collection collection, Search search) {
+		tabHost.setCurrentTab(0);
+		CollectionActivityGroup.instance.showGameList(collection, search);
 	}
 
 	@Override
