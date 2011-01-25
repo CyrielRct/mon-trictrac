@@ -17,17 +17,17 @@
         <activity android:name=".EditCollection"
                   android:label="@string/app_name">
         </activity>
-        <activity android:name=".CollectionActivityGroup"
-                  android:label="@string/app_name">
-        </activity>
-        
-        <activity android:name=".GameList" 
+        <activity android:name=".CollectionActivityGroup" android:launchMode="singleTop"
                   android:label="@string/app_name">
 	        <intent-filter>
 	            <action android:name="android.intent.action.SEARCH" />
 	        </intent-filter>
 	        <meta-data android:name="android.app.searchable"
 	                   android:resource="@xml/searchable"/>
+        </activity>
+        
+        <activity android:name=".GameList" 
+                  android:label="@string/app_name">
         </activity>
         <activity android:name=".TricTracGameList" android:launchMode="singleTop"
                   android:label="@string/menu_search_trictrac">
