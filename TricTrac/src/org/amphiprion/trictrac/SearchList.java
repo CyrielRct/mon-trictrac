@@ -52,8 +52,12 @@ public class SearchList extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_list);
-
 		buildList();
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
 	}
 
 	@Override
@@ -175,19 +179,22 @@ public class SearchList extends Activity {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
 							dialog.dismiss();
-							Intent i = new Intent(SearchList.this, GameList.class);
-							i.putExtra("COLLECTION", collections.get(item));
-							i.putExtra("SEARCH", search);
-							startActivity(i);
+							// Intent i = new Intent(SearchList.this,
+							// GameList.class);
+							// i.putExtra("COLLECTION", collections.get(item));
+							// i.putExtra("SEARCH", search);
+							// startActivity(i);
+							Home.gotToCollection(SearchList.this, collections.get(item), search);
 						}
 					});
 			AlertDialog alert = builder.create();
 			alert.show();
 		} else if (collections.size() == 1) {
-			Intent i = new Intent(SearchList.this, GameList.class);
-			i.putExtra("COLLECTION", collections.get(0));
-			i.putExtra("SEARCH", search);
-			startActivity(i);
+			// Intent i = new Intent(SearchList.this, GameList.class);
+			// i.putExtra("COLLECTION", collections.get(0));
+			// i.putExtra("SEARCH", search);
+			// startActivity(i);
+			Home.gotToCollection(SearchList.this, collections.get(0), search);
 		}
 	}
 }

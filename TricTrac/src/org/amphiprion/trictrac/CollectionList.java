@@ -147,9 +147,11 @@ public class CollectionList extends Activity implements ImportCollectionListener
 					public void onClick(View v) {
 						if (v instanceof CollectionSummaryView) {
 							Collection collection = ((CollectionSummaryView) v).getCollection();
-							Intent i = new Intent(CollectionList.this, GameList.class);
-							i.putExtra("COLLECTION", collection);
-							startActivity(i);
+							// Intent i = new Intent(CollectionList.this,
+							// GameList.class);
+							// i.putExtra("COLLECTION", collection);
+							// startActivity(i);
+							Home.gotToCollection(CollectionList.this, collection, null);
 						}
 					}
 				});

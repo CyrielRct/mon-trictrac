@@ -37,7 +37,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -283,12 +282,12 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 
 	private void gotoTricTracGame(String gameId) {
 		String url = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + gameId;
-		Intent i = new Intent(Intent.ACTION_VIEW);
-
-		i.setData(Uri.parse(url));
-
-		startActivity(i);
-
+		// Intent i = new Intent(Intent.ACTION_VIEW);
+		// i.setData(Uri.parse(url));
+		// startActivity(i);
+		Home.browse(this, url);
+		setResult(RESULT_CANCELED);
+		finish();
 	}
 
 	@Override
@@ -318,9 +317,13 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 	}
 
 	private void viewParties(Game game) {
-		Intent i = new Intent(this, PartyList.class);
-		i.putExtra("GAME", game);
-		startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_VIEW_PARTIES);
+		// Intent i = new Intent(this, PartyList.class);
+		// i.putExtra("GAME", game);
+		// startActivityForResult(i,
+		// ApplicationConstants.ACTIVITY_RETURN_VIEW_PARTIES);
+		Home.goToParties(this, game);
+		setResult(RESULT_CANCELED);
+		finish();
 	}
 
 	@Override
