@@ -49,7 +49,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -68,6 +67,8 @@ import android.widget.LinearLayout.LayoutParams;
  * 
  */
 public class GameList extends Activity implements LoadGameListener {
+	public static CollectionActivityGroup group;
+	public static GameList instance;
 
 	private static final int PAGE_SIZE = 20;
 
@@ -92,6 +93,7 @@ public class GameList extends Activity implements LoadGameListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		instance = this;
 		setContentView(R.layout.game_list);
 
 		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
@@ -119,25 +121,12 @@ public class GameList extends Activity implements LoadGameListener {
 		init();
 	}
 
-	@Override
-	public boolean onSearchRequested() {
-		startSearch(query, true, null, false);
-		return true;
+	public Search getSearch() {
+		return search;
 	}
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.clear();
-
-		if (search != null || query != null) {
-			MenuItem clearSearch = menu.add(0, ApplicationConstants.MENU_ID_CLEAR_SEARCH, 0, R.string.clear_filter);
-			clearSearch.setIcon(R.drawable.search_cleared);
-		}
-		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_CHOOSE_EXISTING_SEARCH, 1,
-				R.string.apply_existing_filter);
-		addAccount.setIcon(R.drawable.search);
-
-		return true;
+	public String getQuery() {
+		return query;
 	}
 
 	@Override
@@ -153,14 +142,14 @@ public class GameList extends Activity implements LoadGameListener {
 	}
 
 	private void chooseSearchFilter() {
-		final List<Search> searchs = SearchDao.getInstance(this).getSearchs();
+		final List<Search> searchs = SearchDao.getInstance(group).getSearchs();
 		if (searchs.size() > 1) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			AlertDialog.Builder builder = new AlertDialog.Builder(group);
 			builder.setTitle(getResources().getString(R.string.search_choice_title));
-			builder.setAdapter(new SearchAdapter(GameList.this, searchs), new DialogInterface.OnClickListener() {
+			builder.setAdapter(new SearchAdapter(group, searchs), new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int item) {
 					dialog.dismiss();
-					Intent i = new Intent(GameList.this, GameList.class);
+					Intent i = new Intent(group, GameList.class);
 					i.putExtra("COLLECTION", collection);
 					i.putExtra("SEARCH", searchs.get(item));
 					setIntent(i);
@@ -171,7 +160,7 @@ public class GameList extends Activity implements LoadGameListener {
 			AlertDialog alert = builder.create();
 			alert.show();
 		} else if (searchs.size() == 1) {
-			Intent i = new Intent(GameList.this, GameList.class);
+			Intent i = new Intent(group, GameList.class);
 			i.putExtra("COLLECTION", collection);
 			i.putExtra("SEARCH", searchs.get(0));
 			setIntent(i);
@@ -205,6 +194,11 @@ public class GameList extends Activity implements LoadGameListener {
 			games.clear();
 		}
 		loadNextPage();
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
+		init();
 	}
 
 	@Override

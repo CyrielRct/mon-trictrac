@@ -33,7 +33,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -45,54 +44,19 @@ import android.widget.TextView;
  * 
  */
 public class CollectionList extends Activity implements ImportCollectionListener {
+	public static CollectionList instance;
+	public static CollectionActivityGroup group;
 	private Collection current;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.collection_list);
-
+		instance = this;
 		buildList();
 	}
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.clear();
-
-		MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, 0, R.string.add_collection);
-		addAccount.setIcon(android.R.drawable.ic_menu_add);
-
-		MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1,
-				R.string.menu_search_trictrac);
-		searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
-
-		MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 2, R.string.trictrac_account);
-		account.setIcon(android.R.drawable.ic_menu_info_details);
-
-		MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, 3, R.string.preference);
-		preference.setIcon(android.R.drawable.ic_menu_preferences);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == ApplicationConstants.MENU_ID_ADD_COLLECTION) {
-			Intent i = new Intent(this, EditCollection.class);
-			// i.putExtra("COLLECTION", collection);
-			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_CREATE_COLLECTION);
-		} else if (item.getItemId() == ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME) {
-			Intent i = new Intent(this, TricTracGameList.class);
-			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_SEARCH_TRICTRAC_GAME);
-		} else if (item.getItemId() == ApplicationConstants.MENU_ID_PREFERENCE) {
-			Home.openPreference(this);
-		} else if (item.getItemId() == ApplicationConstants.MENU_ID_ACCOUNT) {
-			Home.openAccount(this);
-		}
-		return true;
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(Context context, int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK) {
 			if (requestCode == ApplicationConstants.ACTIVITY_RETURN_CREATE_COLLECTION) {
 				Collection collection = (Collection) data.getSerializableExtra("COLLECTION");
@@ -177,7 +141,7 @@ public class CollectionList extends Activity implements ImportCollectionListener
 
 	@Override
 	public Context getContext() {
-		return this;
+		return group;
 	}
 
 	@Override
