@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -46,12 +47,15 @@ public class Browser extends Activity {
 		setContentView(webview);
 
 		webview.getSettings().setJavaScriptEnabled(true);
+		webview.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+		webview.getSettings().setLightTouchEnabled(true);
+		// webview.getSettings().setSupportMultipleWindows(true);
 		webview.getSettings().setBuiltInZoomControls(true);
-		webview.getSettings().setSupportMultipleWindows(true);
 		webview.getSettings().setPluginsEnabled(true);
 
 		final Activity activity = this;
 		webview.setWebChromeClient(new WebChromeClient() {
+
 			@Override
 			public void onProgressChanged(WebView view, int progress) {
 				// Activities and WebViews measure progress with different
@@ -62,6 +66,7 @@ public class Browser extends Activity {
 			}
 		});
 		webview.setWebViewClient(new WebViewClient() {
+
 			@Override
 			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
 				Toast.makeText(activity, "Oh no! " + description, Toast.LENGTH_SHORT).show();
@@ -76,6 +81,10 @@ public class Browser extends Activity {
 				}
 			}
 
+			@Override
+			public void onPageFinished(WebView view, String url) {
+				super.onPageFinished(view, url);
+			}
 		});
 
 		Intent i = getIntent();
@@ -92,6 +101,15 @@ public class Browser extends Activity {
 
 	public void restorePage() {
 		webview.loadUrl(url);
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && webview.canGoBack()) {
+			webview.goBack();
+			return true;
+		}
+		return true;
 	}
 
 }

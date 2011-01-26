@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
-import org.amphiprion.trictrac.GameList.ClickAction;
 import org.amphiprion.trictrac.adapter.PlayerAdapter;
 import org.amphiprion.trictrac.dao.CollectionDao;
 import org.amphiprion.trictrac.dao.PlayerDao;
@@ -257,13 +256,13 @@ public class Home extends TabActivity implements ImportCollectionListener {
 		final Spinner cbStartup = (Spinner) vvv.findViewById(R.id.cbStartup);
 		cbStartup.setSelection(pref.getInt(StartupAction.class.getName(), 0));
 		final Spinner cbGameClick = (Spinner) vvv.findViewById(R.id.cbGameClick);
-		cbGameClick.setSelection(pref.getInt(ClickAction.class.getName(), 0));
+		cbGameClick.setSelection(pref.getInt(GameListContext.ClickAction.class.getName(), 0));
 		alert.setView(vvv);
 		alert.setPositiveButton(context.getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				Editor edit = pref.edit();
 				edit.putInt(StartupAction.class.getName(), cbStartup.getSelectedItemPosition());
-				edit.putInt(ClickAction.class.getName(), cbGameClick.getSelectedItemPosition());
+				edit.putInt(GameListContext.ClickAction.class.getName(), cbGameClick.getSelectedItemPosition());
 				edit.commit();
 			}
 		});
