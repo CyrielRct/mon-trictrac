@@ -16,7 +16,9 @@
 				android:layout_height="wrap_content" android:text="@string/pref_game_click" />
 			<Spinner android:layout_height="wrap_content" android:id="@+id/cbGameClick"
 				android:layout_width="fill_parent" android:entries="@array/pref_game_click_items"></Spinner>
-		</LinearLayout>
+
+			<CheckBox android:text="@string/pref_trace" android:id="@+id/chkTrace" android:layout_width="wrap_content" android:layout_height="wrap_content"></CheckBox>
+</LinearLayout>
 	</ScrollView>
 
 </LinearLayout>

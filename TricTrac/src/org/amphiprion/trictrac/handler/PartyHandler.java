@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,6 +42,7 @@ import org.amphiprion.trictrac.entity.Player;
 import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.task.IProgressTask;
 import org.amphiprion.trictrac.util.DateUtil;
+import org.amphiprion.trictrac.util.LogUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -71,20 +73,22 @@ public class PartyHandler {
 	private List<Cookie> cookies = new ArrayList<Cookie>();
 	private String ownerId;
 	private String login;
+	private PrintWriter pw;
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public PartyHandler(Context context, Date date) throws Exception {
+	public PartyHandler(Context context, Date date, PrintWriter pw) throws Exception {
 		this.date = date;
 		this.context = context;
-
+		this.pw = pw;
 		SharedPreferences pref = context.getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
 
 		login = pref.getString("LOGIN", "");
 		String pwd = pref.getString("PWD", "");
 		ownerId = pref.getString("ACCOUNT_PLAYER_ID", "");
 
+		LogUtil.trace(pw, "call trictrac to retrieve session cookie");
 		String s = "http://www.trictrac.net/";
 
 		HttpGet httpGet = new HttpGet(s);
@@ -103,7 +107,15 @@ public class PartyHandler {
 				}
 			}
 		}
-
+		if (cookies == null) {
+			LogUtil.trace(pw, "NO COOKIE !!!");
+		} else {
+			LogUtil.trace(pw, "cookies:" + cookies.size());
+			if (cookies.size() > 0) {
+				LogUtil.trace(pw, "cookie   name=" + cookies.get(0).getName() + "  value=" + cookies.get(0).getValue());
+			}
+		}
+		LogUtil.trace(pw, "appel de l'url de login");
 		String loginUrl = "http://www.trictrac.net/jeux/centre/membre/connexion.php";
 		List<BasicNameValuePair> data = new ArrayList<BasicNameValuePair>();
 		data.add(new BasicNameValuePair("nom", login));
@@ -116,22 +128,31 @@ public class PartyHandler {
 
 		boolean error = isStringFound("<img src=\"/jeux/centre/membre/imagerie/panneau_alert_2.gif\">", is);
 		if (error) {
+			LogUtil.trace(pw, "Mauvais login ou passe word");
 			throw new Exception("Mauvais identifiant ou mot de passe");
 		}
+		LogUtil.trace(pw, "On recherche le profile id");
 		collectMemberId();
 		if (memberId == null) {
+			LogUtil.trace(pw, "Profile id non recuperable");
 			throw new Exception("Profile id non récupérable");
 		}
+		LogUtil.trace(pw, "Login SUCCEED, profile id=" + memberId);
 	}
 
 	private void collectMemberId() throws Exception {
 		String profileUrl = "http://www.trictrac.net/index.php3?id=jeux&rub=membre&inf=profil";
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "on appel " + profileUrl);
 		String pattern = "<input type='hidden' name=\"refabo\" value=\"";
 		InputStream is = send(profileUrl, null);
 		BufferedReader rd = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"));
 
 		String line;
 		while ((line = rd.readLine()) != null) {
+			LogUtil.trace(pw, line);
 			if (line.startsWith(pattern)) {
 				int pos = line.indexOf("\"", pattern.length());
 				memberId = line.substring(pattern.length(), pos);
@@ -151,6 +172,10 @@ public class PartyHandler {
 	private void synchronizePlayers(IProgressTask task, boolean firstPass) throws Exception {
 		int nbTotal = 0;
 		int deb = 0;
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "on recherhce les joueurs existant sur trictac");
 		while (true) {
 			String start = "http://www.trictrac.net/index.php3?id=jeux&rub=membre&inf=joueurs_select&choix=&choix2=&deb="
 					+ deb;
@@ -171,11 +196,13 @@ public class PartyHandler {
 					first = line.indexOf(">", pos);
 					pos = line.indexOf("<", pos);
 					String name = line.substring(first + 1, pos);
-
+					LogUtil.trace(pw, "joueur trouve: " + name);
 					Player p = PlayerDao.getInstance(context).getPlayerByTrictracId(id);
 					if (p == null) {
+						LogUtil.trace(pw, "   " + name + " via son id n'est pas sur le telephone");
 						p = PlayerDao.getInstance(context).getPlayerByName(name);
 						if (p == null) {
+							LogUtil.trace(pw, "   " + name + " via son nom n'est pas sur le telephone");
 							// player created on trictrac > create in Android
 							p = new Player();
 							p.setPseudo(name);
@@ -184,12 +211,15 @@ public class PartyHandler {
 							p.setLastUpdateDate(date);
 							p.setLastSyncDate(date);
 							PlayerDao.getInstance(context).persist(p);
+							LogUtil.trace(pw, "   " + name + " vient d'etre cree en local");
 						} else {
 							p.setTrictracId(id);
 							Date date = new Date();
 							p.setLastUpdateDate(date);
 							p.setLastSyncDate(date);
 							PlayerDao.getInstance(context).persist(p);
+							LogUtil.trace(pw, "   " + name + " vient d'etre relie au joueur local " + p.getId() + "/"
+									+ p.getPseudo());
 						}
 					} else {
 						Date date = new Date();
@@ -197,10 +227,14 @@ public class PartyHandler {
 							task.publishProgress(R.string.upload_players, nbTotal);
 							// mise à jour depuis Android, on envoie vers
 							// trictrac
+							LogUtil.trace(pw, "   " + name
+									+ " a ete mis a jour sur le telephone, on met a jour trictrac");
 							uploadPlayer(p, true);
 						} else {
 							// on recup trictrac au cas où il y aurait une modif
 							p.setPseudo(name);
+							LogUtil.trace(pw, "   " + name + " mis a jour en local");
+							// uploadPlayer(p, true);
 						}
 						p.setLastUpdateDate(date);
 						p.setLastSyncDate(date);
@@ -216,18 +250,27 @@ public class PartyHandler {
 				deb += finded;
 			}
 		}
+		LogUtil.trace(pw, "   nb recup depuis trictrac:" + nbTotal);
+		LogUtil.trace(pw, "##################################");
 		nbTotal = 0;
 		// now send to trictrac player created on Android
+		LogUtil.trace(pw, "maintenant on envoie sur trictrac les joueurs locaux");
+		LogUtil.trace(pw, "##################################");
 		List<Player> players = PlayerDao.getInstance(context).getLocalPlayers();
 		boolean created = false;
 		for (Player player : players) {
 			if (!ownerId.equals(player.getId())) {
 				task.publishProgress(R.string.upload_players, ++nbTotal);
+				LogUtil.trace(pw, "on upload " + player.getId() + "/" + player.getPseudo());
 				uploadPlayer(player, false);
 				created = true;
 			}
 		}
 		if (firstPass && created) {
+			LogUtil
+					.trace(
+							pw,
+							"Comme il n'y a pas d acknoledgement sur la creation on refait une pass pour lier les joueurs qui viennent d'etre uploade, c reparti....");
 			synchronizePlayers(task, false);
 		}
 	}
@@ -294,45 +337,65 @@ public class PartyHandler {
 		String endYear = "" + (d.get(Calendar.YEAR) + 100);
 
 		List<String> partyIds = collectPartyIds(memberId, null, day, month, year, endDay, endMonth, endYear);
+		LogUtil.trace(pw, "Ids de parties present sur trictrac a partir: " + day + "/" + month + "/" + year + "="
+				+ partyIds.size());
 		int nb = 0;
 		for (String partyId : partyIds) {
 			task.publishProgress(++nb);
 
+			LogUtil.trace(pw, "   on regarde si en local on a deja la partie avec trictracid=" + partyId);
 			Party party = PartyDao.getInstance(context).getPartyByTrictracId(partyId);
 			if (party == null) {
+				LogUtil.trace(pw, "   party inconnu sur android, on recup les data depuis trictrac");
 				// new party on trictrac, download it
 				party = retrieveTrictracParty(partyId);
 				if (party != null) {
+					LogUtil.trace(pw, "   partie recuperre! gameid=" + party.getGameId());
 					Date sync = new Date();
 					party.setLastUpdateDate(sync);
 					party.setLastSyncDate(sync);
 					PartyDao.getInstance(context).persist(party);
+				} else {
+					LogUtil.trace(pw, "   partie irrecuperale....");
 				}
 			} else {
 				if (party.getLastUpdateDate().after(party.getLastSyncDate())) {
+					LogUtil.trace(pw, "   partie mis a jour sur android depuis derniere snchro....");
 					// update from android > send data to TricTrac
 					uploadParty(party, true);
+					LogUtil.trace(pw, "   tric trac a et mis a jour");
 				} else {
 					// on recup trictrac au cas où il y aurait une modif
+					LogUtil.trace(pw, "   on recuperer la partie depuis trictrac....");
 					Party ttParty = retrieveTrictracParty(partyId);
-					party.setCity(ttParty.getCity());
-					party.setComment(ttParty.getComment());
-					party.setDate(ttParty.getDate());
-					party.setDuration(ttParty.getDuration());
-					party.setEvent(ttParty.getEvent());
-					party.setHappyness(ttParty.getHappyness());
-					party.setStats(ttParty.getStats());
-					Date sync = new Date();
-					party.setLastUpdateDate(sync);
-					party.setLastSyncDate(sync);
-					PartyDao.getInstance(context).persist(party);
+					if (ttParty != null) {
+						party.setCity(ttParty.getCity());
+						party.setComment(ttParty.getComment());
+						party.setDate(ttParty.getDate());
+						party.setDuration(ttParty.getDuration());
+						party.setEvent(ttParty.getEvent());
+						party.setHappyness(ttParty.getHappyness());
+						party.setStats(ttParty.getStats());
+						Date sync = new Date();
+						party.setLastUpdateDate(sync);
+						party.setLastSyncDate(sync);
+						PartyDao.getInstance(context).persist(party);
+						LogUtil.trace(pw, "   android a ete mis a jour");
+					} else {
+						LogUtil.trace(pw, "   partie irrecuperale pour la maj android....");
+					}
 				}
 			}
 		}
 	}
 
 	public Party retrieveTrictracParty(String partyId) throws Exception {
+		LogUtil.trace(pw, "###################################");
+		LogUtil.trace(pw, "###################################");
+		LogUtil.trace(pw, "###################################");
+
 		String s = "http://www.trictrac.net/aides/aide.php?rub=jeux&aide=partie_detail&ref=" + partyId;
+		LogUtil.trace(pw, "retrieveTrictracParty:" + s);
 		InputStream is = send(s, null);
 
 		BufferedReader rd = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"));
@@ -509,6 +572,7 @@ public class PartyHandler {
 		}
 		if (step != endStep) {
 			Log.e(ApplicationConstants.PACKAGE, "Error: Incomplete steps, stop at " + step);
+			LogUtil.trace(pw, "#### ERROR:Incomplete steps, stop at " + step);
 			return null;
 		}
 		return party;
@@ -523,6 +587,10 @@ public class PartyHandler {
 	 *             if an error occurs
 	 */
 	public void uploadParty(Party party, boolean isUpdate) throws Exception {
+		LogUtil.trace(pw, "#############################");
+		LogUtil.trace(pw, "#############################");
+		LogUtil.trace(pw, "#############################");
+		LogUtil.trace(pw, "on upload la party, isUpdate=" + isUpdate);
 		List<PlayStat> stats = PlayStatDao.getInstance(context).getPlayStat(party);
 		party.setStats(stats);
 
@@ -597,8 +665,11 @@ public class PartyHandler {
 		send(start, data).close();
 
 		if (!isUpdate) {
+			LogUtil.trace(pw, "On cherche les parties crees a cette date " + day + "/" + month + "/" + year);
 			List<String> newPartyIds = collectPartyIds(memberId, gameId, day, month, year, day, month, year);
+			LogUtil.trace(pw, "oldszie=" + oldPartyIds.size() + "  newsize=" + newPartyIds.size());
 			newPartyIds.removeAll(oldPartyIds);
+			LogUtil.trace(pw, "difference entre les deux (doit etre 1)=" + newPartyIds.size());
 			if (newPartyIds.size() > 0) {
 				String id = newPartyIds.get(0);
 				party.setTrictracId(id);
@@ -735,17 +806,23 @@ public class PartyHandler {
 	 *             if an error occurs
 	 */
 	private boolean isStringFound(String s, InputStream is) throws IOException {
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "###########################################");
+		LogUtil.trace(pw, "      IS STRING FOUND:" + s);
 		BufferedReader rd = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"));
 
 		String line;
 		while ((line = rd.readLine()) != null) {
+			LogUtil.trace(pw, line);
 			if (line.contains(s)) {
 				is.close();
+				LogUtil.trace(pw, "      STRING FOUND:" + s);
 				return true;
 			}
 		}
 		is.close();
+		LogUtil.trace(pw, "      STRING NOT FOUND:" + s);
 		return false;
 	}
-
 }

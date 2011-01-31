@@ -19,6 +19,8 @@
  */
 package org.amphiprion.trictrac.task;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
@@ -27,11 +29,13 @@ import org.amphiprion.trictrac.R;
 import org.amphiprion.trictrac.dao.PartyDao;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.handler.PartyHandler;
+import org.amphiprion.trictrac.util.LogUtil;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -44,13 +48,23 @@ public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> imple
 	private ITaskListener listener;
 	private int messageId;
 	private String title;
+	private PrintWriter pw;
 
 	/**
 	 * Default constructor.
 	 */
 	public SynchronizePartiesTask(ITaskListener listener) {
 		this.listener = listener;
+
 		context = listener.getContext();
+		try {
+			if (LogUtil.traceEnabled) {
+				File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY
+						+ "/logs/syncParties_" + System.currentTimeMillis() + ".txt");
+				pw = new PrintWriter(f);
+			}
+		} catch (Exception e) {
+		}
 	}
 
 	@Override
@@ -59,25 +73,36 @@ public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> imple
 			messageId = R.string.download_players;
 			title = "" + context.getText(R.string.synch_players);
 			publishProgress(0);
-			PartyHandler handler = new PartyHandler(context, dates[0]);
+			LogUtil.trace(pw, "Creation partyHandler");
+			PartyHandler handler = new PartyHandler(context, dates[0], pw);
 			// syncronize playsers
+			LogUtil.trace(pw, "Creation partyHandler created");
+			LogUtil.trace(pw, "call handler.synchronizePlayers");
 			handler.synchronizePlayers(this);
+			LogUtil.trace(pw, "success handler.synchronizePlayers");
 
 			title = "" + context.getText(R.string.synch_parties);
 			// download parties
 			messageId = R.string.download_parties;
+			LogUtil.trace(pw, "call handler.synchronizeParties");
 			handler.synchronizeParties(this);
+			LogUtil.trace(pw, "success handler.synchronizeParties");
 
 			// upload new parties
 			messageId = R.string.upload_parties;
 			int nb = 0;
+			LogUtil.trace(pw, "retrieve local parties");
 			List<Party> parties = PartyDao.getInstance(context).getLocalParties();
+			LogUtil.trace(pw, "local parties nb=" + parties.size());
 			for (Party party : parties) {
 				publishProgress(++nb);
+				LogUtil.trace(pw, "call handler.uploadParty gameid=" + party.getGameId());
 				handler.uploadParty(party, false);
+				LogUtil.trace(pw, "success handler.uploadParty gameid=" + party.getGameId());
 			}
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "synch player failed", e);
+			LogUtil.trace(pw, e);
 			cancel(true);
 		}
 		return null;
@@ -110,6 +135,9 @@ public class SynchronizePartiesTask extends AsyncTask<Date, Integer, Void> imple
 
 	@Override
 	protected void onPostExecute(Void result) {
+		if (pw != null) {
+			pw.close();
+		}
 		progress.cancel();
 		listener.taskEnded(!isCancelled());
 	}
