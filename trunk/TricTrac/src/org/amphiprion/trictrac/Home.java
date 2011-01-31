@@ -35,6 +35,7 @@ import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.task.ImportCollectionTask;
 import org.amphiprion.trictrac.task.ImportCollectionTask.ImportCollectionListener;
 import org.amphiprion.trictrac.util.DateUtil;
+import org.amphiprion.trictrac.util.LogUtil;
 
 import android.app.AlertDialog;
 import android.app.TabActivity;
@@ -52,6 +53,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnFocusChangeListener;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -86,11 +88,13 @@ public class Home extends TabActivity implements ImportCollectionListener {
 		if (!init) {
 			DateUtil.init(this);
 			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY).mkdirs();
+			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/logs")
+					.mkdirs();
 		}
 
 		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
 		startupAction = StartupAction.values()[pref.getInt(StartupAction.class.getName(), 0)];
-
+		LogUtil.traceEnabled = pref.getBoolean("ACTIVE_TRACE", false);
 	}
 
 	@Override
@@ -257,12 +261,16 @@ public class Home extends TabActivity implements ImportCollectionListener {
 		cbStartup.setSelection(pref.getInt(StartupAction.class.getName(), 0));
 		final Spinner cbGameClick = (Spinner) vvv.findViewById(R.id.cbGameClick);
 		cbGameClick.setSelection(pref.getInt(GameListContext.ClickAction.class.getName(), 0));
+		final CheckBox chkTrace = (CheckBox) vvv.findViewById(R.id.chkTrace);
+		chkTrace.setChecked(pref.getBoolean("ACTIVE_TRACE", false));
 		alert.setView(vvv);
 		alert.setPositiveButton(context.getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				Editor edit = pref.edit();
 				edit.putInt(StartupAction.class.getName(), cbStartup.getSelectedItemPosition());
 				edit.putInt(GameListContext.ClickAction.class.getName(), cbGameClick.getSelectedItemPosition());
+				edit.putBoolean("ACTIVE_TRACE", chkTrace.isChecked());
+				LogUtil.traceEnabled = chkTrace.isChecked();
 				edit.commit();
 			}
 		});

@@ -19,14 +19,19 @@
  */
 package org.amphiprion.trictrac.task;
 
+import java.io.File;
+import java.io.PrintWriter;
+
 import org.amphiprion.trictrac.ApplicationConstants;
 import org.amphiprion.trictrac.R;
 import org.amphiprion.trictrac.handler.PartyHandler;
+import org.amphiprion.trictrac.util.LogUtil;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -38,6 +43,7 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 	private Context context;
 	private ITaskListener listener;
 	private String title;
+	private PrintWriter pw;
 
 	/**
 	 * Default constructor.
@@ -45,6 +51,15 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 	public SynchronizePlayersTask(ITaskListener listener) {
 		this.listener = listener;
 		context = listener.getContext();
+		try {
+			if (LogUtil.traceEnabled) {
+				File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY
+						+ "/logs/syncPlayers_" + System.currentTimeMillis() + ".txt");
+				pw = new PrintWriter(f);
+			}
+		} catch (Exception e) {
+		}
+
 	}
 
 	@Override
@@ -53,7 +68,7 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 		try {
 			publishProgress(0);
 			title = "" + context.getText(R.string.synch_players);
-			PartyHandler handler = new PartyHandler(context, null);
+			PartyHandler handler = new PartyHandler(context, null, pw);
 			handler.synchronizePlayers(this);
 
 		} catch (Exception e) {
@@ -91,6 +106,9 @@ public class SynchronizePlayersTask extends AsyncTask<Void, Integer, Void> imple
 
 	@Override
 	protected void onPostExecute(Void result) {
+		if (pw != null) {
+			pw.close();
+		}
 		progress.cancel();
 		listener.taskEnded(!isCancelled());
 	}
