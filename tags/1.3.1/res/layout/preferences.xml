@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<ScrollView android:layout_weight="1" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_marginLeft="3px"
+		android:layout_marginRight="3px">
+		<LinearLayout android:orientation="vertical"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="@string/pref_startup" />
+			<Spinner android:layout_height="wrap_content" android:id="@+id/cbStartup"
+				android:layout_width="fill_parent" android:entries="@array/pref_startup_items"></Spinner>
+
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="@string/pref_game_click" />
+			<Spinner android:layout_height="wrap_content" android:id="@+id/cbGameClick"
+				android:layout_width="fill_parent" android:entries="@array/pref_game_click_items"></Spinner>
+		</LinearLayout>
+	</ScrollView>
+
+</LinearLayout>

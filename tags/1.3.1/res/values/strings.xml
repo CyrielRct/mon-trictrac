@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Mon Tric Trac</string>
+	<!-- Config -->
+	<string name="default_date_format">dd MMM yyyy</string>
+
+	<!-- Buttons -->
+	<string name="save">Sauver</string>
+	<string name="cancel">Annuler</string>
+	<!-- Tabs -->
+	<string name="tab_collection">Ludothèques</string>
+	<string name="tab_search">Filtres</string>
+	<string name="tab_player">Joueurs</string>
+	<string name="tab_party">Parties</string>
+	<string name="tab_browser">Web</string>
+	
+	<!-- Collections -->
+	<string name="collection_title">Liste des ludothèques</string>
+	<string name="collection_name">Nom de la ludothèque</string>
+	<string name="collection_trictrac_id">Identifiant Tric Trac (numérique)</string>
+	<string name="import_game">Importation des jeux : %1$s</string>
+	<string name="empty_collection_list">\nUtiliser le menu pour créer une nouvelle
+		ludothèque.\n\nPour effectuer une action sur une ludothèque, faire un
+		clic long sur celle-ci.</string>
+	<string name="add_collection">Ajouter une ludothèque</string>
+	<string name="edit_collection">Editer la ludothèque</string>
+	<string name="synch_collection">Synchroniser la ludothèque</string>
+	<string name="delete_collection">Supprimer la ludothèque</string>
+	<string name="next_page">Page suivante</string>
+
+	<!-- Game -->
+	<string name="difficulty">Difficulté</string>
+	<string name="luck">Chance</string>
+	<string name="strategy">Stratégie</string>
+	<string name="diplomacy">Diplomatie</string>
+	<string name="duration">Durée (mn)</string>
+	<string name="search_hint">Nom du jeu</string>
+	<string name="message_nb_result">%1$s jeux trouvés.</string>
+	<string name="synch_game">Synchroniser le jeu</string>
+	<string name="loading">Chargement en cours...</string>
+	<string name="game_parties_nb">%1$s partie(s).</string>
+	<string name="game_parties_happyness">Satisfaction : %1$s</string>
+	<string name="goto_trictrac_name">Voir la fiche Tric Trac</string>
+	
+	<!-- Search -->
+	<string name="collection_choice_title">Choisir la collection</string>
+	<string name="search_choice_title">Choisir le filtre</string>
+	<string name="search_type_choice_title">Type de recherche</string>
+	<string name="name">Nom</string>
+	<string name="apply_existing_filter">Choisir un filtre</string>
+	<string name="clear_filter">Enlever le filtre</string>
+	<string-array name="search_types">
+		<item>Par nom</item>
+		<item>Filtre existant</item>
+	</string-array>
+	<string name="min_player">Jouable de</string>
+	<string name="max_player">à</string>
+	<string name="exactly">Exclusivement</string>
+	<string name="min_level">Minimum</string>
+	<string name="max_level">Maximum</string>
+	<string name="search">Rechercher</string>
+	<string name="search_name">Nom du filtre</string>
+	<string name="add_search">Ajouter un filtre</string>
+	<string name="edit_search">Editer le filtre</string>
+	<string name="delete_search">Supprimer le filtre</string>
+	<string name="empty_search_list">\nUtiliser le menu pour créer un nouveau
+		filtre de recherche.\n\nPour effectuer une action sur un filtre, faire un
+		clic long sur celui-ci.</string>
+
+<!-- Player -->
+	<string name="add_player">Ajouter un joueur</string>
+	<string name="edit_player">Editer le joueur</string>
+	<string name="delete_player">Supprimer le joueur</string>
+	<string name="player_name">Pseudo</string>
+	<string name="player_trictrac_id">Identifiant Tric Trac</string>
+	<string name="empty_player_list">\nUtiliser le menu pour créer un nouveau
+		joueur.\n\nPour effectuer une action sur un joueur, faire un
+		clic long sur celui-ci.</string>
+
+<!-- Party -->
+	<string name="add_party">Créer une partie</string>
+	<string name="view_parties">Voir les parties</string>
+	<string name="edit_party">Editer la partie</string>
+	<string name="delete_party">Supprimer la partie</string>
+	
+	<string name="party_date">Date de la partie</string>
+	<string name="city">Ville</string>
+	<string name="event">Occasion</string>
+	<string name="rating">Appréciation</string>
+	<string name="comment">Commentaire</string>
+	<string name="play_stats">Joueurs</string>
+	<string name="rank">Classement</string>
+	<string name="score">Score</string>
+	<string name="default_player">Joueur générique</string>
+	
+	<string name="my_parties">Mes parties : %1$s</string>
+	<string name="empty_party_list">\nUtiliser le menu pour créer une nouvelle
+		partie.\n\nPour effectuer une action sur une partie, faire un
+		clic long sur celle-ci.</string>
+
+	<!-- Synch Parties -->
+	<string name="synch_start_date">Synchroniser à partir du</string>
+	<string name="synch_parties">Synchroniser les parties</string>
+	<string name="synch_players">Synchroniser les joueurs</string>
+	<string name="download_parties">Récupération depuis TricTrac: %1$s</string>
+	<string name="download_players">Récupération depuis TricTrac: %1$s</string>
+	<string name="upload_parties">Envoie vers TricTrac: %1$s</string>
+	<string name="upload_players">Envoie vers TricTrac: %1$s</string>
+	
+	<!-- Trictrac Account -->
+	<string name="trictrac_account">Compte Tric Trac</string>
+	<string name="login">Identifiant</string>
+	<string name="pwd">Mot de passe</string>
+	<string name="account_player">Joueur correspondant</string>
+	<string name="create_player">Créer %1$s</string>
+	
+	<!-- Preferences -->
+	<string name="preference">Préférences</string>
+	<string name="pref_startup">Synchronisation des ludothèques</string>
+	<string-array name="pref_startup_items">
+		<item>Manuellement</item>
+		<item>Au démarrage</item>
+	</string-array>
+
+	<string name="pref_game_click">Click sur un jeu</string>
+	<string-array name="pref_game_click_items">
+		<item>Ouvrir la fiche Tric Trac</item>
+		<item>Voir les parties</item>
+		<item>Aucune action</item>
+	</string-array>
+
+	<!-- TricTrac Game List -->
+	<string name="menu_search_trictrac">Chercher un jeu sur Tric Trac</string>
+	<string name="empty_trictrac_game_list">\nUtiliser la loupe pour lancer une recherche de jeu sur le site Tric Trac.</string>
+
+
+</resources>
+
+
+
