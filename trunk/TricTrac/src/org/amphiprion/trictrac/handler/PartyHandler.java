@@ -223,7 +223,7 @@ public class PartyHandler {
 						}
 					} else {
 						Date date = new Date();
-						if (p.getLastUpdateDate().after(p.getLastSyncDate())) {
+						if (p.getLastSyncDate() != null && p.getLastUpdateDate().after(p.getLastSyncDate())) {
 							task.publishProgress(R.string.upload_players, nbTotal);
 							// mise à jour depuis Android, on envoie vers
 							// trictrac
@@ -359,7 +359,7 @@ public class PartyHandler {
 					LogUtil.trace(pw, "   partie irrecuperale....");
 				}
 			} else {
-				if (party.getLastUpdateDate().after(party.getLastSyncDate())) {
+				if (party.getLastSyncDate() != null && party.getLastUpdateDate().after(party.getLastSyncDate())) {
 					LogUtil.trace(pw, "   partie mis a jour sur android depuis derniere snchro....");
 					// update from android > send data to TricTrac
 					uploadParty(party, true);
