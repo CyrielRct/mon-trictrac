@@ -117,11 +117,11 @@ public class GameDao extends AbstractDao {
 				+ Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + ","
 				+ Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + ","
 				+ Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
-				+ Game.DbField.DIPLOMATY + ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g."
-				+ Game.DbField.ID + "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p."
-				+ Party.DbField.FK_GAME + "=g." + Game.DbField.ID + ") from COLLECTION_GAME join GAME g on "
-				+ CollectionGame.DbField.FK_GAME + "=" + Game.DbField.ID + " where "
-				+ CollectionGame.DbField.FK_COLLECTION + "=?";
+				+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING
+				+ ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID
+				+ "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p." + Party.DbField.FK_GAME
+				+ "=g." + Game.DbField.ID + ") from COLLECTION_GAME join GAME g on " + CollectionGame.DbField.FK_GAME
+				+ "=" + Game.DbField.ID + " where " + CollectionGame.DbField.FK_COLLECTION + "=?";
 
 		sql += buildWhere(search, filter);
 
@@ -147,8 +147,59 @@ public class GameDao extends AbstractDao {
 				a.setLuck(cursor.getInt(13));
 				a.setStrategy(cursor.getInt(14));
 				a.setDiplomaty(cursor.getInt(15));
-				a.setNbParty(cursor.getInt(16));
-				a.setHappyness(cursor.getInt(17));
+				a.setNumberOfRatings(cursor.getInt(16));
+				a.setAdverageRating(cursor.getDouble(17));
+				a.setNbParty(cursor.getInt(18));
+				a.setHappyness(cursor.getInt(19));
+				result.add(a);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return result;
+	}
+
+	/**
+	 * Return all existing games.
+	 * 
+	 * @return the game list
+	 */
+	public List<Game> getGames() {
+		String sql = "DELETE FROM GAME WHERE NOT EXISTS(SELECT 1 FROM COLLECTION_GAME cg WHERE cg."
+				+ CollectionGame.DbField.FK_GAME + "=GAME." + Game.DbField.ID
+				+ ") AND NOT EXISTS(SELECT 1 FROM PARTY p WHERE p." + Party.DbField.FK_GAME + "=GAME."
+				+ Game.DbField.ID + ")";
+
+		execSQL(sql);
+
+		sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + ","
+				+ Game.DbField.TYPE + "," + Game.DbField.FAMILIES + "," + Game.DbField.MECHANISMS + ","
+				+ Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + ","
+				+ Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + ","
+				+ Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
+				+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING + " from GAME";
+
+		Cursor cursor = getDatabase().rawQuery(sql, null);
+		ArrayList<Game> result = new ArrayList<Game>();
+		if (cursor.moveToFirst()) {
+			do {
+				Game a = new Game(cursor.getString(0));
+				a.setName(cursor.getString(1));
+				a.setImageName(cursor.getString(2));
+				a.setType(cursor.getString(3));
+				a.setFamilies(cursor.getString(4));
+				a.setMechanisms(cursor.getString(5));
+				a.setThemes(cursor.getString(6));
+				a.setMinPlayer(cursor.getInt(7));
+				a.setMaxPlayer(cursor.getInt(8));
+				a.setMinAge(cursor.getInt(9));
+				a.setMaxAge(cursor.getInt(10));
+				a.setDuration(cursor.getInt(11));
+				a.setDifficulty(cursor.getInt(12));
+				a.setLuck(cursor.getInt(13));
+				a.setStrategy(cursor.getInt(14));
+				a.setDiplomaty(cursor.getInt(15));
+				a.setNumberOfRatings(cursor.getInt(16));
+				a.setAdverageRating(cursor.getDouble(17));
 				result.add(a);
 			} while (cursor.moveToNext());
 		}
@@ -169,9 +220,10 @@ public class GameDao extends AbstractDao {
 				+ Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + ","
 				+ Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + ","
 				+ Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
-				+ Game.DbField.DIPLOMATY + ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g."
-				+ Game.DbField.ID + "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p."
-				+ Party.DbField.FK_GAME + "=g." + Game.DbField.ID + ") from GAME g where " + Game.DbField.ID + "=?";
+				+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING
+				+ ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID
+				+ "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p." + Party.DbField.FK_GAME
+				+ "=g." + Game.DbField.ID + ") from GAME g where " + Game.DbField.ID + "=?";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
 		Game result = null;
@@ -192,8 +244,10 @@ public class GameDao extends AbstractDao {
 			a.setLuck(cursor.getInt(13));
 			a.setStrategy(cursor.getInt(14));
 			a.setDiplomaty(cursor.getInt(15));
-			a.setNbParty(cursor.getInt(16));
-			a.setHappyness(cursor.getInt(17));
+			a.setNumberOfRatings(cursor.getInt(16));
+			a.setAdverageRating(cursor.getDouble(17));
+			a.setNbParty(cursor.getInt(18));
+			a.setHappyness(cursor.getInt(19));
 			result = a;
 		}
 		cursor.close();
@@ -280,9 +334,9 @@ public class GameDao extends AbstractDao {
 					+ Game.DbField.MECHANISMS + "," + Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + ","
 					+ Game.DbField.MAX_PLAYER + "," + Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + ","
 					+ Game.DbField.DURATION + "," + Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + ","
-					+ Game.DbField.STRATEGY + "," + Game.DbField.DIPLOMATY
-					+ ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-			Object[] params = new Object[16];
+					+ Game.DbField.STRATEGY + "," + Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + ","
+					+ Game.DbField.ADV_RATING + ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			Object[] params = new Object[18];
 			params[0] = game.getId();
 			params[1] = game.getName();
 			params[2] = game.getImageName();
@@ -299,6 +353,8 @@ public class GameDao extends AbstractDao {
 			params[13] = game.getLuck();
 			params[14] = game.getStrategy();
 			params[15] = game.getDiplomaty();
+			params[16] = game.getNumberOfRatings();
+			params[17] = game.getAdverageRating();
 
 			execSQL(sql, params);
 
@@ -314,8 +370,9 @@ public class GameDao extends AbstractDao {
 				+ Game.DbField.THEMES + "=?," + Game.DbField.MIN_PLAYER + "=?," + Game.DbField.MAX_PLAYER + "=?,"
 				+ Game.DbField.MIN_AGE + "=?," + Game.DbField.MAX_AGE + "=?," + Game.DbField.DURATION + "=?,"
 				+ Game.DbField.DIFFICULTY + "=?," + Game.DbField.LUCK + "=?," + Game.DbField.STRATEGY + "=?,"
-				+ Game.DbField.DIPLOMATY + "=? WHERE " + Game.DbField.ID + "=?";
-		Object[] params = new Object[16];
+				+ Game.DbField.DIPLOMATY + "=?," + Game.DbField.NB_RATING + "=?," + Game.DbField.ADV_RATING
+				+ "=? WHERE " + Game.DbField.ID + "=?";
+		Object[] params = new Object[18];
 		params[0] = game.getName();
 		params[1] = game.getImageName();
 		params[2] = game.getType();
@@ -331,7 +388,9 @@ public class GameDao extends AbstractDao {
 		params[12] = game.getLuck();
 		params[13] = game.getStrategy();
 		params[14] = game.getDiplomaty();
-		params[15] = game.getId();
+		params[15] = game.getNumberOfRatings();
+		params[16] = game.getAdverageRating();
+		params[17] = game.getId();
 
 		execSQL(sql, params);
 
@@ -345,18 +404,4 @@ public class GameDao extends AbstractDao {
 		}
 	}
 
-	/**
-	 * Return true if the game id already exists in the database.
-	 * 
-	 * @param id
-	 *            the game id
-	 * @return true if already exists.
-	 */
-	public boolean isExists(String id) {
-		String sql = "SELECT 1 from GAME where " + Game.DbField.ID + "=?";
-		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
-		boolean result = cursor.moveToFirst();
-		cursor.close();
-		return result;
-	}
 }
