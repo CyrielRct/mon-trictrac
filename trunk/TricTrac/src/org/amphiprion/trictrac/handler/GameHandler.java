@@ -176,9 +176,10 @@ public class GameHandler {
 					} else {
 						min = Integer.parseInt(s.substring(0, p1));
 						String sMax = s.substring(p2 + 1);
-						if (!"+".equals(sMax)) {
+						try {
 							max = Integer.parseInt(sMax);
-						} else {
+						} catch (NumberFormatException e) {
+							Log.d(ApplicationConstants.PACKAGE, "", e);
 							max = 0;
 						}
 					}
@@ -229,7 +230,12 @@ public class GameHandler {
 					if (p1 == -1) {
 						delay = 0;
 					} else {
-						delay = Integer.parseInt(s.substring(0, p1));
+						try {
+							delay = Integer.parseInt(s.substring(0, p1));
+						} catch (NumberFormatException e) {
+							Log.d(ApplicationConstants.PACKAGE, "", e);
+							delay = 0;
+						}
 					}
 					game.setDuration(delay);
 					// Log. d(ApplicationConstants.PACKAGE, "maxDuration=" +
