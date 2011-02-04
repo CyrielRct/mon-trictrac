@@ -35,8 +35,10 @@ import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.Search;
 import org.amphiprion.trictrac.handler.GameHandler;
+import org.amphiprion.trictrac.task.ITaskListener;
 import org.amphiprion.trictrac.task.ImportCollectionTask;
 import org.amphiprion.trictrac.task.LoadGamesTask;
+import org.amphiprion.trictrac.task.SynchronizeGamesTask;
 import org.amphiprion.trictrac.task.ImportCollectionTask.ImportCollectionListener;
 import org.amphiprion.trictrac.task.LoadGamesTask.LoadGameListener;
 import org.amphiprion.trictrac.view.CollectionSummaryView;
@@ -440,10 +442,14 @@ public class CollectionActivityGroup extends Activity {
 					R.string.menu_search_trictrac);
 			searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
 
-			MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 2, R.string.trictrac_account);
+			MenuItem synchAllGames = menu.add(0, ApplicationConstants.MENU_ID_SYNCH_ALL_GAMES, 2,
+					R.string.menu_synch_games);
+			synchAllGames.setIcon(android.R.drawable.ic_menu_share);
+
+			MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 3, R.string.trictrac_account);
 			account.setIcon(android.R.drawable.ic_menu_info_details);
 
-			MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, 3, R.string.preference);
+			MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, 4, R.string.preference);
 			preference.setIcon(android.R.drawable.ic_menu_preferences);
 		} else {
 			if (gameListContext.search != null || gameListContext.query != null) {
@@ -453,6 +459,9 @@ public class CollectionActivityGroup extends Activity {
 			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_CHOOSE_EXISTING_SEARCH, 1,
 					R.string.apply_existing_filter);
 			addAccount.setIcon(R.drawable.search);
+
+			MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_SEARCH, 2, R.string.menu_seach);
+			search.setIcon(android.R.drawable.ic_menu_search);
 		}
 		return true;
 	}
@@ -471,6 +480,19 @@ public class CollectionActivityGroup extends Activity {
 				Home.openPreference(this);
 			} else if (item.getItemId() == ApplicationConstants.MENU_ID_ACCOUNT) {
 				Home.openAccount(this);
+			} else if (item.getItemId() == ApplicationConstants.MENU_ID_SYNCH_ALL_GAMES) {
+				SynchronizeGamesTask task = new SynchronizeGamesTask(new ITaskListener() {
+					@Override
+					public void taskEnded(boolean success) {
+						buildGameList();
+					}
+
+					@Override
+					public Context getContext() {
+						return CollectionActivityGroup.this;
+					}
+				});
+				task.execute();
 			}
 		} else {
 			if (item.getItemId() == ApplicationConstants.MENU_ID_CHOOSE_EXISTING_SEARCH) {
@@ -479,6 +501,8 @@ public class CollectionActivityGroup extends Activity {
 				gameListContext.query = null;
 				gameListContext.search = null;
 				initGameList();
+			} else if (item.getItemId() == ApplicationConstants.MENU_ID_SEARCH) {
+				onSearchRequested();
 			}
 		}
 		return true;

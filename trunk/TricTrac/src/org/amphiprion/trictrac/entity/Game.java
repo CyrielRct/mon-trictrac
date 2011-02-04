@@ -51,9 +51,11 @@ public class Game extends Entity {
 	// auto computed
 	private int nbParty;
 	private double happyness;
+	private int numberOfRatings;
+	private double adverageRating;
 
 	public enum DbField {
-		ID, NAME, IMAGE_NAME, TYPE, FAMILIES, MECHANISMS, THEMES, MIN_PLAYER, MAX_PLAYER, MIN_AGE, MAX_AGE, DURATION, DIFFICULTY, LUCK, STRATEGY, DIPLOMATY
+		ID, NAME, IMAGE_NAME, TYPE, FAMILIES, MECHANISMS, THEMES, MIN_PLAYER, MAX_PLAYER, MIN_AGE, MAX_AGE, DURATION, DIFFICULTY, LUCK, STRATEGY, DIPLOMATY, NB_RATING, ADV_RATING
 	}
 
 	/**
@@ -215,4 +217,35 @@ public class Game extends Entity {
 	public void setHappyness(double happyness) {
 		this.happyness = happyness;
 	}
+
+	/**
+	 * @return the numberOfRatings
+	 */
+	public int getNumberOfRatings() {
+		return numberOfRatings;
+	}
+
+	/**
+	 * @param numberOfRatings
+	 *            the numberOfRatings to set
+	 */
+	public void setNumberOfRatings(int numberOfRatings) {
+		this.numberOfRatings = numberOfRatings;
+	}
+
+	/**
+	 * @return the adverageRating
+	 */
+	public double getAdverageRating() {
+		return adverageRating;
+	}
+
+	/**
+	 * @param adverageRating
+	 *            the adverageRating to set
+	 */
+	public void setAdverageRating(double adverageRating) {
+		this.adverageRating = adverageRating;
+	}
+
 }

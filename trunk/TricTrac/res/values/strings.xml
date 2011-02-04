@@ -29,6 +29,7 @@
 	<string name="next_page">Page suivante</string>
 
 	<!-- Game -->
+	<string name="download_games">Récupération depuis TricTrac: %1$s/%2$s</string>
 	<string name="difficulty">Difficulté</string>
 	<string name="luck">Chance</string>
 	<string name="strategy">Stratégie</string>
@@ -37,11 +38,14 @@
 	<string name="search_hint">Nom du jeu</string>
 	<string name="message_nb_result">%1$s jeux trouvés.</string>
 	<string name="synch_game">Synchroniser le jeu</string>
+	<string name="menu_synch_games">Synch. tous les jeux</string>
+	<string name="synch_games">Synchroniser tous les jeux</string>
 	<string name="loading">Chargement en cours...</string>
 	<string name="game_parties_nb">%1$s partie(s).</string>
 	<string name="game_parties_happyness">Satisfaction : %1$s</string>
 	<string name="goto_trictrac_name">Voir la fiche Tric Trac</string>
-	
+	<string name="game_ratings_nb">%1s avis.</string>
+	<string name="game_ratings_adv">Note: %1$s</string>
 	<!-- Search -->
 	<string name="collection_choice_title">Choisir la collection</string>
 	<string name="search_choice_title">Choisir le filtre</string>
@@ -131,9 +135,10 @@
 	<string name="pref_trace">Activer les traces sur SD</string>
 	
 	<!-- TricTrac Game List -->
-	<string name="menu_search_trictrac">Chercher un jeu sur Tric Trac</string>
+	<string name="menu_search_trictrac">Chercher sur Tric Trac</string>
 	<string name="empty_trictrac_game_list">\nUtiliser la loupe pour lancer une recherche de jeu sur le site Tric Trac.</string>
 
+	<string name="menu_seach">Par nom</string>
 
 </resources>
 

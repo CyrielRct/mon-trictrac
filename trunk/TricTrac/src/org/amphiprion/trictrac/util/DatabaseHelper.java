@@ -35,7 +35,7 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "amphiprion_trictrac";
-	private static final int DATABASE_VERSION = 10;
+	private static final int DATABASE_VERSION = 11;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -135,6 +135,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.execSQL("ALTER TABLE PLAYER ADD " + Player.DbField.UPDATE_DATE + " date");
 			db.execSQL("ALTER TABLE PARTY ADD " + Player.DbField.SYNC_DATE + " date");
 			db.execSQL("ALTER TABLE PARTY ADD " + Player.DbField.UPDATE_DATE + " date");
+			oldVersion++;
+		}
+		if (oldVersion == 10) {
+			db.execSQL("ALTER TABLE GAME ADD " + Game.DbField.NB_RATING + " integer default 0");
+			db.execSQL("ALTER TABLE GAME ADD " + Game.DbField.ADV_RATING + " double default 0");
 			oldVersion++;
 		}
 	}

@@ -119,7 +119,7 @@ public class CollectionHandler {
 						count++;
 						int pos = ligne.indexOf("'", HREF_PATTERN.length());
 						String id = ligne.substring(HREF_PATTERN.length(), pos);
-						if (!dao.isExists(id)) {
+						if (!dao.exists(id)) {
 							inGameEntry = true;
 							game = new Game(id);
 							// int start = ligne.indexOf(TAG_IMAGE);

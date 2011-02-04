@@ -46,12 +46,14 @@ public class GameHandler {
 	private static final String DURATION_PATTERN = "            <font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'>            <FONT COLOR=\"#999999\">Dur&eacute;e :";
 	private static final String LEVELS_PATTERN = "<img src='/jeux/centre/imagerie/barre_";
 	private static final String NAME_PATTERN = "    <td colspan=\"2\"><font style='COLOR: #004B56; FONT-FAMILY: arial; FONT-SIZE: 20px; font-weight: BOLD'><i>";
+	private static final String NB_RATING_PATTERN = "<font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'> nombre d'avis : <b>";
+	private static final String ADV_RATING_PATTERN = "<font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'> Moyenne  : ";
 
 	private enum Step {
 		NAME(NAME_PATTERN), TYPE(TYPE_PATTERN), FAMILY(FAMILY_PATTERN), MECHANISM(MECHANISM_PATTERN), THEME(
 				THEME_PATTERN), PLAYER(PLAYER_PATTERN), AGE(AGE_PATTERN), DURATION(DURATION_PATTERN), LEVEL_DIFFICULTY(
 				LEVELS_PATTERN), LEVEL_LUCK(LEVELS_PATTERN), LEVEL_STRATEGY(LEVELS_PATTERN), LEVEL_DIPLOMATY(
-				LEVELS_PATTERN);
+				LEVELS_PATTERN), NB_RATING(NB_RATING_PATTERN), ADV_RATING(ADV_RATING_PATTERN);
 		private String pattern;
 
 		private Step(String pattern) {
@@ -173,7 +175,12 @@ public class GameHandler {
 						max = min;
 					} else {
 						min = Integer.parseInt(s.substring(0, p1));
-						max = Integer.parseInt(s.substring(p2 + 1));
+						String sMax = s.substring(p2 + 1);
+						if (!"+".equals(sMax)) {
+							max = Integer.parseInt(sMax);
+						} else {
+							max = 0;
+						}
 					}
 					game.setMinPlayer(min);
 					game.setMaxPlayer(max);
@@ -270,6 +277,28 @@ public class GameHandler {
 						game.setDiplomaty(level);
 						// Log. d(ApplicationConstants.PACKAGE, "diplomatie=" +
 						// game.getDiplomaty());
+
+						step = step.next();
+					}
+				} else if (step == Step.NB_RATING) {
+					int start = ligne.indexOf(step.getPattern());
+					if (start != -1) {
+						int p1 = ligne.indexOf("</b>", start);
+						int nb = Integer.parseInt(ligne.substring(step.getPattern().length(), p1));
+						game.setNumberOfRatings(nb);
+						step = step.next();
+					}
+				} else if (step == Step.ADV_RATING) {
+					int start = ligne.indexOf(step.getPattern());
+					if (start != -1) {
+						int p1 = ligne.indexOf("<font", step.getPattern().length());
+						String s = ligne.substring(step.getPattern().length(), p1);
+						if (!"-".equals(s)) {
+							double adv = Double.parseDouble(s);
+							game.setAdverageRating(adv);
+						} else {
+							game.setAdverageRating(0);
+						}
 						break;
 					}
 				}

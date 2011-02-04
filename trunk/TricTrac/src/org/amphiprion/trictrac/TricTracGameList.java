@@ -40,6 +40,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -288,6 +289,24 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 		Home.browse(this, url);
 		setResult(RESULT_CANCELED);
 		finish();
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.clear();
+
+		MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_SEARCH, 2, R.string.menu_seach);
+		search.setIcon(android.R.drawable.ic_menu_search);
+
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == ApplicationConstants.MENU_ID_SEARCH) {
+			onSearchRequested();
+		}
+		return true;
 	}
 
 	@Override
