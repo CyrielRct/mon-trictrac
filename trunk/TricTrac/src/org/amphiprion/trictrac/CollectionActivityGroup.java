@@ -484,7 +484,7 @@ public class CollectionActivityGroup extends Activity {
 				SynchronizeGamesTask task = new SynchronizeGamesTask(new ITaskListener() {
 					@Override
 					public void taskEnded(boolean success) {
-						buildGameList();
+						buildCollectionList();
 					}
 
 					@Override
