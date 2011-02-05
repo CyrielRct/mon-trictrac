@@ -44,6 +44,7 @@
 	<string name="game_parties_nb">%1$s partie(s).</string>
 	<string name="game_parties_happyness">Satisfaction : %1$s</string>
 	<string name="goto_trictrac_name">Voir la fiche Tric Trac</string>
+	<string name="goto_trictrac_advices">Voir les avis Tric Trac</string>
 	<string name="game_ratings_nb">%1s avis.</string>
 	<string name="game_ratings_adv">Note: %1$s</string>
 	<!-- Search -->

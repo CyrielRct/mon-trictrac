@@ -39,19 +39,19 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 
 /**
  * @author amphiprion
@@ -81,7 +81,7 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 			@Override
 			public void onScrollChanged() {
 				if (!allLoaded && !loading) {
-					LinearLayout ln = ((LinearLayout) scrollView.getChildAt(0));
+					LinearLayout ln = (LinearLayout) scrollView.getChildAt(0);
 					if (ln.getChildCount() > 3) {
 						boolean b = ln.getChildAt(ln.getChildCount() - 3).getLocalVisibleRect(r);
 						if (b) {
@@ -247,12 +247,10 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 
 	private View getProgressView() {
 		LinearLayout lnExpand = new LinearLayout(this);
-		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		lnExpand.setLayoutParams(lp);
 		ImageView im = new ImageView(this);
-		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
 		im.setLayoutParams(imglp);
@@ -261,14 +259,12 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 		lnExpand.addView(im);
 
 		LinearLayout accountLayout = new LinearLayout(this);
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
 		accountLayout.setLayoutParams(aclp);
 
 		TextView tv = new TextView(this);
 		tv.setText(getResources().getText(R.string.loading));
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		tv.setLayoutParams(tlp);
 		accountLayout.addView(tv);
 		lnExpand.addView(accountLayout);
@@ -283,9 +279,13 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 
 	private void gotoTricTracGame(String gameId) {
 		String url = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + gameId;
-		// Intent i = new Intent(Intent.ACTION_VIEW);
-		// i.setData(Uri.parse(url));
-		// startActivity(i);
+		Home.browse(this, url);
+		setResult(RESULT_CANCELED);
+		finish();
+	}
+
+	private void gotoTricTracAdvice(String gameId) {
+		String url = "http://www.trictrac.net/aides/aide.php?rub=jeux&aide=avis_total&ref=" + gameId;
 		Home.browse(this, url);
 		setResult(RESULT_CANCELED);
 		finish();
@@ -315,8 +315,9 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 		if (v instanceof GameSummaryView) {
 			current = ((GameSummaryView) v).getGame();
 			menu.add(1, ApplicationConstants.MENU_ID_VIEW_GAME_TRICTRAC, 0, R.string.goto_trictrac_name);
-			menu.add(2, ApplicationConstants.MENU_ID_CREATE_PARTY, 1, R.string.add_party);
-			menu.add(2, ApplicationConstants.MENU_ID_VIEW_PARTIES, 2, R.string.view_parties);
+			menu.add(1, ApplicationConstants.MENU_ID_VIEW_ADVICES_TRICTRAC, 1, R.string.goto_trictrac_advices);
+			menu.add(2, ApplicationConstants.MENU_ID_CREATE_PARTY, 2, R.string.add_party);
+			menu.add(2, ApplicationConstants.MENU_ID_VIEW_PARTIES, 3, R.string.view_parties);
 		}
 	}
 
@@ -330,6 +331,8 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 			viewParties(current);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_GAME_TRICTRAC) {
 			gotoTricTracGame(current.getId());
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_ADVICES_TRICTRAC) {
+			gotoTricTracAdvice(current.getId());
 		}
 
 		return true;
