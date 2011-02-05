@@ -37,10 +37,10 @@ import org.amphiprion.trictrac.entity.Search;
 import org.amphiprion.trictrac.handler.GameHandler;
 import org.amphiprion.trictrac.task.ITaskListener;
 import org.amphiprion.trictrac.task.ImportCollectionTask;
-import org.amphiprion.trictrac.task.LoadGamesTask;
-import org.amphiprion.trictrac.task.SynchronizeGamesTask;
 import org.amphiprion.trictrac.task.ImportCollectionTask.ImportCollectionListener;
+import org.amphiprion.trictrac.task.LoadGamesTask;
 import org.amphiprion.trictrac.task.LoadGamesTask.LoadGameListener;
+import org.amphiprion.trictrac.task.SynchronizeGamesTask;
 import org.amphiprion.trictrac.view.CollectionSummaryView;
 import org.amphiprion.trictrac.view.GameSummaryView;
 import org.amphiprion.trictrac.view.MyScrollView;
@@ -54,12 +54,12 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -67,9 +67,9 @@ import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
 
 /**
  * @author amphiprion
@@ -148,9 +148,10 @@ public class CollectionActivityGroup extends Activity {
 			if (v instanceof GameSummaryView) {
 				currentGame = ((GameSummaryView) v).getGame();
 				menu.add(1, ApplicationConstants.MENU_ID_VIEW_GAME_TRICTRAC, 0, R.string.goto_trictrac_name);
-				menu.add(1, ApplicationConstants.MENU_ID_SYNCHRO_GAME, 1, R.string.synch_game);
-				menu.add(2, ApplicationConstants.MENU_ID_CREATE_PARTY, 2, R.string.add_party);
-				menu.add(2, ApplicationConstants.MENU_ID_VIEW_PARTIES, 3, R.string.view_parties);
+				menu.add(1, ApplicationConstants.MENU_ID_VIEW_ADVICES_TRICTRAC, 1, R.string.goto_trictrac_advices);
+				menu.add(1, ApplicationConstants.MENU_ID_SYNCHRO_GAME, 2, R.string.synch_game);
+				menu.add(2, ApplicationConstants.MENU_ID_CREATE_PARTY, 3, R.string.add_party);
+				menu.add(2, ApplicationConstants.MENU_ID_VIEW_PARTIES, 4, R.string.view_parties);
 			}
 		}
 	}
@@ -181,6 +182,8 @@ public class CollectionActivityGroup extends Activity {
 				viewParties(currentGame);
 			} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_GAME_TRICTRAC) {
 				gotoTricTracGame(currentGame.getId());
+			} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_ADVICES_TRICTRAC) {
+				gotoTricTracAdvice(currentGame.getId());
 			}
 
 		}
@@ -202,6 +205,7 @@ public class CollectionActivityGroup extends Activity {
 			alert.setView(input);
 
 			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				@Override
 				public void onClick(DialogInterface dialog, int whichButton) {
 					String value = "" + input.getText();
 					value = value.replaceAll(" ", "%");
@@ -211,6 +215,7 @@ public class CollectionActivityGroup extends Activity {
 			});
 
 			alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				@Override
 				public void onClick(DialogInterface dialog, int whichButton) {
 					// Canceled.
 				}
@@ -247,7 +252,7 @@ public class CollectionActivityGroup extends Activity {
 			@Override
 			public void onScrollChanged() {
 				if (!gameListContext.allLoaded && !gameListContext.loading) {
-					LinearLayout ln = ((LinearLayout) gameListContext.scrollView.getChildAt(0));
+					LinearLayout ln = (LinearLayout) gameListContext.scrollView.getChildAt(0);
 					if (ln.getChildCount() > 3) {
 						boolean b = ln.getChildAt(ln.getChildCount() - 3).getLocalVisibleRect(r);
 						if (b) {
@@ -274,11 +279,9 @@ public class CollectionActivityGroup extends Activity {
 
 	private void loadGameNextPage() {
 		if (gameListContext.loadedPage == 0) {
-			int nb = GameDao.getInstance(this).getGameCount(gameListContext.collection, gameListContext.search,
-					gameListContext.query);
+			int nb = GameDao.getInstance(this).getGameCount(gameListContext.collection, gameListContext.search, gameListContext.query);
 			Toast.makeText(this, getResources().getString(R.string.message_nb_result, nb), Toast.LENGTH_LONG).show();
-			List<Game> newGames = GameDao.getInstance(this).getGames(gameListContext.collection,
-					gameListContext.loadedPage, GameListContext.PAGE_SIZE, gameListContext.search,
+			List<Game> newGames = GameDao.getInstance(this).getGames(gameListContext.collection, gameListContext.loadedPage, GameListContext.PAGE_SIZE, gameListContext.search,
 					gameListContext.query);
 			importGameEnded(true, newGames);
 		} else {
@@ -294,8 +297,8 @@ public class CollectionActivityGroup extends Activity {
 					return CollectionActivityGroup.this;
 				}
 			};
-			gameListContext.task = new LoadGamesTask(l, gameListContext.collection, gameListContext.loadedPage,
-					GameListContext.PAGE_SIZE, gameListContext.search, gameListContext.query);
+			gameListContext.task = new LoadGamesTask(l, gameListContext.collection, gameListContext.loadedPage, GameListContext.PAGE_SIZE, gameListContext.search,
+					gameListContext.query);
 			gameListContext.task.execute();
 		}
 	}
@@ -377,12 +380,10 @@ public class CollectionActivityGroup extends Activity {
 
 		if (!gameListContext.allLoaded) {
 			LinearLayout lnExpand = new LinearLayout(this);
-			LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			lnExpand.setLayoutParams(lp);
 			ImageView im = new ImageView(this);
-			LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			imglp.gravity = Gravity.CENTER_VERTICAL;
 			imglp.rightMargin = 5;
 			im.setLayoutParams(imglp);
@@ -391,14 +392,12 @@ public class CollectionActivityGroup extends Activity {
 			lnExpand.addView(im);
 
 			LinearLayout accountLayout = new LinearLayout(this);
-			LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
+			LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
 			accountLayout.setLayoutParams(aclp);
 
 			TextView tv = new TextView(this);
 			tv.setText(getResources().getText(R.string.loading));
-			LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			tv.setLayoutParams(tlp);
 			accountLayout.addView(tv);
 			lnExpand.addView(accountLayout);
@@ -414,6 +413,11 @@ public class CollectionActivityGroup extends Activity {
 
 	private void gotoTricTracGame(String gameId) {
 		String url = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + gameId;
+		Home.browse(this, url);
+	}
+
+	private void gotoTricTracAdvice(String gameId) {
+		String url = "http://www.trictrac.net/aides/aide.php?rub=jeux&aide=avis_total&ref=" + gameId;
 		Home.browse(this, url);
 	}
 
@@ -438,12 +442,10 @@ public class CollectionActivityGroup extends Activity {
 			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, 0, R.string.add_collection);
 			addAccount.setIcon(android.R.drawable.ic_menu_add);
 
-			MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1,
-					R.string.menu_search_trictrac);
+			MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1, R.string.menu_search_trictrac);
 			searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
 
-			MenuItem synchAllGames = menu.add(0, ApplicationConstants.MENU_ID_SYNCH_ALL_GAMES, 2,
-					R.string.menu_synch_games);
+			MenuItem synchAllGames = menu.add(0, ApplicationConstants.MENU_ID_SYNCH_ALL_GAMES, 2, R.string.menu_synch_games);
 			synchAllGames.setIcon(android.R.drawable.ic_menu_share);
 
 			MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 3, R.string.trictrac_account);
@@ -456,8 +458,7 @@ public class CollectionActivityGroup extends Activity {
 				MenuItem clearSearch = menu.add(0, ApplicationConstants.MENU_ID_CLEAR_SEARCH, 0, R.string.clear_filter);
 				clearSearch.setIcon(R.drawable.search_cleared);
 			}
-			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_CHOOSE_EXISTING_SEARCH, 1,
-					R.string.apply_existing_filter);
+			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_CHOOSE_EXISTING_SEARCH, 1, R.string.apply_existing_filter);
 			addAccount.setIcon(R.drawable.search);
 
 			MenuItem search = menu.add(0, ApplicationConstants.MENU_ID_SEARCH, 2, R.string.menu_seach);
@@ -514,6 +515,7 @@ public class CollectionActivityGroup extends Activity {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(getResources().getString(R.string.search_choice_title));
 			builder.setAdapter(new SearchAdapter(this, searchs), new DialogInterface.OnClickListener() {
+				@Override
 				public void onClick(DialogInterface dialog, int item) {
 					dialog.dismiss();
 					gameListContext.search = searchs.get(item);
