@@ -23,14 +23,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.amphiprion.trictrac.dao.GameDao;
 import org.amphiprion.trictrac.dao.PartyDao;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.PartyForList;
 import org.amphiprion.trictrac.task.ITaskListener;
 import org.amphiprion.trictrac.task.LoadPartiesTask;
-import org.amphiprion.trictrac.task.SynchronizePartiesTask;
 import org.amphiprion.trictrac.task.LoadPartiesTask.LoadPartyListener;
+import org.amphiprion.trictrac.task.SynchronizePartiesTask;
 import org.amphiprion.trictrac.view.MyScrollView;
 import org.amphiprion.trictrac.view.PartySummaryView;
 
@@ -44,12 +45,12 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -57,8 +58,8 @@ import android.view.animation.RotateAnimation;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 
 /**
  * @author amphiprion
@@ -91,7 +92,7 @@ public class PartyList extends Activity implements LoadPartyListener {
 			@Override
 			public void onScrollChanged() {
 				if (!allLoaded && !loading) {
-					LinearLayout ln = ((LinearLayout) scrollView.getChildAt(0));
+					LinearLayout ln = (LinearLayout) scrollView.getChildAt(0);
 					if (ln.getChildCount() > 3) {
 						boolean b = ln.getChildAt(ln.getChildCount() - 3).getLocalVisibleRect(r);
 						if (b) {
@@ -159,8 +160,7 @@ public class PartyList extends Activity implements LoadPartyListener {
 			addAccount.setIcon(android.R.drawable.ic_menu_add);
 		}
 
-		MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1,
-				R.string.menu_search_trictrac);
+		MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1, R.string.menu_search_trictrac);
 		searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
 
 		MenuItem synchParty = menu.add(1, ApplicationConstants.MENU_ID_SYNCH_PARTY, 2, R.string.synch_parties);
@@ -210,8 +210,7 @@ public class PartyList extends Activity implements LoadPartyListener {
 			};
 
 			Date date = new Date(time);
-			DatePickerDialog dlg = new DatePickerDialog(getContext(), l, date.getYear() + 1900, date.getMonth(), date
-					.getDate());
+			DatePickerDialog dlg = new DatePickerDialog(getContext(), l, date.getYear() + 1900, date.getMonth(), date.getDate());
 			dlg.setTitle(getResources().getText(R.string.synch_start_date));
 			dlg.show();
 		}
@@ -251,9 +250,12 @@ public class PartyList extends Activity implements LoadPartyListener {
 	public boolean onContextItemSelected(MenuItem item) {
 		if (item.getItemId() == ApplicationConstants.MENU_ID_EDIT_PARTY) {
 			Intent i = new Intent(this, EditParty.class);
-			i.putExtra("GAME", game);
 			Party party = PartyDao.getInstance(this).getParty(current.getId());
 			i.putExtra("PARTY", party);
+			if (game == null) {
+				game = GameDao.getInstance(this).getGame(party.getGameId());
+			}
+			i.putExtra("GAME", game);
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_UPDATE_PARTY);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_DELETE_PARTY) {
 			Party party = PartyDao.getInstance(this).getParty(current.getId());
@@ -308,12 +310,10 @@ public class PartyList extends Activity implements LoadPartyListener {
 
 		if (!allLoaded) {
 			LinearLayout lnExpand = new LinearLayout(this);
-			LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			lnExpand.setLayoutParams(lp);
 			ImageView im = new ImageView(this);
-			LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			imglp.gravity = Gravity.CENTER_VERTICAL;
 			imglp.rightMargin = 5;
 			im.setLayoutParams(imglp);
@@ -322,14 +322,12 @@ public class PartyList extends Activity implements LoadPartyListener {
 			lnExpand.addView(im);
 
 			LinearLayout accountLayout = new LinearLayout(this);
-			LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
+			LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
 			accountLayout.setLayoutParams(aclp);
 
 			TextView tv = new TextView(this);
 			tv.setText(getResources().getText(R.string.loading));
-			LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			tv.setLayoutParams(tlp);
 			accountLayout.addView(tv);
 			lnExpand.addView(accountLayout);
