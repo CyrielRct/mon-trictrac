@@ -39,6 +39,9 @@ public class PartyForList extends Entity {
 	private Date date;
 	private String gameId;
 	private String trictracId;
+	private Date lastSyncDate;
+	private Date lastUpdateDate;
+	private boolean winner;
 
 	public PartyForList(String id) {
 		super(id);
@@ -140,6 +143,51 @@ public class PartyForList extends Entity {
 	 */
 	public void setTrictracId(String trictracId) {
 		this.trictracId = trictracId;
+	}
+
+	/**
+	 * @return the lastSyncDate
+	 */
+	public Date getLastSyncDate() {
+		return lastSyncDate;
+	}
+
+	/**
+	 * @param lastSyncDate
+	 *            the lastSyncDate to set
+	 */
+	public void setLastSyncDate(Date lastSyncDate) {
+		this.lastSyncDate = lastSyncDate;
+	}
+
+	/**
+	 * @return the lastUpdateDate
+	 */
+	public Date getLastUpdateDate() {
+		return lastUpdateDate;
+	}
+
+	/**
+	 * @param lastUpdateDate
+	 *            the lastUpdateDate to set
+	 */
+	public void setLastUpdateDate(Date lastUpdateDate) {
+		this.lastUpdateDate = lastUpdateDate;
+	}
+
+	/**
+	 * @return the winner
+	 */
+	public boolean isWinner() {
+		return winner;
+	}
+
+	/**
+	 * @param winner
+	 *            the winner to set
+	 */
+	public void setWinner(boolean winner) {
+		this.winner = winner;
 	}
 
 }

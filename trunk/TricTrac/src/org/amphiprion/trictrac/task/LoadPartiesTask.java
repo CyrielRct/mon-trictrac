@@ -51,8 +51,7 @@ public class LoadPartiesTask extends AsyncTask<Void, Integer, List<PartyForList>
 	@Override
 	protected List<PartyForList> doInBackground(Void... v) {
 		try {
-			List<PartyForList> parties = PartyDao.getInstance(caller.getContext())
-					.getParties(game, pageIndex, pageSize);
+			List<PartyForList> parties = PartyDao.getInstance(caller.getContext()).getParties(game, pageIndex, pageSize, null);
 			return parties;
 
 		} catch (Exception e) {
