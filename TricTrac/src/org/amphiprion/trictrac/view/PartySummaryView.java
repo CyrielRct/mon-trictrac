@@ -53,8 +53,7 @@ public class PartySummaryView extends LinearLayout {
 	public PartySummaryView(Context context, PartyForList party) {
 		super(context);
 		this.party = party;
-		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		setLayoutParams(lp);
 		setBackgroundDrawable(context.getResources().getDrawable(R.drawable.list_item_background_states));
 
@@ -78,15 +77,13 @@ public class PartySummaryView extends LinearLayout {
 	 */
 	private View createIcon() {
 		ImageView img = new ImageView(getContext());
-		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
 		img.setLayoutParams(imglp);
 		if (party.getHappyness() > 0 && party.getHappyness() < 6) {
 			img.setBackgroundDrawable(getContext().getResources().getDrawable(
-					getContext().getResources().getIdentifier("happy_" + party.getHappyness() + "_on", "drawable",
-							ApplicationConstants.PACKAGE)));
+					getContext().getResources().getIdentifier("happy_" + party.getHappyness() + "_on", "drawable", ApplicationConstants.PACKAGE)));
 		} else {
 			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.happy_0));
 		}
@@ -100,13 +97,11 @@ public class PartySummaryView extends LinearLayout {
 	 */
 	private View createAccountLayout() {
 		LinearLayout accountLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
 		accountLayout.setOrientation(VERTICAL);
 		accountLayout.setLayoutParams(aclp);
 		TextView t = new TextView(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		t.setLayoutParams(tlp);
 		String s = DateUtil.defaultDateFormat.format(party.getDate());
@@ -122,8 +117,44 @@ public class PartySummaryView extends LinearLayout {
 		t.setTypeface(Typeface.DEFAULT_BOLD);
 		t.setTextColor(getContext().getResources().getColor(R.color.black));
 		accountLayout.addView(t);
-
+		accountLayout.addView(createInformation());
 		return accountLayout;
 	}
 
+	private View createInformation() {
+		LinearLayout infoLayout = new LinearLayout(getContext());
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		infoLayout.setLayoutParams(aclp);
+
+		if (party.isWinner()) {
+			ImageView img = new ImageView(getContext());
+			LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			imglp.gravity = Gravity.CENTER_VERTICAL;
+			imglp.leftMargin = 5;
+			img.setLayoutParams(imglp);
+			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.winner));
+			infoLayout.addView(img);
+		}
+
+		TextView t = new TextView(getContext());
+		LayoutParams txtlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		t.setLayoutParams(txtlp);
+		infoLayout.addView(t);
+
+		if (party.getTrictracId() != null) {
+			ImageView imgLink = new ImageView(getContext());
+			LayoutParams imgLinkLp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			imgLinkLp.gravity = Gravity.CENTER_VERTICAL;
+			imgLinkLp.leftMargin = 5;
+			imgLink.setLayoutParams(imgLinkLp);
+			infoLayout.addView(imgLink);
+			if (party.getLastSyncDate() != null && party.getLastUpdateDate().after(party.getLastSyncDate())) {
+				imgLink.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.linked_need_update));
+			} else {
+				imgLink.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.linked));
+			}
+
+		}
+		return infoLayout;
+	}
 }

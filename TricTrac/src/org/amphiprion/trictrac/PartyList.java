@@ -79,11 +79,15 @@ public class PartyList extends Activity implements LoadPartyListener {
 	private Game game;
 	private PartyForList current;
 	private LoadPartiesTask task;
+	private String ownerId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		instance = this;
+		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+		ownerId = pref.getString("ACCOUNT_PLAYER_ID", null);
+
 		setContentView(R.layout.party_list);
 
 		final Rect r = new Rect();
@@ -144,7 +148,7 @@ public class PartyList extends Activity implements LoadPartyListener {
 			// Toast.makeText(this,
 			// getResources().getString(R.string.message_nb_result, nb),
 			// Toast.LENGTH_LONG).show();
-			List<PartyForList> newParties = PartyDao.getInstance(this).getParties(game, loadedPage, PAGE_SIZE);
+			List<PartyForList> newParties = PartyDao.getInstance(this).getParties(game, loadedPage, PAGE_SIZE, ownerId);
 			importEnded(true, newParties);
 		} else {
 			task = new LoadPartiesTask(this, game, loadedPage, PAGE_SIZE);

@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.PartyForList;
 import org.amphiprion.trictrac.entity.PlayStat;
-import org.amphiprion.trictrac.entity.Entity.DbState;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -63,11 +63,9 @@ public class PartyDao extends AbstractDao {
 		getDatabase().beginTransaction();
 		try {
 
-			String sql = "insert into PARTY (" + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + ","
-					+ Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
-					+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.FK_GAME + ","
-					+ Party.DbField.TRICTRAC_ID + "," + Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE
-					+ ") values (?,?,?,?,?,?,?,?,?,?,?)";
+			String sql = "insert into PARTY (" + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + "," + Party.DbField.EVENT + ","
+					+ Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.FK_GAME + "," + Party.DbField.TRICTRAC_ID + ","
+					+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + ") values (?,?,?,?,?,?,?,?,?,?,?)";
 			Object[] params = new Object[11];
 			params[0] = party.getId();
 			params[1] = dateToString(party.getDate());
@@ -98,11 +96,9 @@ public class PartyDao extends AbstractDao {
 	private void update(Party party) {
 		getDatabase().beginTransaction();
 		try {
-			String sql = "update PARTY set " + Party.DbField.PLAY_DATE + "=?," + Party.DbField.CITY + "=?,"
-					+ Party.DbField.EVENT + "=?," + Party.DbField.HAPPYNESS + "=?," + Party.DbField.DURATION + "=?,"
-					+ Party.DbField.COMMENT + "=?," + Party.DbField.FK_GAME + "=?," + Party.DbField.TRICTRAC_ID + "=?,"
-					+ Party.DbField.UPDATE_DATE + "=?," + Party.DbField.SYNC_DATE + "=? where " + Party.DbField.ID
-					+ "=?";
+			String sql = "update PARTY set " + Party.DbField.PLAY_DATE + "=?," + Party.DbField.CITY + "=?," + Party.DbField.EVENT + "=?," + Party.DbField.HAPPYNESS + "=?,"
+					+ Party.DbField.DURATION + "=?," + Party.DbField.COMMENT + "=?," + Party.DbField.FK_GAME + "=?," + Party.DbField.TRICTRAC_ID + "=?,"
+					+ Party.DbField.UPDATE_DATE + "=?," + Party.DbField.SYNC_DATE + "=? where " + Party.DbField.ID + "=?";
 			Object[] params = new Object[11];
 			params[0] = dateToString(party.getDate());
 			params[1] = party.getCity();
@@ -162,16 +158,20 @@ public class PartyDao extends AbstractDao {
 	 * @param pageSize
 	 * @return
 	 */
-	public List<PartyForList> getParties(Game game, int pageIndex, int pageSize) {
-		String sql = "SELECT p." + Party.DbField.ID + ",p." + Party.DbField.PLAY_DATE + ",p." + Party.DbField.CITY
-				+ ",p." + Party.DbField.EVENT + ",p." + Party.DbField.HAPPYNESS + ",p." + Party.DbField.TRICTRAC_ID
-				+ ",p." + Party.DbField.FK_GAME + ",g." + Game.DbField.NAME + " from PARTY p join GAME g on p."
-				+ Party.DbField.FK_GAME + "=g." + Game.DbField.ID;
+	public List<PartyForList> getParties(Game game, int pageIndex, int pageSize, String ownerId) {
+		String sql = "SELECT p." + Party.DbField.ID + ",p." + Party.DbField.PLAY_DATE + ",p." + Party.DbField.CITY + ",p." + Party.DbField.EVENT + ",p." + Party.DbField.HAPPYNESS
+				+ ",p." + Party.DbField.TRICTRAC_ID + ",p." + Party.DbField.FK_GAME + ",g." + Game.DbField.NAME + ",p." + Party.DbField.UPDATE_DATE + ",p."
+				+ Party.DbField.SYNC_DATE;
+		if (ownerId != null) {
+			sql += ",(select count(*) from PLAY_STAT where " + PlayStat.DbField.FK_PARTY + "=p." + Party.DbField.ID + " and " + PlayStat.DbField.FK_PLAYER + "='" + ownerId
+					+ "' and " + PlayStat.DbField.RANK + "=1)";
+		}
+		sql += " from PARTY p join GAME g on p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID;
 		if (game != null) {
 			sql += " where " + Party.DbField.FK_GAME + "='" + game.getId() + "'";
 		}
 		sql += " order by g." + Game.DbField.NAME + " asc,p." + Party.DbField.PLAY_DATE + " desc";
-		sql += " limit " + (pageSize + 1) + " offset " + (pageIndex * pageSize);
+		sql += " limit " + (pageSize + 1) + " offset " + pageIndex * pageSize;
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
 		ArrayList<PartyForList> result = new ArrayList<PartyForList>();
@@ -185,6 +185,11 @@ public class PartyDao extends AbstractDao {
 				entity.setTrictracId(cursor.getString(5));
 				entity.setGameId(cursor.getString(6));
 				entity.setGameName(cursor.getString(7));
+				entity.setLastUpdateDate(stringToDate(cursor.getString(8)));
+				entity.setLastSyncDate(stringToDate(cursor.getString(9)));
+				if (ownerId != null) {
+					entity.setWinner(cursor.getLong(10) > 0);
+				}
 				result.add(entity);
 			} while (cursor.moveToNext());
 		}
@@ -193,33 +198,27 @@ public class PartyDao extends AbstractDao {
 	}
 
 	public List<Party> getParties(Game game) {
-		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
-				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
-				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + ","
-				+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + " from PARTY where "
-				+ Party.DbField.FK_GAME + "=? order by " + Party.DbField.PLAY_DATE + " desc";
+		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
+				+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + "," + Party.DbField.UPDATE_DATE + ","
+				+ Party.DbField.SYNC_DATE + " from PARTY where " + Party.DbField.FK_GAME + "=? order by " + Party.DbField.PLAY_DATE + " desc";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { game.getId() });
 		return fillEntities(cursor);
 	}
 
 	public List<Party> getLocalParties() {
-		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
-				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
-				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + ","
-				+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + " from PARTY where "
-				+ Party.DbField.TRICTRAC_ID + " is null";
+		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
+				+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + "," + Party.DbField.UPDATE_DATE + ","
+				+ Party.DbField.SYNC_DATE + " from PARTY where " + Party.DbField.TRICTRAC_ID + " is null";
 
 		Cursor cursor = getDatabase().rawQuery(sql, null);
 		return fillEntities(cursor);
 	}
 
 	public Party getParty(String id) {
-		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
-				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
-				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + ","
-				+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + " from PARTY where " + Party.DbField.ID
-				+ "=?";
+		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
+				+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + "," + Party.DbField.UPDATE_DATE + ","
+				+ Party.DbField.SYNC_DATE + " from PARTY where " + Party.DbField.ID + "=?";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
 		List<Party> parties = fillEntities(cursor);
@@ -231,11 +230,9 @@ public class PartyDao extends AbstractDao {
 	}
 
 	public Party getPartyByTrictracId(String trictracId) {
-		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + ","
-				+ Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + "," + Party.DbField.DURATION + ","
-				+ Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + ","
-				+ Party.DbField.UPDATE_DATE + "," + Party.DbField.SYNC_DATE + " from PARTY where "
-				+ Party.DbField.TRICTRAC_ID + "=?";
+		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
+				+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + "," + Party.DbField.UPDATE_DATE + ","
+				+ Party.DbField.SYNC_DATE + " from PARTY where " + Party.DbField.TRICTRAC_ID + "=?";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { trictracId });
 		List<Party> parties = fillEntities(cursor);
