@@ -45,12 +45,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -249,31 +246,23 @@ public class TricTracGameList extends Activity implements LoadGameListener {
 		LinearLayout lnExpand = new LinearLayout(this);
 		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		lnExpand.setLayoutParams(lp);
-		ImageView im = new ImageView(this);
+		lnExpand.setBackgroundColor(getResources().getColor(R.color.grey));
+
+		ProgressBar im = new ProgressBar(this);
 		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
 		im.setLayoutParams(imglp);
-
-		im.setImageDrawable(getResources().getDrawable(R.drawable.loading));
 		lnExpand.addView(im);
-
-		LinearLayout accountLayout = new LinearLayout(this);
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
-		accountLayout.setLayoutParams(aclp);
 
 		TextView tv = new TextView(this);
 		tv.setText(getResources().getText(R.string.loading));
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-		tv.setLayoutParams(tlp);
-		accountLayout.addView(tv);
-		lnExpand.addView(accountLayout);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		tlp.gravity = Gravity.CENTER_VERTICAL;
 
-		Animation a = new RotateAnimation(0, 360, 23.5f, 23.5f);
-		a.setInterpolator(new LinearInterpolator());
-		a.setRepeatCount(Animation.INFINITE);
-		a.setDuration(2000);
-		im.startAnimation(a);
+		tv.setLayoutParams(tlp);
+		lnExpand.addView(tv);
+
 		return lnExpand;
 	}
 

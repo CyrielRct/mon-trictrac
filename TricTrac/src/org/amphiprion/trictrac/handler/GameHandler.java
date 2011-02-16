@@ -44,16 +44,23 @@ public class GameHandler {
 	private static final String PLAYER_PATTERN = "            <font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'>            <FONT COLOR=\"#999999\">Joueurs :";
 	private static final String AGE_PATTERN = "            <font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'>            <FONT COLOR=\"#999999\">Age :";
 	private static final String DURATION_PATTERN = "            <font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'>            <FONT COLOR=\"#999999\">Dur&eacute;e :";
+
+	private static final String DIFFICULTY_PATTERN = "<DIV ALIGN=\"RIGHT\"><font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'><FONT COLOR=\"#333333\">Difficult&eacute; :";
+	private static final String LUCK_PATTERN = "<DIV ALIGN=\"RIGHT\"><font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'><FONT COLOR=\"#333333\">Chance";
+	private static final String STRATEGY_PATTERN = "<DIV ALIGN=\"RIGHT\"><font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'><FONT COLOR=\"#333333\">Strat&eacute;gie";
+	private static final String DIPLOMATIE_PATTERN = "<DIV ALIGN=\"RIGHT\"><font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'><FONT COLOR=\"#333333\">Diplomatie";
 	private static final String LEVELS_PATTERN = "<img src='/jeux/centre/imagerie/barre_";
+	private static final String END_LEVELS_PATTERN = "</TR>";
+
 	private static final String NAME_PATTERN = "    <td colspan=\"2\"><font style='COLOR: #004B56; FONT-FAMILY: arial; FONT-SIZE: 20px; font-weight: BOLD'><i>";
 	private static final String NB_RATING_PATTERN = "<font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'> nombre d'avis : <b>";
 	private static final String ADV_RATING_PATTERN = "<font style='COLOR: #000000; FONT-FAMILY: arial; FONT-SIZE: 12px;'> Moyenne  : ";
+	private static final String GAME_ID_PATTERN = "<A HREF=\"javascript:aide('avis_total','";
 
 	private enum Step {
-		NAME(NAME_PATTERN), TYPE(TYPE_PATTERN), FAMILY(FAMILY_PATTERN), MECHANISM(MECHANISM_PATTERN), THEME(
-				THEME_PATTERN), PLAYER(PLAYER_PATTERN), AGE(AGE_PATTERN), DURATION(DURATION_PATTERN), LEVEL_DIFFICULTY(
-				LEVELS_PATTERN), LEVEL_LUCK(LEVELS_PATTERN), LEVEL_STRATEGY(LEVELS_PATTERN), LEVEL_DIPLOMATY(
-				LEVELS_PATTERN), NB_RATING(NB_RATING_PATTERN), ADV_RATING(ADV_RATING_PATTERN);
+		NAME(NAME_PATTERN), TYPE(TYPE_PATTERN), FAMILY(FAMILY_PATTERN), MECHANISM(MECHANISM_PATTERN), THEME(THEME_PATTERN), PLAYER(PLAYER_PATTERN), AGE(AGE_PATTERN), DURATION(
+				DURATION_PATTERN), LEVEL_DIFFICULTY(DIFFICULTY_PATTERN), LEVEL_LUCK(LUCK_PATTERN), LEVEL_STRATEGY(STRATEGY_PATTERN), LEVEL_DIPLOMATY(DIPLOMATIE_PATTERN), NB_RATING(
+				NB_RATING_PATTERN), ADV_RATING(ADV_RATING_PATTERN);
 		private String pattern;
 
 		private Step(String pattern) {
@@ -78,15 +85,41 @@ public class GameHandler {
 	}
 
 	/**
-	 * Parse the collection of the given user id.
+	 * Parse the game from tric trac using the game id.
 	 * 
-	 * @param userId
-	 *            the user id
+	 * @param game
+	 *            the game
 	 */
 	public void parse(Game game) {
+		String uri = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + game.getId();
+
+		parse(game, uri);
+	}
+
+	/**
+	 * Parse the game using the given uri (the uri must display the game detail
+	 * page).
+	 * 
+	 * @param uri
+	 *            the game detail uri
+	 */
+	public Game parse(String uri) {
+		Game game = new Game(null);
+		parse(game, uri);
+		return game;
+	}
+
+	/**
+	 * Parse the detail game uri and update the given game object
+	 * 
+	 * @param game
+	 *            the game
+	 * @param uri
+	 *            the game detail uri
+	 */
+	private void parse(Game game, String uri) {
 		step = Step.NAME;
 		try {
-			String uri = "http://www.trictrac.net/index.php3?id=jeux&rub=detail&inf=detail&jeu=" + game.getId();
 			URL url = new URL(uri);
 			InputStream fis = url.openConnection().getInputStream();
 
@@ -244,10 +277,16 @@ public class GameHandler {
 				} else if (step == Step.LEVEL_DIFFICULTY) {
 					int start = ligne.indexOf(step.getPattern());
 					if (start != -1) {
-						int p1 = ligne.indexOf(".", start);
-
-						int level = Integer.parseInt(ligne.substring(start + step.getPattern().length(), p1));
-						game.setDifficulty(level);
+						while ((ligne = br.readLine()) != null) {
+							start = ligne.indexOf(LEVELS_PATTERN);
+							if (start != -1) {
+								int p1 = ligne.indexOf(".", start + LEVELS_PATTERN.length());
+								int level = Integer.parseInt(ligne.substring(start + LEVELS_PATTERN.length(), p1));
+								game.setDifficulty(level);
+							} else if (ligne.contains(END_LEVELS_PATTERN)) {
+								break;
+							}
+						}
 						// Log. d(ApplicationConstants.PACKAGE, "difficulty=" +
 						// game.getDifficulty());
 						step = step.next();
@@ -255,10 +294,17 @@ public class GameHandler {
 				} else if (step == Step.LEVEL_LUCK) {
 					int start = ligne.indexOf(step.getPattern());
 					if (start != -1) {
-						int p1 = ligne.indexOf(".", start);
+						while ((ligne = br.readLine()) != null) {
+							start = ligne.indexOf(LEVELS_PATTERN);
+							if (start != -1) {
+								int p1 = ligne.indexOf(".", start + LEVELS_PATTERN.length());
 
-						int level = Integer.parseInt(ligne.substring(start + step.getPattern().length(), p1));
-						game.setLuck(level);
+								int level = Integer.parseInt(ligne.substring(start + LEVELS_PATTERN.length(), p1));
+								game.setLuck(level);
+							} else if (ligne.contains(END_LEVELS_PATTERN)) {
+								break;
+							}
+						}
 						// Log. d(ApplicationConstants.PACKAGE, "luck=" +
 						// game.getLuck());
 						step = step.next();
@@ -266,10 +312,17 @@ public class GameHandler {
 				} else if (step == Step.LEVEL_STRATEGY) {
 					int start = ligne.indexOf(step.getPattern());
 					if (start != -1) {
-						int p1 = ligne.indexOf(".", start);
+						while ((ligne = br.readLine()) != null) {
+							start = ligne.indexOf(LEVELS_PATTERN);
+							if (start != -1) {
+								int p1 = ligne.indexOf(".", start + LEVELS_PATTERN.length());
 
-						int level = Integer.parseInt(ligne.substring(start + step.getPattern().length(), p1));
-						game.setStrategy(level);
+								int level = Integer.parseInt(ligne.substring(start + LEVELS_PATTERN.length(), p1));
+								game.setStrategy(level);
+							} else if (ligne.contains(END_LEVELS_PATTERN)) {
+								break;
+							}
+						}
 						// Log. d(ApplicationConstants.PACKAGE, "strategy=" +
 						// game.getStrategy());
 						step = step.next();
@@ -277,10 +330,17 @@ public class GameHandler {
 				} else if (step == Step.LEVEL_DIPLOMATY) {
 					int start = ligne.indexOf(step.getPattern());
 					if (start != -1) {
-						int p1 = ligne.indexOf(".", start);
+						while ((ligne = br.readLine()) != null) {
+							start = ligne.indexOf(LEVELS_PATTERN);
+							if (start != -1) {
+								int p1 = ligne.indexOf(".", start + LEVELS_PATTERN.length());
 
-						int level = Integer.parseInt(ligne.substring(start + step.getPattern().length(), p1));
-						game.setDiplomaty(level);
+								int level = Integer.parseInt(ligne.substring(start + LEVELS_PATTERN.length(), p1));
+								game.setDiplomaty(level);
+							} else if (ligne.contains(END_LEVELS_PATTERN)) {
+								break;
+							}
+						}
 						// Log. d(ApplicationConstants.PACKAGE, "diplomatie=" +
 						// game.getDiplomaty());
 
@@ -297,6 +357,9 @@ public class GameHandler {
 				} else if (step == Step.ADV_RATING) {
 					int start = ligne.indexOf(step.getPattern());
 					if (start != -1) {
+						int posId = ligne.indexOf(GAME_ID_PATTERN);
+						int endPosId = ligne.indexOf("'", posId + GAME_ID_PATTERN.length() + 1);
+						game.setId(ligne.substring(posId + GAME_ID_PATTERN.length(), endPosId));
 						int p1 = ligne.indexOf("<font", step.getPattern().length());
 						String s = ligne.substring(step.getPattern().length(), p1);
 						if (!"-".equals(s)) {
@@ -305,6 +368,7 @@ public class GameHandler {
 						} else {
 							game.setAdverageRating(0);
 						}
+
 						break;
 					}
 				}
