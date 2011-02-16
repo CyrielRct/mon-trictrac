@@ -86,9 +86,9 @@ public class TricTracGameHandler {
 	public List<Game> parse(String query, int deb, int pageSize) {
 		int offset = 0;
 		int total = 0;
+		boolean notFound = false;
 		try {
-			String uri = "http://www.trictrac.net/index.php3?id=jeux&rub=ludotheque&inf=cat&deb=" + deb + "&nb="
-					+ pageSize + "&choix=" + URLEncoder.encode(query) + "&ta=";
+			String uri = "http://www.trictrac.net/index.php3?id=jeux&rub=ludotheque&inf=cat&deb=" + deb + "&nb=" + pageSize + "&choix=" + URLEncoder.encode(query) + "&ta=";
 			URL url = new URL(uri + offset);
 			InputStream fis = url.openConnection().getInputStream();
 
@@ -103,7 +103,9 @@ public class TricTracGameHandler {
 					count = 0;
 					break;
 				}
-
+				if (ligne.contains("Aucun jeu correspondant à votre demande n'est actuellement dans notre ludothèque")) {
+					notFound = true;
+				}
 				if (ligne.startsWith(HREF_PATTERN)) {
 					total++;
 					task.publishProgress(total);
@@ -123,6 +125,20 @@ public class TricTracGameHandler {
 					game.setName(ligne.substring(GAME_NAME_PATTERN.length(), pos));
 					inGameEntry = false;
 					dao.createGame(game);
+				}
+			}
+			// Log.d(ApplicationConstants.PACKAGE, "notFound=" + notFound +
+			// "  size=" + games.size() + "  deb=" + deb);
+			if (!notFound && games.size() == 0 && deb == 0) {
+				// the search return only one result, so tric trac have
+				// displayed directly the game detail.
+				Game game = gameHandler.parse(uri);
+				if (game != null && game.getId() != null) {
+					ImageUtil.downloadImage(game);
+					if (!dao.exists(game.getId())) {
+						dao.createGame(game);
+					}
+					games.add(game);
 				}
 			}
 		} catch (Exception e) {
