@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" >
+	<ScrollView android:layout_weight="1" android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="3px" android:layout_marginRight="3px">
+		<LinearLayout android:orientation="vertical"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<LinearLayout android:orientation="horizontal"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+				<ImageView android:layout_width="wrap_content" android:layout_marginRight="5px"
+					android:layout_height="wrap_content" android:id="@+id/img_game"></ImageView>
+				<LinearLayout android:orientation="vertical"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_weight="1">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:textColor="#000000"
+						android:text="@string/party_date" />
+					<TextView 
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:id="@+id/cbDate"/>
+
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:textColor="#000000"
+						android:text="@string/city" />
+					<TextView android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:id="@+id/txtCity"/>
+				</LinearLayout>
+
+			</LinearLayout>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textColor="#000000"
+				android:text="@string/event" />
+			<TextView android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:id="@+id/txtEvent"/>
+			<LinearLayout android:orientation="horizontal"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<LinearLayout android:orientation="vertical"
+					android:layout_weight="1" android:layout_width="wrap_content"
+					android:layout_height="wrap_content">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:textColor="#000000"
+						android:text="@string/rating" />
+					
+					
+						<ImageView android:id="@+id/imgRating"
+							android:layout_width="wrap_content" android:layout_height="wrap_content"
+							></ImageView>
+				</LinearLayout>
+				<LinearLayout android:orientation="vertical"
+					android:layout_width="wrap_content" android:layout_height="wrap_content">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:textColor="#000000"
+						android:text="@string/duration" />
+					<TextView android:layout_height="wrap_content" android:id="@+id/txtDuration"
+						android:inputType="number" android:layout_width="fill_parent"/>
+				</LinearLayout>
+			</LinearLayout>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textColor="#000000"
+				android:text="@string/comment" />
+			<TextView android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:id="@+id/txtComment"
+				android:inputType="textMultiLine" android:lines="3"/>
+
+			<!-- TextView android:layout_height="wrap_content" android:text="@string/play_stats"
+				android:background="#333333" android:layout_width="fill_parent"
+				android:gravity="center"></TextView-->
+			<ScrollView android:layout_weight="1"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_marginLeft="3px"
+				android:layout_marginRight="3px">
+
+
+
+
+				<LinearLayout android:layout_height="wrap_content"
+					android:orientation="vertical" android:id="@+id/play_stats_list"
+					android:layout_width="fill_parent"></LinearLayout>
+			</ScrollView>
+
+		</LinearLayout>
+	</ScrollView>
+	
+</LinearLayout>
