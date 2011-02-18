@@ -19,9 +19,9 @@
  */
 package org.amphiprion.trictrac;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.amphiprion.trictrac.dao.GameDao;
@@ -31,33 +31,28 @@ import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.PartyForList;
 import org.amphiprion.trictrac.entity.PlayStat;
+import org.amphiprion.trictrac.interpolator.BounceInterpolator;
 import org.amphiprion.trictrac.task.ITaskListener;
 import org.amphiprion.trictrac.task.LoadPartiesTask;
 import org.amphiprion.trictrac.task.LoadPartiesTask.LoadPartyListener;
 import org.amphiprion.trictrac.task.SynchronizePartiesTask;
-import org.amphiprion.trictrac.util.DateUtil;
 import org.amphiprion.trictrac.view.MyScrollView;
 import org.amphiprion.trictrac.view.PartySummaryView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,6 +60,7 @@ import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -79,7 +75,7 @@ public class PartyList extends Activity implements LoadPartyListener {
 	private static final int PAGE_SIZE = 20;
 
 	public static PartyList instance;
-
+	private HashMap<String, View> detailedViews;
 	private int loadedPage;
 	private List<PartyForList> parties;
 	private MyScrollView scrollView;
@@ -95,6 +91,7 @@ public class PartyList extends Activity implements LoadPartyListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		instance = this;
+		detailedViews = new HashMap<String, View>();
 		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
 		ownerId = pref.getString("ACCOUNT_PLAYER_ID", null);
 
@@ -292,7 +289,8 @@ public class PartyList extends Activity implements LoadPartyListener {
 	}
 
 	private void addElementToList(List<PartyForList> newParties) {
-		LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
+		final LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
+
 		if (newParties != parties) {
 			parties.addAll(newParties);
 			if (ln.getChildCount() > 0) {
@@ -311,7 +309,15 @@ public class PartyList extends Activity implements LoadPartyListener {
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					viewParty(party);
+					View detail = detailedViews.get(party.getId());
+					if (detail != null) {
+						ln.removeView(detail);
+						detailedViews.remove(party.getId());
+					} else {
+						detail = viewParty(party);
+						ln.addView(detail, ln.indexOfChild(v) + 1);
+						detailedViews.put(party.getId(), detail);
+					}
 				}
 			});
 			view.setOnLongClickListener(new View.OnLongClickListener() {
@@ -390,108 +396,91 @@ public class PartyList extends Activity implements LoadPartyListener {
 		loading = false;
 	}
 
-	private void viewParty(PartyForList partyForList) {
+	private View viewParty(PartyForList partyForList) {
 		Party party = PartyDao.getInstance(this).getParty(partyForList.getId());
-		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		final View vvv = LayoutInflater.from(this).inflate(R.layout.view_party, null);
-		// vvv.setBackgroundColor(getResources().getColor(R.color.white));
-		alert.setView(vvv);
+		final LinearLayout vvv = new LinearLayout(this);
+		LayoutParams lpvvv = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		vvv.setOrientation(LinearLayout.VERTICAL);
+		vvv.setBackgroundDrawable(getResources().getDrawable(R.drawable.party_background));
+		vvv.setLayoutParams(lpvvv);
 
-		Game game = GameDao.getInstance(this).getGame(party.getGameId());
-		ImageView imgGame = (ImageView) vvv.findViewById(R.id.img_game);
-		File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/" + game.getImageName());
-		Bitmap bitmap = null;
-		if (f.exists()) {
-			bitmap = BitmapFactory.decodeFile(f.toString());
-		}
-		if (bitmap == null) {
-			bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_game_image);
-		}
+		final LinearLayout info = new LinearLayout(this);
+		LayoutParams lpinfo = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		info.setLayoutParams(lpinfo);
 
-		imgGame.setImageBitmap(bitmap);
-
-		final TextView cbDate = (TextView) vvv.findViewById(R.id.cbDate);
-		cbDate.setText(DateUtil.defaultDateFormat.format(party.getDate()));
-		final TextView txtCity = (TextView) vvv.findViewById(R.id.txtCity);
-		txtCity.setText(party.getCity());
-		final TextView txtEvent = (TextView) vvv.findViewById(R.id.txtEvent);
-		txtEvent.setText(party.getEvent());
-
-		ImageView img = (ImageView) vvv.findViewById(R.id.imgRating);
-
-		if (party.getHappyness() > 0 && party.getHappyness() < 6) {
-			img.setBackgroundDrawable(getContext().getResources().getDrawable(
-					getContext().getResources().getIdentifier("happy_" + party.getHappyness() + "_on", "drawable", ApplicationConstants.PACKAGE)));
-		} else {
-			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.happy_0));
-		}
-
-		final TextView txtDuration = (TextView) vvv.findViewById(R.id.txtDuration);
-		txtDuration.setText("" + party.getDuration());
-		final TextView txtComment = (TextView) vvv.findViewById(R.id.txtComment);
+		LayoutParams lpcomment = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		final TextView txtComment = new TextView(this);
+		txtComment.setLayoutParams(lpcomment);
+		info.addView(txtComment);
 		txtComment.setText("" + party.getComment());
 
-		final LinearLayout ll = (LinearLayout) vvv.findViewById(R.id.play_stats_list);
+		final TextView txtDuration = new TextView(this);
+		info.addView(txtDuration);
+		txtDuration.setText("" + party.getDuration() + "mn");
+
+		vvv.addView(info);
 
 		List<PlayStat> playStats = PlayStatDao.getInstance(this).getPlayStat(party);
 		for (PlayStat playStat : playStats) {
 			LinearLayout playStatLayout = new LinearLayout(getContext());
-			LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
-			playStatLayout.setOrientation(LinearLayout.VERTICAL);
+			LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			playStatLayout.setLayoutParams(aclp);
+
 			TextView txtPlayerName = new TextView(getContext());
-			LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 
 			txtPlayerName.setLayoutParams(tlp);
-			if (playStat != null) {
-				if (playStat.getPlayer() == null) {
-					txtPlayerName.setText(getResources().getText(R.string.default_player));
-				} else {
-					txtPlayerName.setText(playStat.getPlayer().getPseudo());
-				}
+			if (playStat.getPlayer() == null) {
+				txtPlayerName.setText(getResources().getText(R.string.default_player));
 			} else {
-				txtPlayerName.setText("");
-				playStatLayout.setVisibility(LinearLayout.INVISIBLE);
+				txtPlayerName.setText(playStat.getPlayer().getPseudo());
 			}
 			txtPlayerName.setTextSize(16);
 			txtPlayerName.setTypeface(Typeface.DEFAULT_BOLD);
-			// txtPlayerName.setTextColor(getContext().getResources().getColor(R.color.black));
+			txtPlayerName.setTextColor(getContext().getResources().getColor(R.color.darkGrey));
 			playStatLayout.addView(txtPlayerName);
 
-			LinearLayout hl = new LinearLayout(getContext());
-			LayoutParams hlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-			hl.setLayoutParams(hlp);
+			LayoutParams vl1prank = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			vl1prank.leftMargin = 5;
+			vl1prank.rightMargin = 5;
+			vl1prank.gravity = Gravity.CENTER_VERTICAL;
 
-			LinearLayout vl1 = new LinearLayout(getContext());
-			LayoutParams vl1p = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-			vl1.setLayoutParams(vl1p);
-			vl1.setOrientation(LinearLayout.VERTICAL);
+			ImageView imgRank = new ImageView(this);
+			imgRank.setLayoutParams(vl1prank);
+			imgRank.setImageDrawable(getResources().getDrawable(R.drawable.rank));
+			playStatLayout.addView(imgRank);
+
+			LayoutParams vl1p = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			TextView txtRank = new TextView(getContext());
-			if (playStat == null) {
-				txtRank.setText(getResources().getText(R.string.rank));
-			} else {
-				txtRank.setText(getResources().getText(R.string.rank) + ": " + playStat.getRank());
-			}
-			vl1.addView(txtRank);
+			txtRank.setLayoutParams(vl1p);
+			txtRank.setText("" + playStat.getRank());
+			txtRank.setTextColor(getContext().getResources().getColor(R.color.black));
 
-			hl.addView(vl1);
+			playStatLayout.addView(txtRank);
 
-			LinearLayout vl2 = new LinearLayout(getContext());
-			LayoutParams vl2p = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-			vl2.setLayoutParams(vl2p);
-			vl2.setOrientation(LinearLayout.VERTICAL);
+			LayoutParams vl2pscore = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			vl2pscore.leftMargin = 5;
+			vl2pscore.rightMargin = 5;
+			vl2pscore.gravity = Gravity.CENTER_VERTICAL;
+
+			ImageView imgScore = new ImageView(this);
+			imgScore.setLayoutParams(vl2pscore);
+			imgScore.setImageDrawable(getResources().getDrawable(R.drawable.score));
+			playStatLayout.addView(imgScore);
+
+			LayoutParams vl2p = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			TextView txtScore = new TextView(getContext());
-			if (playStat == null) {
-				txtScore.setText(getResources().getText(R.string.score));
-			} else {
-				txtScore.setText(getResources().getText(R.string.score) + ": " + playStat.getScore());
-			}
-			vl2.addView(txtScore);
+			txtScore.setLayoutParams(vl2p);
+			txtScore.setText("" + playStat.getScore());
+			txtScore.setTextColor(getContext().getResources().getColor(R.color.black));
 
-			hl.addView(vl2);
-			playStatLayout.addView(hl);
-			ll.addView(playStatLayout);
+			playStatLayout.addView(txtScore);
+			vvv.addView(playStatLayout);
 		}
-		alert.show();
+		Animation a = new ScaleAnimation(1, 1, 0, 1);
+		a.setInterpolator(new BounceInterpolator());
+		a.setDuration(750);
+		vvv.startAnimation(a);
+		return vvv;
 	}
 }
