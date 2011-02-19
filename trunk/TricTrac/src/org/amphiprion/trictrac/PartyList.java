@@ -414,7 +414,10 @@ public class PartyList extends Activity implements LoadPartyListener {
 		info.addView(txtComment);
 		txtComment.setText("" + party.getComment());
 
+		LayoutParams lpduration = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		lpduration.rightMargin = 10;
 		final TextView txtDuration = new TextView(this);
+		txtDuration.setLayoutParams(lpduration);
 		info.addView(txtDuration);
 		txtDuration.setText("" + party.getDuration() + "mn");
 
@@ -469,6 +472,7 @@ public class PartyList extends Activity implements LoadPartyListener {
 			playStatLayout.addView(imgScore);
 
 			LayoutParams vl2p = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			vl2p.rightMargin = 10;
 			TextView txtScore = new TextView(getContext());
 			txtScore.setLayoutParams(vl2p);
 			txtScore.setText("" + playStat.getScore());
