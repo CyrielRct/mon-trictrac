@@ -319,7 +319,7 @@ public class PartyHandler {
 		if (day.length() < 2) {
 			day = "0" + day;
 		}
-		String month = "" + d.get(Calendar.MONTH) + 1;
+		String month = "" + (d.get(Calendar.MONTH) + 1);
 		if (month.length() < 2) {
 			month = "0" + month;
 		}
