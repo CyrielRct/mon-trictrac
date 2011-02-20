@@ -35,11 +35,11 @@ import org.amphiprion.trictrac.dao.GameDao;
 import org.amphiprion.trictrac.dao.PartyDao;
 import org.amphiprion.trictrac.dao.PlayStatDao;
 import org.amphiprion.trictrac.dao.PlayerDao;
+import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.PlayStat;
 import org.amphiprion.trictrac.entity.Player;
-import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.task.IProgressTask;
 import org.amphiprion.trictrac.util.DateUtil;
 import org.amphiprion.trictrac.util.LogUtil;
@@ -177,8 +177,7 @@ public class PartyHandler {
 		LogUtil.trace(pw, "###########################################");
 		LogUtil.trace(pw, "on recherhce les joueurs existant sur trictac");
 		while (true) {
-			String start = "http://www.trictrac.net/index.php3?id=jeux&rub=membre&inf=joueurs_select&choix=&choix2=&deb="
-					+ deb;
+			String start = "http://www.trictrac.net/index.php3?id=jeux&rub=membre&inf=joueurs_select&choix=&choix2=&deb=" + deb;
 			// System.out.println(start);
 			InputStream is = send(start, null);
 			String pattern = "</b> <a href='index.php3?id=jeux&rub=membre&inf=joueurs_form&ref=";
@@ -218,8 +217,7 @@ public class PartyHandler {
 							p.setLastUpdateDate(date);
 							p.setLastSyncDate(date);
 							PlayerDao.getInstance(context).persist(p);
-							LogUtil.trace(pw, "   " + name + " vient d'etre relie au joueur local " + p.getId() + "/"
-									+ p.getPseudo());
+							LogUtil.trace(pw, "   " + name + " vient d'etre relie au joueur local " + p.getId() + "/" + p.getPseudo());
 						}
 					} else {
 						Date date = new Date();
@@ -227,8 +225,7 @@ public class PartyHandler {
 							task.publishProgress(R.string.upload_players, nbTotal);
 							// mise à jour depuis Android, on envoie vers
 							// trictrac
-							LogUtil.trace(pw, "   " + name
-									+ " a ete mis a jour sur le telephone, on met a jour trictrac");
+							LogUtil.trace(pw, "   " + name + " a ete mis a jour sur le telephone, on met a jour trictrac");
 							uploadPlayer(p, true);
 						} else {
 							// on recup trictrac au cas où il y aurait une modif
@@ -267,10 +264,7 @@ public class PartyHandler {
 			}
 		}
 		if (firstPass && created) {
-			LogUtil
-					.trace(
-							pw,
-							"Comme il n'y a pas d acknoledgement sur la creation on refait une pass pour lier les joueurs qui viennent d'etre uploade, c reparti....");
+			LogUtil.trace(pw, "Comme il n'y a pas d acknoledgement sur la creation on refait une pass pour lier les joueurs qui viennent d'etre uploade, c reparti....");
 			synchronizePlayers(task, false);
 		}
 	}
@@ -306,8 +300,7 @@ public class PartyHandler {
 		data.add(new BasicNameValuePair("refabo", memberId));
 		if (isUpdate) {
 			data.add(new BasicNameValuePair("ref_base", player.getTrictracId()));
-			data.add(new BasicNameValuePair("upload", memberId + "_" + player.getTrictracId() + "_"
-					+ new Date().getTime()));
+			data.add(new BasicNameValuePair("upload", memberId + "_" + player.getTrictracId() + "_" + new Date().getTime()));
 		}
 		data.add(new BasicNameValuePair("auteur_fiche", login));
 		data.add(new BasicNameValuePair("sequence", "no"));
@@ -337,8 +330,7 @@ public class PartyHandler {
 		String endYear = "" + (d.get(Calendar.YEAR) + 100);
 
 		List<String> partyIds = collectPartyIds(memberId, null, day, month, year, endDay, endMonth, endYear);
-		LogUtil.trace(pw, "Ids de parties present sur trictrac a partir: " + day + "/" + month + "/" + year + "="
-				+ partyIds.size());
+		LogUtil.trace(pw, "Ids de parties present sur trictrac a partir: " + day + "/" + month + "/" + year + "=" + partyIds.size());
 		int nb = 0;
 		for (String partyId : partyIds) {
 			task.publishProgress(++nb);
@@ -601,7 +593,7 @@ public class PartyHandler {
 		if (day.length() < 2) {
 			day = "0" + day;
 		}
-		String month = "" + d.get(Calendar.MONTH) + 1;
+		String month = "" + (d.get(Calendar.MONTH) + 1);
 		if (month.length() < 2) {
 			month = "0" + month;
 		}
@@ -609,6 +601,7 @@ public class PartyHandler {
 
 		String gameId = party.getGameId();
 		List<String> oldPartyIds = null;
+
 		if (!isUpdate) {
 			oldPartyIds = collectPartyIds(memberId, gameId, day, month, year, day, month, year);
 		}
@@ -701,8 +694,7 @@ public class PartyHandler {
 	 *            the year (4 digits)
 	 * @return the list of party ids
 	 */
-	private List<String> collectPartyIds(String memberId, String gameId, String day, String month, String year,
-			String endDay, String endMonth, String endYear) {
+	private List<String> collectPartyIds(String memberId, String gameId, String day, String month, String year, String endDay, String endMonth, String endYear) {
 		List<String> partyIds = new ArrayList<String>();
 		try {
 			int deb = 0;
@@ -711,9 +703,8 @@ public class PartyHandler {
 				if (gameId != null) {
 					start += "&id_jeu=" + gameId;
 				}
-				start += "&id_membre=" + memberId + "&groupby=0&djour=" + day + "&dmois=" + month + "&dannee=" + year
-						+ "&fjour=" + endDay + "&fmois=" + endMonth + "&fannee=" + endYear
-						+ "&image2.x=22&image2.y=3&deb=" + deb;
+				start += "&id_membre=" + memberId + "&groupby=0&djour=" + day + "&dmois=" + month + "&dannee=" + year + "&fjour=" + endDay + "&fmois=" + endMonth + "&fannee="
+						+ endYear + "&image2.x=22&image2.y=3&deb=" + deb;
 				// System.out.println(start);
 				InputStream is = send(start, null);
 				String pattern = "        <A HREF=\"javascript:aide('partie_detail','";
