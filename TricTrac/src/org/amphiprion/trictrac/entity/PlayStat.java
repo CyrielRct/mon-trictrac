@@ -39,7 +39,7 @@ public class PlayStat extends Entity implements Serializable {
 	private String partyId;
 	private Player player;
 	private int rank;
-	private int score;
+	private double score;
 
 	public PlayStat() {
 		super();
@@ -65,11 +65,11 @@ public class PlayStat extends Entity implements Serializable {
 		this.rank = rank;
 	}
 
-	public int getScore() {
+	public double getScore() {
 		return score;
 	}
 
-	public void setScore(int score) {
+	public void setScore(double score) {
 		this.score = score;
 	}
 
