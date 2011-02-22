@@ -475,7 +475,11 @@ public class PartyList extends Activity implements LoadPartyListener {
 			vl2p.rightMargin = 10;
 			TextView txtScore = new TextView(getContext());
 			txtScore.setLayoutParams(vl2p);
-			txtScore.setText("" + playStat.getScore());
+			if (playStat.getScore() == (int) playStat.getScore()) {
+				txtScore.setText("" + (int) playStat.getScore());
+			} else {
+				txtScore.setText("" + playStat.getScore());
+			}
 			txtScore.setTextColor(getContext().getResources().getColor(R.color.black));
 
 			playStatLayout.addView(txtScore);

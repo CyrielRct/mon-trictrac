@@ -71,15 +71,13 @@ public class PlayStatView extends LinearLayout {
 	 * @param playStat
 	 *            the play stat entity
 	 */
-	public PlayStatView(Context context, PlayStat playStat, OnPlayStatClickedListener playStatClickedListener,
-			List<Player> players) {
+	public PlayStatView(Context context, PlayStat playStat, OnPlayStatClickedListener playStatClickedListener, List<Player> players) {
 		super(context);
 		this.players = players;
 		this.playStat = playStat;
 		this.playStatClickedListener = playStatClickedListener;
 
-		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		setLayoutParams(lp);
 		setBackgroundDrawable(context.getResources().getDrawable(R.drawable.list_item_background_states));
 
@@ -104,8 +102,7 @@ public class PlayStatView extends LinearLayout {
 	 */
 	private View createIcon() {
 		ImageView img = new ImageView(getContext());
-		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
 		img.setLayoutParams(imglp);
@@ -132,13 +129,11 @@ public class PlayStatView extends LinearLayout {
 	 */
 	private View createCategoryLayout() {
 		playStatLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
 		playStatLayout.setOrientation(VERTICAL);
 		playStatLayout.setLayoutParams(aclp);
 		txtPlayerName = new TextView(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		txtPlayerName.setLayoutParams(tlp);
 		if (playStat != null) {
@@ -157,13 +152,11 @@ public class PlayStatView extends LinearLayout {
 		playStatLayout.addView(txtPlayerName);
 
 		LinearLayout hl = new LinearLayout(getContext());
-		LayoutParams hlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams hlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		hl.setLayoutParams(hlp);
 
 		LinearLayout vl1 = new LinearLayout(getContext());
-		LayoutParams vl1p = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		LayoutParams vl1p = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		vl1.setLayoutParams(vl1p);
 		vl1.setOrientation(VERTICAL);
 		txtRank = new TextView(getContext());
@@ -177,15 +170,18 @@ public class PlayStatView extends LinearLayout {
 		hl.addView(vl1);
 
 		LinearLayout vl2 = new LinearLayout(getContext());
-		LayoutParams vl2p = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		LayoutParams vl2p = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		vl2.setLayoutParams(vl2p);
 		vl2.setOrientation(VERTICAL);
 		txtScore = new TextView(getContext());
 		if (playStat == null) {
 			txtScore.setText(getResources().getText(R.string.score));
 		} else {
-			txtScore.setText(getResources().getText(R.string.score) + ": " + playStat.getScore());
+			if (playStat.getScore() == (int) playStat.getScore()) {
+				txtScore.setText(getResources().getText(R.string.score) + ": " + (int) playStat.getScore());
+			} else {
+				txtScore.setText(getResources().getText(R.string.score) + ": " + playStat.getScore());
+			}
 		}
 		vl2.addView(txtScore);
 
@@ -237,15 +233,20 @@ public class PlayStatView extends LinearLayout {
 		final Spinner cbPlayer1 = (Spinner) vvv.findViewById(R.id.cbPlayer);
 		cbPlayer1.setAdapter(new PlayerAdapter(getContext(), players));
 		txtRank1.setText("" + playStat.getRank());
-		txtScore1.setText("" + playStat.getScore());
+		if (playStat.getScore() == (int) playStat.getScore()) {
+			txtScore1.setText("" + (int) playStat.getScore());
+		} else {
+			txtScore1.setText("" + playStat.getScore());
+		}
 		if (playStat.getPlayer() != null) {
 			cbPlayer1.setSelection(players.indexOf(new Player(playStat.getPlayer().getId())));
 		}
 		alert.setView(vvv);
 		alert.setPositiveButton(getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				playStat.setRank(Integer.parseInt("" + txtRank1.getText()));
-				playStat.setScore(Integer.parseInt("" + txtScore1.getText()));
+				playStat.setScore(Double.parseDouble("" + txtScore1.getText()));
 				playStat.setPlayer((Player) cbPlayer1.getSelectedItem());
 				txtRank.setText(getResources().getText(R.string.rank) + ": " + playStat.getRank());
 				txtScore.setText(getResources().getText(R.string.score) + ": " + playStat.getScore());
@@ -254,6 +255,7 @@ public class PlayStatView extends LinearLayout {
 		});
 
 		alert.setNegativeButton(getResources().getText(R.string.cancel), new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				dialog.cancel();
 				if (playStat.getPlayer() == null) {

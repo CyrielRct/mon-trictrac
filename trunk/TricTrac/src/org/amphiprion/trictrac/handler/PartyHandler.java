@@ -489,7 +489,7 @@ public class PartyHandler {
 					end = line.indexOf("\"", pos + pattern.length());
 					val = line.substring(pos + pattern.length(), end);
 					if (val.length() > 0) {
-						playStat.setScore(Integer.parseInt(val));
+						playStat.setScore(Double.parseDouble(val));
 					}
 					stats.add(playStat);
 					pattern = "<select name=\"joueur_";
@@ -705,7 +705,7 @@ public class PartyHandler {
 				}
 				start += "&id_membre=" + memberId + "&groupby=0&djour=" + day + "&dmois=" + month + "&dannee=" + year + "&fjour=" + endDay + "&fmois=" + endMonth + "&fannee="
 						+ endYear + "&image2.x=22&image2.y=3&deb=" + deb;
-				// System.out.println(start);
+				LogUtil.trace(pw, "start=" + start);
 				InputStream is = send(start, null);
 				String pattern = "        <A HREF=\"javascript:aide('partie_detail','";
 				BufferedReader rd = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"));
@@ -713,6 +713,7 @@ public class PartyHandler {
 				int finded = 0;
 				String line;
 				while ((line = rd.readLine()) != null) {
+					LogUtil.trace(pw, line);
 					if (line.startsWith(pattern)) {
 						int pos = line.indexOf("'", pattern.length());
 						String id = line.substring(pattern.length(), pos);
@@ -728,6 +729,7 @@ public class PartyHandler {
 				}
 			}
 		} catch (Exception e) {
+			LogUtil.trace(pw, e);
 			partyIds.clear();
 		}
 		return partyIds;

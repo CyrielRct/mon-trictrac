@@ -71,13 +71,15 @@ public class EditCollection extends Activity {
 		btSave.setOnClickListener(new ViewGroup.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				collection.setName("" + txtName.getText());
-				collection.setTricTracId(Integer.parseInt("" + txtTricTracId.getText()));
+				if (txtTricTracId.getText().length() > 0) {
+					collection.setName("" + txtName.getText());
+					collection.setTricTracId(Integer.parseInt("" + txtTricTracId.getText()));
 
-				Intent i = new Intent();
-				i.putExtra("COLLECTION", collection);
-				setResult(RESULT_OK, i);
-				finish();
+					Intent i = new Intent();
+					i.putExtra("COLLECTION", collection);
+					setResult(RESULT_OK, i);
+					finish();
+				}
 			}
 		});
 

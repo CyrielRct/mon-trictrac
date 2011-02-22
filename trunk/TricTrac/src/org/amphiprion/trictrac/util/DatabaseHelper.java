@@ -35,7 +35,7 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "amphiprion_trictrac";
-	private static final int DATABASE_VERSION = 11;
+	private static final int DATABASE_VERSION = 12;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -47,21 +47,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		try {
-			db.execSQL("create table GAME (" + Game.DbField.ID + " text primary key, " + Game.DbField.NAME
-					+ " text not null, " + Game.DbField.IMAGE_NAME + " text" + "," + Game.DbField.TYPE + " text" + ","
-					+ Game.DbField.THEMES + " text" + "," + Game.DbField.MECHANISMS + " text" + ","
-					+ Game.DbField.FAMILIES + " text" + "," + Game.DbField.MIN_PLAYER + " integer" + ","
-					+ Game.DbField.MAX_PLAYER + " integer" + "," + Game.DbField.MIN_AGE + " integer" + ","
-					+ Game.DbField.MAX_AGE + " integer" + "," + Game.DbField.DURATION + " integer" + ","
-					+ Game.DbField.DIFFICULTY + " integer" + "," + Game.DbField.LUCK + " integer" + ","
+			db.execSQL("create table GAME (" + Game.DbField.ID + " text primary key, " + Game.DbField.NAME + " text not null, " + Game.DbField.IMAGE_NAME + " text" + ","
+					+ Game.DbField.TYPE + " text" + "," + Game.DbField.THEMES + " text" + "," + Game.DbField.MECHANISMS + " text" + "," + Game.DbField.FAMILIES + " text" + ","
+					+ Game.DbField.MIN_PLAYER + " integer" + "," + Game.DbField.MAX_PLAYER + " integer" + "," + Game.DbField.MIN_AGE + " integer" + "," + Game.DbField.MAX_AGE
+					+ " integer" + "," + Game.DbField.DURATION + " integer" + "," + Game.DbField.DIFFICULTY + " integer" + "," + Game.DbField.LUCK + " integer" + ","
 					+ Game.DbField.STRATEGY + " integer" + "," + Game.DbField.DIPLOMATY + " integer" + ") ");
 
-			db.execSQL("create table COLLECTION (" + Collection.DbField.ID + " text primary key, "
-					+ Collection.DbField.NAME + " text," + Collection.DbField.LAST_SYNCHRO + " date, "
-					+ Collection.DbField.TRICTRAC_ID + " text, " + Collection.DbField.COUNT + " integer)");
+			db.execSQL("create table COLLECTION (" + Collection.DbField.ID + " text primary key, " + Collection.DbField.NAME + " text," + Collection.DbField.LAST_SYNCHRO
+					+ " date, " + Collection.DbField.TRICTRAC_ID + " text, " + Collection.DbField.COUNT + " integer)");
 
-			db.execSQL("create table COLLECTION_GAME (" + CollectionGame.DbField.FK_COLLECTION + " text not null, "
-					+ CollectionGame.DbField.FK_GAME + " text not null)");
+			db.execSQL("create table COLLECTION_GAME (" + CollectionGame.DbField.FK_COLLECTION + " text not null, " + CollectionGame.DbField.FK_GAME + " text not null)");
 
 			onUpgrade(db, 1, DATABASE_VERSION);
 		} catch (Throwable e) {
@@ -75,9 +70,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		if (oldVersion == 1) {
-			db.execSQL("create table SEARCH (" + Search.DbField.ID + " text not null, " + Search.DbField.NAME
-					+ " text not null," + Search.DbField.MIN_PLAYER + " integer," + Search.DbField.MAX_PLAYER
-					+ " integer)");
+			db.execSQL("create table SEARCH (" + Search.DbField.ID + " text not null, " + Search.DbField.NAME + " text not null," + Search.DbField.MIN_PLAYER + " integer,"
+					+ Search.DbField.MAX_PLAYER + " integer)");
 			oldVersion++;
 		}
 		if (oldVersion == 2) {
@@ -98,13 +92,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 
 		if (oldVersion == 4) {
-			db.execSQL("create table PLAYER (" + Player.DbField.ID + " text not null, " + Player.DbField.PSEUDO
-					+ " text ," + Player.DbField.TRICTRAC_ID + " text)");
-			db.execSQL("create table PARTY (" + Party.DbField.ID + " text not null, " + Party.DbField.CITY + " text ,"
-					+ Party.DbField.COMMENT + " text," + Party.DbField.DURATION + " integer," + Party.DbField.EVENT
-					+ " text," + Party.DbField.HAPPYNESS + " integer," + Party.DbField.PLAY_DATE + " date)");
-			db.execSQL("create table PLAY_STAT (" + PlayStat.DbField.ID + " text not null, "
-					+ PlayStat.DbField.FK_PLAYER + " text ," + PlayStat.DbField.RANK + " integer,"
+			db.execSQL("create table PLAYER (" + Player.DbField.ID + " text not null, " + Player.DbField.PSEUDO + " text ," + Player.DbField.TRICTRAC_ID + " text)");
+			db.execSQL("create table PARTY (" + Party.DbField.ID + " text not null, " + Party.DbField.CITY + " text ," + Party.DbField.COMMENT + " text," + Party.DbField.DURATION
+					+ " integer," + Party.DbField.EVENT + " text," + Party.DbField.HAPPYNESS + " integer," + Party.DbField.PLAY_DATE + " date)");
+			db.execSQL("create table PLAY_STAT (" + PlayStat.DbField.ID + " text not null, " + PlayStat.DbField.FK_PLAYER + " text ," + PlayStat.DbField.RANK + " integer,"
 					+ PlayStat.DbField.SCORE + " integer)");
 			oldVersion++;
 		}
@@ -140,6 +131,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		if (oldVersion == 10) {
 			db.execSQL("ALTER TABLE GAME ADD " + Game.DbField.NB_RATING + " integer default 0");
 			db.execSQL("ALTER TABLE GAME ADD " + Game.DbField.ADV_RATING + " double default 0");
+			oldVersion++;
+		}
+		if (oldVersion == 11) {
+			db.execSQL("create table PLAY_STAT_BACKUP (" + PlayStat.DbField.ID + " text not null, " + PlayStat.DbField.FK_PLAYER + " text ," + PlayStat.DbField.RANK + " integer,"
+					+ PlayStat.DbField.SCORE + " double," + PlayStat.DbField.FK_PARTY + " text)");
+			db.execSQL("INSERT INTO PLAY_STAT_BACKUP SELECT * FROM PLAY_STAT");
+			db.execSQL("DROP TABLE PLAY_STAT");
+			db.execSQL("ALTER TABLE PLAY_STAT_BACKUP rename to PLAY_STAT");
 			oldVersion++;
 		}
 	}
