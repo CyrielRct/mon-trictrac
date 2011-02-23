@@ -479,8 +479,12 @@ public class PartyHandler {
 					pos = line.indexOf(pattern);
 					int end = line.indexOf("\"", pos + pattern.length());
 					String val = line.substring(pos + pattern.length(), end);
-					if (val.length() > 0) {
-						playStat.setRank(Integer.parseInt(val));
+					try {
+						if (val.length() > 0) {
+							playStat.setRank(Integer.parseInt(val));
+						}
+					} catch (NumberFormatException nfe) {
+						// Nothing to do
 					}
 					pattern = "<input name=\"score_";
 					pos = line.indexOf(pattern);
@@ -489,7 +493,12 @@ public class PartyHandler {
 					end = line.indexOf("\"", pos + pattern.length());
 					val = line.substring(pos + pattern.length(), end);
 					if (val.length() > 0) {
-						playStat.setScore(Double.parseDouble(val));
+						try {
+							val = val.replaceAll(",", ".");
+							playStat.setScore(Double.parseDouble(val));
+						} catch (NumberFormatException nfe) {
+							// Nothing to do
+						}
 					}
 					stats.add(playStat);
 					pattern = "<select name=\"joueur_";
