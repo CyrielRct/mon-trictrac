@@ -39,6 +39,7 @@ public class ImportCollectionTask extends AsyncTask<Collection, Integer, List<Co
 	private ProgressDialog progress;
 	private ImportCollectionListener caller;
 	private Collection collection;
+	private String title;
 
 	/**
 	 * Default constructor.
@@ -51,7 +52,7 @@ public class ImportCollectionTask extends AsyncTask<Collection, Integer, List<Co
 	protected List<CollectionGame> doInBackground(Collection... collections) {
 		CollectionHandler handler = new CollectionHandler(caller.getContext(), this);
 		collection = collections[0];
-		progress.setTitle("" + collection.getName());
+		title = collection.getName();
 		handler.parse(collection);
 		return handler.getCollectionGames();
 	}
@@ -62,8 +63,7 @@ public class ImportCollectionTask extends AsyncTask<Collection, Integer, List<Co
 
 	@Override
 	protected void onPreExecute() {
-		progress = ProgressDialog.show(caller.getContext(), "plop", caller.getContext().getString(R.string.import_game,
-				0), true, true, new DialogInterface.OnCancelListener() {
+		progress = ProgressDialog.show(caller.getContext(), "...", caller.getContext().getString(R.string.import_game, 0), true, true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
 				caller.importEnded(false, null, null);
@@ -73,6 +73,7 @@ public class ImportCollectionTask extends AsyncTask<Collection, Integer, List<Co
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
+		progress.setTitle(title);
 		progress.setMessage(caller.getContext().getResources().getString(values[0], values[1]));
 	}
 
