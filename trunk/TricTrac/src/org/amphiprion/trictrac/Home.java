@@ -28,10 +28,10 @@ import org.amphiprion.trictrac.dao.CollectionDao;
 import org.amphiprion.trictrac.dao.PlayerDao;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
+import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Player;
 import org.amphiprion.trictrac.entity.Search;
-import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.task.ImportCollectionTask;
 import org.amphiprion.trictrac.task.ImportCollectionTask.ImportCollectionListener;
 import org.amphiprion.trictrac.util.DateUtil;
@@ -51,14 +51,14 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnFocusChangeListener;
+import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TabHost;
-import android.widget.TextView;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
+import android.widget.TextView;
 
 public class Home extends TabActivity implements ImportCollectionListener {
 	private static boolean init = false;
@@ -88,8 +88,7 @@ public class Home extends TabActivity implements ImportCollectionListener {
 		if (!init) {
 			DateUtil.init(this);
 			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY).mkdirs();
-			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/logs")
-					.mkdirs();
+			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/logs").mkdirs();
 		}
 
 		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
@@ -121,67 +120,64 @@ public class Home extends TabActivity implements ImportCollectionListener {
 	}
 
 	private void init() {
-		init = true;
-		Resources res = getResources(); // Resource object to get Drawables
-		titles = new String[5];
+		if (!init) {
+			init = true;
+			Resources res = getResources(); // Resource object to get Drawables
+			titles = new String[5];
 
-		tabHost = getTabHost(); // The activity TabHost
-		TabHost.TabSpec spec; // Resusable TabSpec for each tab
-		Intent intent; // Reusable Intent for each tab
+			tabHost = getTabHost(); // The activity TabHost
+			tabHost.clearAllTabs();
+			TabHost.TabSpec spec; // Resusable TabSpec for each tab
+			Intent intent; // Reusable Intent for each tab
 
-		// Create an Intent to launch an Activity for the tab (to be reused)
-		intent = new Intent().setClass(this, CollectionActivityGroup.class);
-		// Initialize a TabSpec for each tab and add it to the TabHost
-		spec = tabHost.newTabSpec("collectionlist").setIndicator(res.getString(R.string.tab_collection),
-				res.getDrawable(R.drawable.collection)).setContent(intent);
-		tabHost.addTab(spec);
+			// Create an Intent to launch an Activity for the tab (to be reused)
+			intent = new Intent().setClass(this, CollectionActivityGroup.class);
+			// Initialize a TabSpec for each tab and add it to the TabHost
+			spec = tabHost.newTabSpec("collectionlist").setIndicator(res.getString(R.string.tab_collection), res.getDrawable(R.drawable.collection)).setContent(intent);
+			tabHost.addTab(spec);
 
-		// 
-		intent = new Intent().setClass(this, SearchList.class);
-		spec = tabHost.newTabSpec("searchlist").setIndicator(res.getString(R.string.tab_search),
-				res.getDrawable(R.drawable.search)).setContent(intent);
-		tabHost.addTab(spec);
+			//
+			intent = new Intent().setClass(this, SearchList.class);
+			spec = tabHost.newTabSpec("searchlist").setIndicator(res.getString(R.string.tab_search), res.getDrawable(R.drawable.search)).setContent(intent);
+			tabHost.addTab(spec);
 
-		// 
-		intent = new Intent().setClass(this, PlayerList.class);
-		spec = tabHost.newTabSpec("playerlist").setIndicator(res.getString(R.string.tab_player),
-				res.getDrawable(R.drawable.play)).setContent(intent);
-		tabHost.addTab(spec);
+			//
+			intent = new Intent().setClass(this, PlayerList.class);
+			spec = tabHost.newTabSpec("playerlist").setIndicator(res.getString(R.string.tab_player), res.getDrawable(R.drawable.play)).setContent(intent);
+			tabHost.addTab(spec);
 
-		// 
-		intent = new Intent().setClass(this, PartyList.class);
-		spec = tabHost.newTabSpec("partylist").setIndicator(res.getString(R.string.tab_party),
-				res.getDrawable(R.drawable.party)).setContent(intent);
-		tabHost.addTab(spec);
+			//
+			intent = new Intent().setClass(this, PartyList.class);
+			spec = tabHost.newTabSpec("partylist").setIndicator(res.getString(R.string.tab_party), res.getDrawable(R.drawable.party)).setContent(intent);
+			tabHost.addTab(spec);
 
-		// 
-		intent = new Intent().setClass(this, Browser.class);
-		intent.setData(Uri.parse("http://www.trictrac.net/"));
-		spec = tabHost.newTabSpec("browser").setIndicator(res.getString(R.string.tab_browser),
-				res.getDrawable(R.drawable.internet)).setContent(intent);
-		tabHost.addTab(spec);
-		browserSpec = spec;
+			//
+			intent = new Intent().setClass(this, Browser.class);
+			intent.setData(Uri.parse("http://www.trictrac.net/"));
+			spec = tabHost.newTabSpec("browser").setIndicator(res.getString(R.string.tab_browser), res.getDrawable(R.drawable.internet)).setContent(intent);
+			tabHost.addTab(spec);
+			browserSpec = spec;
 
-		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
+			tabHost.setOnTabChangedListener(new OnTabChangeListener() {
 
-			@Override
-			public void onTabChanged(String tabId) {
-				if (Browser.instance != null) {
-					if (tabHost.getCurrentTab() != 4) {
-						Browser.instance.emptyPage();
-					} else {
-						Browser.instance.restorePage();
+				@Override
+				public void onTabChanged(String tabId) {
+					if (Browser.instance != null) {
+						if (tabHost.getCurrentTab() != 4) {
+							Browser.instance.emptyPage();
+						} else {
+							Browser.instance.restorePage();
+						}
 					}
+					if (titles[tabHost.getCurrentTab()] == null) {
+						titles[tabHost.getCurrentTab()] = "" + getResources().getText(R.string.app_name);
+					}
+					setTitle(titles[tabHost.getCurrentTab()]);
 				}
-				if (titles[tabHost.getCurrentTab()] == null) {
-					titles[tabHost.getCurrentTab()] = "" + getResources().getText(R.string.app_name);
-				}
-				setTitle(titles[tabHost.getCurrentTab()]);
-			}
-		});
+			});
 
-		tabHost.setCurrentTab(0);
-
+			tabHost.setCurrentTab(0);
+		}
 	}
 
 	public static void goToParties(Context context, Game game) {
@@ -265,6 +261,7 @@ public class Home extends TabActivity implements ImportCollectionListener {
 		chkTrace.setChecked(pref.getBoolean("ACTIVE_TRACE", false));
 		alert.setView(vvv);
 		alert.setPositiveButton(context.getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				Editor edit = pref.edit();
 				edit.putInt(StartupAction.class.getName(), cbStartup.getSelectedItemPosition());
@@ -276,6 +273,7 @@ public class Home extends TabActivity implements ImportCollectionListener {
 		});
 
 		alert.setNegativeButton(context.getResources().getText(R.string.cancel), new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				dialog.cancel();
 			}
@@ -343,6 +341,7 @@ public class Home extends TabActivity implements ImportCollectionListener {
 
 		alert.setView(vvv);
 		alert.setPositiveButton(context.getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				Editor edit = pref.edit();
 				edit.putString("LOGIN", "" + txtLogin.getText());
@@ -359,6 +358,7 @@ public class Home extends TabActivity implements ImportCollectionListener {
 		});
 
 		alert.setNegativeButton(context.getResources().getText(R.string.cancel), new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				dialog.cancel();
 			}

@@ -80,7 +80,14 @@ public class PlayStatView extends LinearLayout {
 		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		setLayoutParams(lp);
 		setBackgroundDrawable(context.getResources().getDrawable(R.drawable.list_item_background_states));
-
+		setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (PlayStatView.this.playStat == null) {
+					PlayStatView.this.playStatClickedListener.playStatClicked(PlayStatView.this);
+				}
+			}
+		});
 		addView(createIcon());
 
 		addView(createCategoryLayout());

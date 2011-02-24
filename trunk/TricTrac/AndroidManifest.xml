@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.amphiprion.trictrac"
-      android:versionName="1.4.16" android:versionCode="27">
+      android:versionName="1.4.17" android:versionCode="28">
     <application android:debuggable="false" android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".Home" android:configChanges="keyboardHidden|orientation"
                   android:label="@string/app_name">
