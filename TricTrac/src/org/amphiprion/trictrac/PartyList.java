@@ -19,6 +19,8 @@
  */
 package org.amphiprion.trictrac;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,6 +51,8 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -66,6 +70,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author amphiprion
@@ -169,6 +174,9 @@ public class PartyList extends Activity implements LoadPartyListener {
 		if (game != null) {
 			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_CREATE_PARTY, 0, R.string.add_party);
 			addAccount.setIcon(android.R.drawable.ic_menu_add);
+		} else {
+			MenuItem exportStat = menu.add(0, ApplicationConstants.MENU_ID_EXPORT_PARTY_STAT, 0, R.string.export_party_stat);
+			exportStat.setIcon(android.R.drawable.ic_menu_info_details);
 		}
 
 		MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1, R.string.menu_search_trictrac);
@@ -224,8 +232,50 @@ public class PartyList extends Activity implements LoadPartyListener {
 			DatePickerDialog dlg = new DatePickerDialog(getContext(), l, date.getYear() + 1900, date.getMonth(), date.getDate());
 			dlg.setTitle(getResources().getText(R.string.synch_start_date));
 			dlg.show();
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_EXPORT_PARTY_STAT) {
+			chooseStartCustomRange();
 		}
 		return true;
+	}
+
+	private void chooseStartCustomRange() {
+		Date date = new Date();
+		DatePickerDialog dlg = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+			@Override
+			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+				Date start = new Date(year - 1900, monthOfYear, dayOfMonth);
+				chooseEndCustomRange(start);
+			}
+		}, date.getYear() + 1900, date.getMonth(), date.getDate());
+		dlg.setTitle(R.string.period_start_date);
+		dlg.show();
+	}
+
+	private void chooseEndCustomRange(final Date start) {
+		Date date = new Date();
+		DatePickerDialog dlg = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+			@Override
+			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+				File f = null;
+				try {
+					f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/stats/" + System.currentTimeMillis() + ".csv");
+					PrintWriter pw = new PrintWriter(f);
+					Date end = new Date(year - 1900, monthOfYear, dayOfMonth);
+					PartyDao.getInstance(PartyList.this).generateStatistics(start, end, ownerId, pw);
+					pw.close();
+
+					Toast.makeText(getContext(), f.getAbsolutePath(), Toast.LENGTH_LONG).show();
+				} catch (Exception e) {
+					Log.e(ApplicationConstants.PACKAGE, "", e);
+					if (f != null) {
+						f.delete();
+					}
+					Toast.makeText(getContext(), "Erreur:" + e, Toast.LENGTH_LONG).show();
+				}
+			}
+		}, date.getYear() + 1900, date.getMonth(), date.getDate());
+		dlg.setTitle(R.string.period_end_date);
+		dlg.show();
 	}
 
 	@Override

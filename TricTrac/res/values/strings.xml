@@ -97,6 +97,9 @@
 	<string name="rank">Classement</string>
 	<string name="score">Score</string>
 	<string name="default_player">Joueur générique</string>
+	<string name="export_party_stat">Statistiques</string>
+	<string name="period_start_date">Choisir la date de départ</string>
+	<string name="period_end_date">Choisir la date de fin</string>
 	
 	<string name="my_parties">Mes parties : %1$s</string>
 	<string name="empty_party_list">\nUtiliser le menu pour créer une nouvelle
@@ -141,6 +144,14 @@
 
 	<string name="menu_seach">Par nom</string>
 
+<string-array name="game_stat_header">
+	<item>Identifiant</item>
+	<item>Nom</item>
+	<item>Parties</item>
+	<item>Victoires</item>
+	<item>Satisfaction sur 5</item>
+	<item>Durée moyenne (mn)</item>
+</string-array>
 </resources>
 
 

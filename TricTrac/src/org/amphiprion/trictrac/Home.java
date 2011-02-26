@@ -89,6 +89,7 @@ public class Home extends TabActivity implements ImportCollectionListener {
 			DateUtil.init(this);
 			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY).mkdirs();
 			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/logs").mkdirs();
+			new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/stats").mkdirs();
 		}
 
 		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);

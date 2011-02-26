@@ -19,10 +19,12 @@
  */
 package org.amphiprion.trictrac.dao;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.amphiprion.trictrac.R;
 import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
@@ -263,5 +265,106 @@ public class PartyDao extends AbstractDao {
 		}
 		cursor.close();
 		return result;
+	}
+
+	public void generateStatistics(Date start, Date end, String ownerId, PrintWriter pw) {
+		String sql = "SELECT p." + Party.DbField.FK_GAME + ",g." + Game.DbField.NAME + ",p." + Party.DbField.HAPPYNESS + ",p." + Party.DbField.DURATION;
+		if (ownerId != null) {
+			sql += ",(select count(*) from PLAY_STAT where " + PlayStat.DbField.FK_PARTY + "=p." + Party.DbField.ID + " and " + PlayStat.DbField.FK_PLAYER + "='" + ownerId
+					+ "' and " + PlayStat.DbField.RANK + "=1)";
+		}
+		sql += " from PARTY p join GAME g on p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID;
+		sql += " where p." + Party.DbField.PLAY_DATE + " BETWEEN '" + dateToString(start) + "' AND '" + dateToString(end) + "'";
+		sql += " order by g." + Game.DbField.NAME + " asc,p." + Party.DbField.PLAY_DATE + " desc";
+		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
+
+		GameStat gameStat = null;
+		if (cursor.moveToFirst()) {
+			boolean exit = false;
+			while (!exit) {
+				String newGameId = cursor.getString(0);
+				if (gameStat == null || !newGameId.equals(gameStat.id)) {
+					if (gameStat != null) {
+						gameStat.write(pw);
+						gameStat = new GameStat(newGameId);
+					} else {
+						gameStat = new GameStat(newGameId);
+						gameStat.writeHeader(pw);
+					}
+					gameStat.name = cursor.getString(1);
+				}
+				gameStat.nbSession++;
+				int happyness = cursor.getInt(2);
+				if (happyness > 0) {
+					gameStat.nbHappyness++;
+					gameStat.totalHappyness += happyness;
+				}
+				int duration = cursor.getInt(3);
+				if (duration > 0) {
+					gameStat.nbDuration++;
+					gameStat.totalDuration += duration;
+				}
+				if (ownerId != null && cursor.getLong(4) > 0) {
+					gameStat.nbWin++;
+				}
+				exit = !cursor.moveToNext();
+				if (exit) {
+					gameStat.write(pw);
+				}
+			}
+		}
+		cursor.close();
+	}
+
+	private class GameStat {
+		private final static String SEPARATOR = ";";
+		private String id;
+		private String name;
+		private int nbSession;
+		private int nbWin;
+		private int nbHappyness;
+		private int totalHappyness;
+		private int nbDuration;
+		private int totalDuration;
+
+		GameStat(String id) {
+			this.id = id;
+		}
+
+		void writeHeader(PrintWriter pw) {
+			StringBuffer line = new StringBuffer();
+			String[] headers = getContext().getResources().getStringArray(R.array.game_stat_header);
+			for (int i = 0; i < headers.length; i++) {
+				if (i > 0) {
+					line.append(SEPARATOR);
+				}
+				line.append(headers[i]);
+			}
+			pw.println(line);
+		}
+
+		void write(PrintWriter pw) {
+			StringBuffer line = new StringBuffer();
+			line.append(id);
+			line.append(SEPARATOR);
+			line.append(name);
+			line.append(SEPARATOR);
+			line.append(nbSession);
+			line.append(SEPARATOR);
+			line.append(nbWin);
+			line.append(SEPARATOR);
+			if (nbHappyness > 0) {
+				line.append((float) totalHappyness / nbHappyness);
+			} else {
+				line.append("0");
+			}
+			line.append(SEPARATOR);
+			if (nbDuration > 0) {
+				line.append(Math.round((float) totalDuration / nbDuration));
+			} else {
+				line.append("0");
+			}
+			pw.println(line);
+		}
 	}
 }
