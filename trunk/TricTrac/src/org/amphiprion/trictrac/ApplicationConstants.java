@@ -59,6 +59,7 @@ public class ApplicationConstants {
 	public static final int MENU_ID_SYNCH_ALL_GAMES = 23;
 	public static final int MENU_ID_SEARCH = 24;
 	public static final int MENU_ID_VIEW_ADVICES_TRICTRAC = 25;
+	public static final int MENU_ID_EXPORT_PARTY_STAT = 26;
 
 	public static final int ACTIVITY_RETURN_CREATE_COLLECTION = 0;
 	public static final int ACTIVITY_RETURN_UPDATE_COLLECTION = 1;
