@@ -277,7 +277,7 @@ public class PartyDao extends AbstractDao {
 		sql += " where p." + Party.DbField.PLAY_DATE + " BETWEEN '" + dateToString(start) + "' AND '" + dateToString(end) + "'";
 		sql += " order by g." + Game.DbField.NAME + " asc,p." + Party.DbField.PLAY_DATE + " desc";
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
-
+		pw.println(dateToString(start) + GameStat.SEPARATOR + dateToString(end));
 		GameStat gameStat = null;
 		if (cursor.moveToFirst()) {
 			boolean exit = false;
@@ -332,6 +332,7 @@ public class PartyDao extends AbstractDao {
 		}
 
 		void writeHeader(PrintWriter pw) {
+
 			StringBuffer line = new StringBuffer();
 			String[] headers = getContext().getResources().getStringArray(R.array.game_stat_header);
 			for (int i = 0; i < headers.length; i++) {
