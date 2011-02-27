@@ -186,7 +186,7 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 			LoadPartiesGameTask task = new LoadPartiesGameTask(this, load.pageIndex, PAGE_SIZE);
 			task.execute();
 		} else {
-			LoadPartiesTask task = new LoadPartiesTask(this, load.game, load.pageIndex, PAGE_SIZE, modeToUse);
+			LoadPartiesTask task = new LoadPartiesTask(this, load.game, load.pageIndex, PAGE_SIZE, modeToUse, ownerId);
 			task.execute();
 		}
 	}
@@ -362,10 +362,8 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 			Intent i = new Intent(this, EditParty.class);
 			Party party = PartyDao.getInstance(this).getParty(current.getId());
 			i.putExtra("PARTY", party);
-			if (game == null) {
-				game = GameDao.getInstance(this).getGame(party.getGameId());
-			}
-			i.putExtra("GAME", game);
+
+			i.putExtra("GAME", GameDao.getInstance(this).getGame(party.getGameId()));
 			startActivityForResult(i, ApplicationConstants.ACTIVITY_RETURN_UPDATE_PARTY);
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_DELETE_PARTY) {
 			Party party = PartyDao.getInstance(this).getParty(current.getId());
@@ -424,7 +422,7 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 					return true;
 				}
 			});
-			Log.d(ApplicationConstants.PACKAGE, "Add party at:" + index);
+
 			if (index < ln.getChildCount()) {
 				ln.addView(view, index);
 			} else {
@@ -511,10 +509,8 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 				}
 			});
 			if (index < ln.getChildCount()) {
-				Log.d(ApplicationConstants.PACKAGE, "index=" + index + " jeux=" + newGame.getName() + "  ln.childcount=" + ln.getChildCount());
 				ln.addView(view, index);
 			} else {
-				Log.d(ApplicationConstants.PACKAGE, "index=" + index + " jeux=" + newGame.getName() + "  a la FIN");
 				ln.addView(view);
 			}
 			index++;
@@ -559,7 +555,6 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 
 	@Override
 	public void importEnded(boolean succeed, List<PartyForList> newParties) {
-		Log.d(ApplicationConstants.PACKAGE, "success:" + succeed + " size=" + newParties.size());
 		boolean allLoaded = true;
 		if (succeed) {
 			LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
@@ -594,7 +589,6 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 			if (load.insertBefore != null) {
 				ln.removeViewAt(ln.indexOfChild(load.insertBefore) - 1);
 			} else {
-				Log.d(ApplicationConstants.PACKAGE, "on supprimer waiting at " + (ln.getChildCount() - 1));
 				ln.removeViewAt(ln.getChildCount() - 1);
 			}
 			if (newGames != null && newGames.size() > 0) {
