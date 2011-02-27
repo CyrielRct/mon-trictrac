@@ -2,7 +2,7 @@
 
 	<view xmlns:android="http://schemas.android.com/apk/res/android" class="org.amphiprion.trictrac.view.MyScrollView"
 		android:layout_weight="1" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:background="#FFFFFF"
+		android:layout_height="fill_parent" android:background="#000000"
 		android:id="@+id/scroll_view">
 		<LinearLayout android:id="@+id/party_list"
 			android:orientation="vertical" android:layout_width="fill_parent"

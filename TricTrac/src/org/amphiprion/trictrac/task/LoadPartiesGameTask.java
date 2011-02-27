@@ -23,9 +23,7 @@ import java.util.List;
 
 import org.amphiprion.trictrac.ApplicationConstants;
 import org.amphiprion.trictrac.dao.PartyDao;
-import org.amphiprion.trictrac.dao.PartyDao.PartyListMode;
 import org.amphiprion.trictrac.entity.Game;
-import org.amphiprion.trictrac.entity.PartyForList;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -35,29 +33,25 @@ import android.util.Log;
  * @author amphiprion
  * 
  */
-public class LoadPartiesTask extends AsyncTask<Void, Integer, List<PartyForList>> {
-	private LoadPartyListener caller;
+public class LoadPartiesGameTask extends AsyncTask<Void, Integer, List<Game>> {
+	private LoadPartyGameListener caller;
 	private int pageIndex;
 	private int pageSize;
-	private Game game;
-	private PartyListMode mode;
 
 	/**
 	 * Default constructor.
 	 */
-	public LoadPartiesTask(LoadPartyListener caller, Game game, int pageIndex, int pageSize, PartyListMode mode) {
+	public LoadPartiesGameTask(LoadPartyGameListener caller, int pageIndex, int pageSize) {
 		this.caller = caller;
-		this.game = game;
 		this.pageIndex = pageIndex;
 		this.pageSize = pageSize;
-		this.mode = mode;
 	}
 
 	@Override
-	protected List<PartyForList> doInBackground(Void... v) {
+	protected List<Game> doInBackground(Void... v) {
 		try {
-			List<PartyForList> parties = PartyDao.getInstance(caller.getContext()).getParties(game, pageIndex, pageSize, null, mode);
-			return parties;
+			List<Game> games = PartyDao.getInstance(caller.getContext()).getPartiesGames(pageIndex, pageSize);
+			return games;
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "", e);
 			return null;
@@ -73,12 +67,12 @@ public class LoadPartiesTask extends AsyncTask<Void, Integer, List<PartyForList>
 	}
 
 	@Override
-	protected void onPostExecute(List<PartyForList> parties) {
-		caller.importEnded(!isCancelled() && parties != null, parties);
+	protected void onPostExecute(List<Game> games) {
+		caller.importGameEnded(!isCancelled() && games != null, games);
 	}
 
-	public interface LoadPartyListener {
-		void importEnded(boolean succeed, List<PartyForList> parties);
+	public interface LoadPartyGameListener {
+		void importGameEnded(boolean succeed, List<Game> games);
 
 		Context getContext();
 	}

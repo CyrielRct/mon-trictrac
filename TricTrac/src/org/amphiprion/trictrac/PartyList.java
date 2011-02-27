@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.amphiprion.trictrac.dao.GameDao;
 import org.amphiprion.trictrac.dao.PartyDao;
+import org.amphiprion.trictrac.dao.PartyDao.PartyListMode;
 import org.amphiprion.trictrac.dao.PlayStatDao;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
@@ -35,16 +36,21 @@ import org.amphiprion.trictrac.entity.PartyForList;
 import org.amphiprion.trictrac.entity.PlayStat;
 import org.amphiprion.trictrac.interpolator.BounceInterpolator;
 import org.amphiprion.trictrac.task.ITaskListener;
+import org.amphiprion.trictrac.task.LoadPartiesGameTask;
+import org.amphiprion.trictrac.task.LoadPartiesGameTask.LoadPartyGameListener;
 import org.amphiprion.trictrac.task.LoadPartiesTask;
 import org.amphiprion.trictrac.task.LoadPartiesTask.LoadPartyListener;
 import org.amphiprion.trictrac.task.SynchronizePartiesTask;
 import org.amphiprion.trictrac.view.MyScrollView;
+import org.amphiprion.trictrac.view.PartyGameSummaryView;
 import org.amphiprion.trictrac.view.PartySummaryView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -62,13 +68,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,21 +81,19 @@ import android.widget.Toast;
  * @author amphiprion
  * 
  */
-public class PartyList extends Activity implements LoadPartyListener {
+public class PartyList extends Activity implements LoadPartyListener, LoadPartyGameListener {
 	private static final int PAGE_SIZE = 20;
 
 	public static PartyList instance;
 	private HashMap<String, View> detailedViews;
-	private int loadedPage;
-	private List<PartyForList> parties;
 	private MyScrollView scrollView;
-	private boolean allLoaded;
 	private boolean loading;
-	private String lastGameName = null;
 	private Game game;
 	private PartyForList current;
-	private LoadPartiesTask task;
 	private String ownerId;
+	private PartyListMode mode;
+
+	private List<LoadNeeded> loadNeededList;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +102,7 @@ public class PartyList extends Activity implements LoadPartyListener {
 		detailedViews = new HashMap<String, View>();
 		SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
 		ownerId = pref.getString("ACCOUNT_PLAYER_ID", null);
+		mode = PartyListMode.values()[pref.getInt("PARTY_LIST_MODE", 0)];
 
 		setContentView(R.layout.party_list);
 
@@ -107,14 +111,19 @@ public class PartyList extends Activity implements LoadPartyListener {
 		scrollView.setOnScrollChanged(new OnScrollChangedListener() {
 			@Override
 			public void onScrollChanged() {
-				if (!allLoaded && !loading) {
+				if (loadNeededList != null && loadNeededList.size() > 0 && !loading) {
+					loading = true;
+					int index = getInsertIndex(loadNeededList.get(0)) - 1;
 					LinearLayout ln = (LinearLayout) scrollView.getChildAt(0);
-					if (ln.getChildCount() > 3) {
-						boolean b = ln.getChildAt(ln.getChildCount() - 3).getLocalVisibleRect(r);
+					if (ln.getChildAt(index) != null) {
+						boolean b = ln.getChildAt(index).getLocalVisibleRect(r);
 						if (b) {
-							loading = true;
-							loadNextPage();
+							loadNextPage(loadNeededList.get(0));
+						} else {
+							loading = false;
 						}
+					} else {
+						loading = false;
 					}
 				}
 			}
@@ -122,6 +131,17 @@ public class PartyList extends Activity implements LoadPartyListener {
 
 		handleIntent(getIntent());
 
+	}
+
+	private int getInsertIndex(LoadNeeded load) {
+		int index;
+		LinearLayout ln = (LinearLayout) scrollView.getChildAt(0);
+		if (load.insertBefore == null) {
+			index = ln.getChildCount();
+		} else {
+			index = ln.indexOfChild(load.insertBefore);
+		}
+		return index;
 	}
 
 	public void handleIntent(Intent intent) {
@@ -144,26 +164,29 @@ public class PartyList extends Activity implements LoadPartyListener {
 	}
 
 	private void init() {
-		loadedPage = 0;
-		if (parties == null) {
-			parties = new ArrayList<PartyForList>();
-		} else {
-			parties.clear();
-		}
-		loadNextPage();
+		loading = true;
+		LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
+		ln.removeAllViews();
+		scrollView.scrollTo(0, 0);
+		loadNeededList = new ArrayList<PartyList.LoadNeeded>();
+		LoadNeeded load = new LoadNeeded();
+		load.game = game;
+		load.lastGameName = null;
+		load.insertBefore = null;
+		load.pageIndex = 0;
+		loadNeededList.add(load);
+
+		ln.addView(createProgressView());
+		loadNextPage(load);
 	}
 
-	private void loadNextPage() {
-		if (loadedPage == 0) {
-			// int nb = GameDao.getInstance(this).getGameCount(collection,
-			// search, query);
-			// Toast.makeText(this,
-			// getResources().getString(R.string.message_nb_result, nb),
-			// Toast.LENGTH_LONG).show();
-			List<PartyForList> newParties = PartyDao.getInstance(this).getParties(game, loadedPage, PAGE_SIZE, ownerId);
-			importEnded(true, newParties);
+	private void loadNextPage(LoadNeeded load) {
+		PartyListMode modeToUse = game != null ? PartyListMode.PER_DATE : mode;
+		if (modeToUse == PartyListMode.PER_GAME_COLLAPSED && load.game == null) {
+			LoadPartiesGameTask task = new LoadPartiesGameTask(this, load.pageIndex, PAGE_SIZE);
+			task.execute();
 		} else {
-			task = new LoadPartiesTask(this, game, loadedPage, PAGE_SIZE);
+			LoadPartiesTask task = new LoadPartiesTask(this, load.game, load.pageIndex, PAGE_SIZE, modeToUse);
 			task.execute();
 		}
 	}
@@ -171,18 +194,22 @@ public class PartyList extends Activity implements LoadPartyListener {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
+		int index = 0;
 		if (game != null) {
-			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_CREATE_PARTY, 0, R.string.add_party);
+			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_CREATE_PARTY, index++, R.string.add_party);
 			addAccount.setIcon(android.R.drawable.ic_menu_add);
 		} else {
-			MenuItem exportStat = menu.add(0, ApplicationConstants.MENU_ID_EXPORT_PARTY_STAT, 0, R.string.export_party_stat);
+			MenuItem displayMode = menu.add(0, ApplicationConstants.MENU_ID_PARTY_LIST_MODE, index++, R.string.display_parties_mode);
+			displayMode.setIcon(android.R.drawable.ic_menu_sort_alphabetically);
+
+			MenuItem exportStat = menu.add(0, ApplicationConstants.MENU_ID_EXPORT_PARTY_STAT, index++, R.string.export_party_stat);
 			exportStat.setIcon(android.R.drawable.ic_menu_info_details);
 		}
 
-		MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1, R.string.menu_search_trictrac);
+		MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, index++, R.string.menu_search_trictrac);
 		searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
 
-		MenuItem synchParty = menu.add(1, ApplicationConstants.MENU_ID_SYNCH_PARTY, 2, R.string.synch_parties);
+		MenuItem synchParty = menu.add(1, ApplicationConstants.MENU_ID_SYNCH_PARTY, index++, R.string.synch_parties);
 		synchParty.setIcon(android.R.drawable.ic_menu_share);
 		return true;
 	}
@@ -234,8 +261,30 @@ public class PartyList extends Activity implements LoadPartyListener {
 			dlg.show();
 		} else if (item.getItemId() == ApplicationConstants.MENU_ID_EXPORT_PARTY_STAT) {
 			chooseStartCustomRange();
+		} else if (item.getItemId() == ApplicationConstants.MENU_ID_PARTY_LIST_MODE) {
+			chooseDisplayMode();
 		}
 		return true;
+	}
+
+	private void chooseDisplayMode() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(getResources().getString(R.string.display_parties_mode));
+		String[] items = getResources().getStringArray(R.array.display_parties_mode_list);
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int item) {
+				dialog.dismiss();
+				mode = PartyListMode.values()[item];
+				SharedPreferences pref = getSharedPreferences(ApplicationConstants.GLOBAL_PREFERENCE, 0);
+				Editor editor = pref.edit();
+				editor.putInt("PARTY_LIST_MODE", item);
+				editor.commit();
+				init();
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 
 	private void chooseStartCustomRange() {
@@ -326,34 +375,30 @@ public class PartyList extends Activity implements LoadPartyListener {
 		return true;
 	}
 
-	private void buildList() {
-		LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
-		ln.removeAllViews();
-		if (parties.size() > 0) {
-			addElementToList(parties);
-		} else {
+	private void addElementToList(List<PartyForList> newParties, LoadNeeded load, boolean allLoaded) {
+		final LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
+		// if (ln.getChildCount() > 0) {
+		// ln.removeViewAt(ln.getChildCount() - 1);
+		// }
+		if (newParties.size() == 0 && ln.getChildCount() == 0) {
 			TextView tv = new TextView(this);
 			tv.setText(R.string.empty_party_list);
 			ln.addView(tv);
+			return;
 		}
-	}
-
-	private void addElementToList(List<PartyForList> newParties) {
-		final LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
-
-		if (newParties != parties) {
-			parties.addAll(newParties);
-			if (ln.getChildCount() > 0) {
-				ln.removeViewAt(ln.getChildCount() - 1);
-			}
-		}
+		int index = getInsertIndex(load);
 		for (final PartyForList party : newParties) {
-			if (game == null && !party.getGameName().equals(lastGameName)) {
-				lastGameName = party.getGameName();
+			if (mode != PartyListMode.PER_GAME_COLLAPSED && game == null && !party.getGameName().equals(load.lastGameName)) {
+				load.lastGameName = party.getGameName();
 				TextView txt = new TextView(this);
 				txt.setBackgroundColor(getResources().getColor(R.color.black));
 				txt.setText(party.getGameName());
-				ln.addView(txt);
+				if (index < ln.getChildCount()) {
+					ln.addView(txt, index);
+				} else {
+					ln.addView(txt);
+				}
+				index++;
 			}
 			PartySummaryView view = new PartySummaryView(this, party);
 			view.setOnClickListener(new View.OnClickListener() {
@@ -379,41 +424,132 @@ public class PartyList extends Activity implements LoadPartyListener {
 					return true;
 				}
 			});
-
-			ln.addView(view);
+			Log.d(ApplicationConstants.PACKAGE, "Add party at:" + index);
+			if (index < ln.getChildCount()) {
+				ln.addView(view, index);
+			} else {
+				ln.addView(view);
+			}
+			index++;
 		}
 
 		if (!allLoaded) {
-			LinearLayout lnExpand = new LinearLayout(this);
-			LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-			lnExpand.setLayoutParams(lp);
-			ImageView im = new ImageView(this);
-			LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-			imglp.gravity = Gravity.CENTER_VERTICAL;
-			imglp.rightMargin = 5;
-			im.setLayoutParams(imglp);
-
-			im.setImageDrawable(getResources().getDrawable(R.drawable.loading));
-			lnExpand.addView(im);
-
-			LinearLayout accountLayout = new LinearLayout(this);
-			LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
-			accountLayout.setLayoutParams(aclp);
-
-			TextView tv = new TextView(this);
-			tv.setText(getResources().getText(R.string.loading));
-			LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-			tv.setLayoutParams(tlp);
-			accountLayout.addView(tv);
-			lnExpand.addView(accountLayout);
-
-			ln.addView(lnExpand);
-			Animation a = new RotateAnimation(0, 360, 23.5f, 23.5f);
-			a.setInterpolator(new LinearInterpolator());
-			a.setRepeatCount(Animation.INFINITE);
-			a.setDuration(2000);
-			im.startAnimation(a);
+			if (index < ln.getChildCount()) {
+				ln.addView(createProgressView(), index);
+			} else {
+				ln.addView(createProgressView());
+			}
 		}
+
+	}
+
+	private void addGameToList(List<Game> newGames, LoadNeeded load, boolean allLoaded) {
+		final LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
+		// if (ln.getChildCount() > 0) {
+		// ln.removeViewAt(ln.getChildCount() - 1);
+		// }
+		if (newGames.size() == 0 && ln.getChildCount() == 0) {
+			TextView tv = new TextView(this);
+			tv.setText(R.string.empty_party_list);
+			ln.addView(tv);
+			return;
+		}
+		int index = getInsertIndex(load);
+
+		for (final Game newGame : newGames) {
+			final PartyGameSummaryView view = new PartyGameSummaryView(this, newGame);
+			view.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (!loading) {
+						if (!view.isExpanded()) {
+							view.setExpanded(true);
+							Game game = view.getGame();
+
+							LoadNeeded load = new LoadNeeded();
+							load.game = game;
+							load.lastGameName = null;
+							int pos = ln.indexOfChild(view) + 1;
+							if (pos < ln.getChildCount()) {
+								load.insertBefore = ln.getChildAt(pos);
+							} else {
+								load.insertBefore = null;
+							}
+							load.pageIndex = 0;
+							if (loadNeededList.size() > 0) {
+								loadNeededList.add(0, load);
+							} else {
+								loadNeededList.add(load);
+							}
+
+							if (pos < ln.getChildCount()) {
+								ln.addView(createProgressView(), pos);
+							} else {
+								ln.addView(createProgressView());
+							}
+							loadNextPage(load);
+						} else {
+							view.setExpanded(false);
+							int pos = ln.indexOfChild(view) + 1;
+							while (true) {
+								if (pos >= ln.getChildCount()) {
+									break;
+								}
+								View c = ln.getChildAt(pos);
+								if (c instanceof PartyGameSummaryView) {
+									break;
+								}
+								ln.removeView(c);
+							}
+							// delete the load needed for this view game party
+							// list
+							if (loadNeededList != null && loadNeededList.size() > 0 && loadNeededList.get(0).game == view.getGame()) {
+								loadNeededList.remove(0);
+							}
+						}
+					}
+				}
+			});
+			if (index < ln.getChildCount()) {
+				Log.d(ApplicationConstants.PACKAGE, "index=" + index + " jeux=" + newGame.getName() + "  ln.childcount=" + ln.getChildCount());
+				ln.addView(view, index);
+			} else {
+				Log.d(ApplicationConstants.PACKAGE, "index=" + index + " jeux=" + newGame.getName() + "  a la FIN");
+				ln.addView(view);
+			}
+			index++;
+		}
+
+		if (!allLoaded) {
+			if (index < ln.getChildCount()) {
+				ln.addView(createProgressView(), index);
+			} else {
+				ln.addView(createProgressView());
+			}
+		}
+	}
+
+	private View createProgressView() {
+		LinearLayout lnExpand = new LinearLayout(this);
+		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		lnExpand.setLayoutParams(lp);
+
+		ProgressBar im = new ProgressBar(this);
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		imglp.gravity = Gravity.CENTER_VERTICAL;
+		imglp.rightMargin = 5;
+		im.setLayoutParams(imglp);
+		lnExpand.addView(im);
+
+		TextView tv = new TextView(this);
+		tv.setText(getResources().getText(R.string.loading));
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		tlp.gravity = Gravity.CENTER_VERTICAL;
+
+		tv.setLayoutParams(tlp);
+		lnExpand.addView(tv);
+
+		return lnExpand;
 	}
 
 	@Override
@@ -423,25 +559,56 @@ public class PartyList extends Activity implements LoadPartyListener {
 
 	@Override
 	public void importEnded(boolean succeed, List<PartyForList> newParties) {
+		Log.d(ApplicationConstants.PACKAGE, "success:" + succeed + " size=" + newParties.size());
+		boolean allLoaded = true;
 		if (succeed) {
-			task = null;
+			LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
+			LoadNeeded load = loadNeededList.get(0);
+			if (load.insertBefore != null) {
+				ln.removeViewAt(ln.indexOfChild(load.insertBefore) - 1);
+			} else {
+				ln.removeViewAt(ln.getChildCount() - 1);
+			}
 			if (newParties != null && newParties.size() > 0) {
 				if (newParties.size() == PAGE_SIZE + 1) {
 					newParties.remove(PAGE_SIZE);
+					load.pageIndex++;
 					allLoaded = false;
 				} else {
-					allLoaded = true;
+					loadNeededList.remove(load);
 				}
 			} else {
-				allLoaded = true;
+				loadNeededList.remove(load);
 			}
-			if (loadedPage != 0) {
-				addElementToList(newParties);
+			addElementToList(newParties, load, allLoaded);
+		}
+		loading = false;
+	}
+
+	@Override
+	public void importGameEnded(boolean succeed, List<Game> newGames) {
+		boolean allLoaded = true;
+		if (succeed) {
+			LinearLayout ln = (LinearLayout) findViewById(R.id.party_list);
+			LoadNeeded load = loadNeededList.get(0);
+			if (load.insertBefore != null) {
+				ln.removeViewAt(ln.indexOfChild(load.insertBefore) - 1);
 			} else {
-				parties = newParties;
-				buildList();
+				Log.d(ApplicationConstants.PACKAGE, "on supprimer waiting at " + (ln.getChildCount() - 1));
+				ln.removeViewAt(ln.getChildCount() - 1);
 			}
-			loadedPage++;
+			if (newGames != null && newGames.size() > 0) {
+				if (newGames.size() == PAGE_SIZE + 1) {
+					newGames.remove(PAGE_SIZE);
+					load.pageIndex++;
+					allLoaded = false;
+				} else {
+					loadNeededList.remove(load);
+				}
+			} else {
+				loadNeededList.remove(load);
+			}
+			addGameToList(newGames, load, allLoaded);
 		}
 		loading = false;
 	}
@@ -541,4 +708,17 @@ public class PartyList extends Activity implements LoadPartyListener {
 		vvv.startAnimation(a);
 		return vvv;
 	}
+
+	private class LoadNeeded {
+		/** null if its the main LoadNeeded. */
+		private Game game;
+		/** index of the load in progress view in the linear layout. */
+		private int pageIndex;
+		/** the next page index to load. */
+		private View insertBefore;
+		/** The last game name. */
+		private String lastGameName;
+
+	}
+
 }
