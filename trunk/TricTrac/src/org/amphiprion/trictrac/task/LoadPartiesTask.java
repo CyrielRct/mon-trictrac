@@ -41,22 +41,24 @@ public class LoadPartiesTask extends AsyncTask<Void, Integer, List<PartyForList>
 	private int pageSize;
 	private Game game;
 	private PartyListMode mode;
+	private String ownerId;
 
 	/**
 	 * Default constructor.
 	 */
-	public LoadPartiesTask(LoadPartyListener caller, Game game, int pageIndex, int pageSize, PartyListMode mode) {
+	public LoadPartiesTask(LoadPartyListener caller, Game game, int pageIndex, int pageSize, PartyListMode mode, String ownerId) {
 		this.caller = caller;
 		this.game = game;
 		this.pageIndex = pageIndex;
 		this.pageSize = pageSize;
 		this.mode = mode;
+		this.ownerId = ownerId;
 	}
 
 	@Override
 	protected List<PartyForList> doInBackground(Void... v) {
 		try {
-			List<PartyForList> parties = PartyDao.getInstance(caller.getContext()).getParties(game, pageIndex, pageSize, null, mode);
+			List<PartyForList> parties = PartyDao.getInstance(caller.getContext()).getParties(game, pageIndex, pageSize, ownerId, mode);
 			return parties;
 		} catch (Exception e) {
 			Log.e(ApplicationConstants.PACKAGE, "", e);
