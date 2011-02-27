@@ -106,6 +106,13 @@
 		partie.\n\nPour effectuer une action sur une partie, faire un
 		clic long sur celle-ci.</string>
 
+	<string name="display_parties_mode">Mode d\'affichage</string>
+	<string-array name="display_parties_mode_list">
+		<item>Par jeu (tout déplié)</item>
+		<item>Par jeu</item>
+		<item>Par date</item>
+	</string-array>
+	
 	<!-- Synch Parties -->
 	<string name="synch_start_date">Synchroniser à partir du</string>
 	<string name="synch_parties">Synchroniser les parties</string>

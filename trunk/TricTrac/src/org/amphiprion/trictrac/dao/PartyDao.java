@@ -42,6 +42,10 @@ public class PartyDao extends AbstractDao {
 	/** The singleton. */
 	private static PartyDao instance;
 
+	public enum PartyListMode {
+		PER_GAME_EXPANDED, PER_GAME_COLLAPSED, PER_DATE
+	}
+
 	public PartyDao(Context context) {
 		super(context);
 	}
@@ -160,7 +164,7 @@ public class PartyDao extends AbstractDao {
 	 * @param pageSize
 	 * @return
 	 */
-	public List<PartyForList> getParties(Game game, int pageIndex, int pageSize, String ownerId) {
+	public List<PartyForList> getParties(Game game, int pageIndex, int pageSize, String ownerId, PartyListMode mode) {
 		String sql = "SELECT p." + Party.DbField.ID + ",p." + Party.DbField.PLAY_DATE + ",p." + Party.DbField.CITY + ",p." + Party.DbField.EVENT + ",p." + Party.DbField.HAPPYNESS
 				+ ",p." + Party.DbField.TRICTRAC_ID + ",p." + Party.DbField.FK_GAME + ",g." + Game.DbField.NAME + ",p." + Party.DbField.UPDATE_DATE + ",p."
 				+ Party.DbField.SYNC_DATE;
@@ -172,9 +176,12 @@ public class PartyDao extends AbstractDao {
 		if (game != null) {
 			sql += " where " + Party.DbField.FK_GAME + "='" + game.getId() + "'";
 		}
-		sql += " order by g." + Game.DbField.NAME + " asc,p." + Party.DbField.PLAY_DATE + " desc";
+		if (mode == PartyListMode.PER_GAME_EXPANDED) {
+			sql += " order by g." + Game.DbField.NAME + " asc,p." + Party.DbField.PLAY_DATE + " desc";
+		} else {
+			sql += " order by p." + Party.DbField.PLAY_DATE + " desc";
+		}
 		sql += " limit " + (pageSize + 1) + " offset " + pageIndex * pageSize;
-
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
 		ArrayList<PartyForList> result = new ArrayList<PartyForList>();
 		if (cursor.moveToFirst()) {
@@ -199,13 +206,33 @@ public class PartyDao extends AbstractDao {
 		return result;
 	}
 
-	public List<Party> getParties(Game game) {
-		String sql = "SELECT " + Party.DbField.ID + "," + Party.DbField.PLAY_DATE + "," + Party.DbField.CITY + "," + Party.DbField.EVENT + "," + Party.DbField.HAPPYNESS + ","
-				+ Party.DbField.DURATION + "," + Party.DbField.COMMENT + "," + Party.DbField.TRICTRAC_ID + "," + Party.DbField.FK_GAME + "," + Party.DbField.UPDATE_DATE + ","
-				+ Party.DbField.SYNC_DATE + " from PARTY where " + Party.DbField.FK_GAME + "=? order by " + Party.DbField.PLAY_DATE + " desc";
+	/**
+	 * Return the list of games having at least one parties.
+	 * 
+	 * @param pageIndex
+	 *            the page index
+	 * @param pageSize
+	 *            the page size
+	 * @return the list of games
+	 */
+	public List<Game> getPartiesGames(int pageIndex, int pageSize) {
+		String sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID
+				+ ") as nb";
+		sql += " from GAME g where nb>0";
+		sql += " order by " + Game.DbField.NAME + " asc limit " + (pageSize + 1) + " offset " + pageIndex * pageSize;
 
-		Cursor cursor = getDatabase().rawQuery(sql, new String[] { game.getId() });
-		return fillEntities(cursor);
+		Cursor cursor = getDatabase().rawQuery(sql, null);
+		ArrayList<Game> result = new ArrayList<Game>();
+		if (cursor.moveToFirst()) {
+			do {
+				Game a = new Game(cursor.getString(0));
+				a.setName(cursor.getString(1));
+				a.setNbParty(cursor.getInt(2));
+				result.add(a);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return result;
 	}
 
 	public List<Party> getLocalParties() {
