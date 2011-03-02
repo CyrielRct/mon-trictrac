@@ -326,7 +326,12 @@ public class CollectionActivityGroup extends Activity {
 	}
 
 	private void buildGameList() {
-		String title = gameListContext.collection.getName();
+		String title;
+		if (gameListContext.collection != null) {
+			title = gameListContext.collection.getName();
+		} else {
+			title = getResources().getString(R.string.view_all_games);
+		}
 		if (gameListContext.search != null) {
 			title += ": " + gameListContext.search.getName();
 		}
@@ -432,19 +437,24 @@ public class CollectionActivityGroup extends Activity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.clear();
 		if (isCollectionDisplayed) {
-			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, 0, R.string.add_collection);
+			int index = 0;
+
+			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, index++, R.string.add_collection);
 			addAccount.setIcon(android.R.drawable.ic_menu_add);
 
-			MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, 1, R.string.menu_search_trictrac);
+			MenuItem allGames = menu.add(0, ApplicationConstants.MENU_ID_VIEW_ALL_GAMES, index++, R.string.view_all_games);
+			allGames.setIcon(android.R.drawable.ic_menu_view);
+
+			MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, index++, R.string.menu_search_trictrac);
 			searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
 
-			MenuItem synchAllGames = menu.add(0, ApplicationConstants.MENU_ID_SYNCH_ALL_GAMES, 2, R.string.menu_synch_games);
+			MenuItem synchAllGames = menu.add(0, ApplicationConstants.MENU_ID_SYNCH_ALL_GAMES, index++, R.string.menu_synch_games);
 			synchAllGames.setIcon(android.R.drawable.ic_menu_share);
 
-			MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, 3, R.string.trictrac_account);
+			MenuItem account = menu.add(1, ApplicationConstants.MENU_ID_ACCOUNT, index++, R.string.trictrac_account);
 			account.setIcon(android.R.drawable.ic_menu_info_details);
 
-			MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, 4, R.string.preference);
+			MenuItem preference = menu.add(2, ApplicationConstants.MENU_ID_PREFERENCE, index++, R.string.preference);
 			preference.setIcon(android.R.drawable.ic_menu_preferences);
 		} else {
 			if (gameListContext.search != null || gameListContext.query != null) {
@@ -487,6 +497,8 @@ public class CollectionActivityGroup extends Activity {
 					}
 				});
 				task.execute();
+			} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_ALL_GAMES) {
+				Home.gotToCollection(CollectionActivityGroup.this, null, null);
 			}
 		} else {
 			if (item.getItemId() == ApplicationConstants.MENU_ID_CHOOSE_EXISTING_SEARCH) {

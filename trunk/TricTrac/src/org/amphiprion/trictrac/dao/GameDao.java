@@ -24,10 +24,10 @@ import java.util.List;
 
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.CollectionGame;
+import org.amphiprion.trictrac.entity.Entity.DbState;
 import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.entity.Party;
 import org.amphiprion.trictrac.entity.Search;
-import org.amphiprion.trictrac.entity.Entity.DbState;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -74,11 +74,18 @@ public class GameDao extends AbstractDao {
 	 * @return the game list
 	 */
 	public int getGameCount(Collection collection, Search search, String filter) {
-		String sql = "SELECT count(*) from COLLECTION_GAME join GAME on " + CollectionGame.DbField.FK_GAME + "="
-				+ Game.DbField.ID + " where " + CollectionGame.DbField.FK_COLLECTION + "=?";
+
+		String sql = "SELECT count(*) from";
+		String[] params = null;
+		if (collection != null) {
+			sql += " COLLECTION_GAME join GAME on " + CollectionGame.DbField.FK_GAME + "=" + Game.DbField.ID + " where " + CollectionGame.DbField.FK_COLLECTION + "=?";
+			params = new String[] { collection.getId() };
+		} else {
+			sql += " GAME where 1=1";
+		}
 
 		sql += buildWhere(search, filter);
-		Cursor cursor = getDatabase().rawQuery(sql, new String[] { collection.getId() });
+		Cursor cursor = getDatabase().rawQuery(sql, params);
 		if (cursor.moveToFirst()) {
 			return cursor.getInt(0);
 		} else {
@@ -112,22 +119,28 @@ public class GameDao extends AbstractDao {
 	 * @return the game list
 	 */
 	public List<Game> getGames(Collection collection, int pageIndex, int pageSize, Search search, String filter) {
-		String sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + ","
-				+ Game.DbField.TYPE + "," + Game.DbField.FAMILIES + "," + Game.DbField.MECHANISMS + ","
-				+ Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + ","
-				+ Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + ","
-				+ Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
-				+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING
-				+ ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID
-				+ "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p." + Party.DbField.FK_GAME
-				+ "=g." + Game.DbField.ID + ") from COLLECTION_GAME join GAME g on " + CollectionGame.DbField.FK_GAME
-				+ "=" + Game.DbField.ID + " where " + CollectionGame.DbField.FK_COLLECTION + "=?";
-
+		String sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + "," + Game.DbField.TYPE + "," + Game.DbField.FAMILIES + ","
+				+ Game.DbField.MECHANISMS + "," + Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + "," + Game.DbField.MIN_AGE + ","
+				+ Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + "," + Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
+				+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING + ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g."
+				+ Game.DbField.ID + "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID + ")";
+		if (collection == null) {
+			sql += ",(select group_concat(c." + Collection.DbField.NAME + ",', ') from COLLECTION_GAME cg join COLLECTION c on cg." + CollectionGame.DbField.FK_COLLECTION + "=c."
+					+ Collection.DbField.ID + " where cg." + CollectionGame.DbField.FK_GAME + "=g." + Game.DbField.ID + " group by cg." + CollectionGame.DbField.FK_GAME + ")";
+		}
+		sql += " from";
+		String[] params = null;
+		if (collection != null) {
+			sql += " COLLECTION_GAME join GAME g on " + CollectionGame.DbField.FK_GAME + "=" + Game.DbField.ID + " where " + CollectionGame.DbField.FK_COLLECTION + "=?";
+			params = new String[] { collection.getId() };
+		} else {
+			sql += " GAME g where 1=1";
+		}
 		sql += buildWhere(search, filter);
 
-		sql += " order by " + Game.DbField.NAME + " asc limit " + (pageSize + 1) + " offset " + (pageIndex * pageSize);
+		sql += " order by " + Game.DbField.NAME + " asc limit " + (pageSize + 1) + " offset " + pageIndex * pageSize;
 
-		Cursor cursor = getDatabase().rawQuery(sql, new String[] { collection.getId() });
+		Cursor cursor = getDatabase().rawQuery(sql, params);
 		ArrayList<Game> result = new ArrayList<Game>();
 		if (cursor.moveToFirst()) {
 			do {
@@ -151,6 +164,9 @@ public class GameDao extends AbstractDao {
 				a.setAdverageRating(cursor.getDouble(17));
 				a.setNbParty(cursor.getInt(18));
 				a.setHappyness(cursor.getInt(19));
+				if (collection == null) {
+					a.setOwnerCollectionNames(cursor.getString(20));
+				}
 				result.add(a);
 			} while (cursor.moveToNext());
 		}
@@ -164,18 +180,14 @@ public class GameDao extends AbstractDao {
 	 * @return the game list
 	 */
 	public List<Game> getGames() {
-		String sql = "DELETE FROM GAME WHERE NOT EXISTS(SELECT 1 FROM COLLECTION_GAME cg WHERE cg."
-				+ CollectionGame.DbField.FK_GAME + "=GAME." + Game.DbField.ID
-				+ ") AND NOT EXISTS(SELECT 1 FROM PARTY p WHERE p." + Party.DbField.FK_GAME + "=GAME."
-				+ Game.DbField.ID + ")";
+		String sql = "DELETE FROM GAME WHERE NOT EXISTS(SELECT 1 FROM COLLECTION_GAME cg WHERE cg." + CollectionGame.DbField.FK_GAME + "=GAME." + Game.DbField.ID
+				+ ") AND NOT EXISTS(SELECT 1 FROM PARTY p WHERE p." + Party.DbField.FK_GAME + "=GAME." + Game.DbField.ID + ")";
 
 		execSQL(sql);
 
-		sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + ","
-				+ Game.DbField.TYPE + "," + Game.DbField.FAMILIES + "," + Game.DbField.MECHANISMS + ","
-				+ Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + ","
-				+ Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + ","
-				+ Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
+		sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + "," + Game.DbField.TYPE + "," + Game.DbField.FAMILIES + ","
+				+ Game.DbField.MECHANISMS + "," + Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + "," + Game.DbField.MIN_AGE + ","
+				+ Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + "," + Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
 				+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING + " from GAME";
 
 		Cursor cursor = getDatabase().rawQuery(sql, null);
@@ -215,15 +227,12 @@ public class GameDao extends AbstractDao {
 	 * @return the game
 	 */
 	public Game getGame(String id) {
-		String sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + ","
-				+ Game.DbField.TYPE + "," + Game.DbField.FAMILIES + "," + Game.DbField.MECHANISMS + ","
-				+ Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + ","
-				+ Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + ","
-				+ Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
-				+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING
-				+ ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID
-				+ "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p." + Party.DbField.FK_GAME
-				+ "=g." + Game.DbField.ID + ") from GAME g where " + Game.DbField.ID + "=?";
+		String sql = "SELECT " + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + "," + Game.DbField.TYPE + "," + Game.DbField.FAMILIES + ","
+				+ Game.DbField.MECHANISMS + "," + Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + "," + Game.DbField.MIN_AGE + ","
+				+ Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + "," + Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
+				+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING + ",(select count(*) from PARTY p where p." + Party.DbField.FK_GAME + "=g."
+				+ Game.DbField.ID + "),(select sum(" + Party.DbField.HAPPYNESS + ") from PARTY p where p." + Party.DbField.FK_GAME + "=g." + Game.DbField.ID
+				+ ") from GAME g where " + Game.DbField.ID + "=?";
 
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] { id });
 		Game result = null;
@@ -279,12 +288,10 @@ public class GameDao extends AbstractDao {
 			}
 
 			if (search.getMinDifficulty() != 0) {
-				sql += " and (" + Game.DbField.DIFFICULTY + "=-1 or " + Game.DbField.DIFFICULTY + ">="
-						+ search.getMinDifficulty() + ")";
+				sql += " and (" + Game.DbField.DIFFICULTY + "=-1 or " + Game.DbField.DIFFICULTY + ">=" + search.getMinDifficulty() + ")";
 			}
 			if (search.getMaxDifficulty() != 0) {
-				sql += " and (" + Game.DbField.DIFFICULTY + "=-1 or " + Game.DbField.DIFFICULTY + "<="
-						+ search.getMaxDifficulty() + ")";
+				sql += " and (" + Game.DbField.DIFFICULTY + "=-1 or " + Game.DbField.DIFFICULTY + "<=" + search.getMaxDifficulty() + ")";
 			}
 			if (search.getMinLuck() != 0) {
 				sql += " and (" + Game.DbField.LUCK + "=-1 or " + Game.DbField.LUCK + ">=" + search.getMinLuck() + ")";
@@ -293,28 +300,22 @@ public class GameDao extends AbstractDao {
 				sql += " and (" + Game.DbField.LUCK + "=-1 or " + Game.DbField.LUCK + "<=" + search.getMaxLuck() + ")";
 			}
 			if (search.getMinStrategy() != 0) {
-				sql += " and (" + Game.DbField.STRATEGY + "=-1 or " + Game.DbField.STRATEGY + ">="
-						+ search.getMinStrategy() + ")";
+				sql += " and (" + Game.DbField.STRATEGY + "=-1 or " + Game.DbField.STRATEGY + ">=" + search.getMinStrategy() + ")";
 			}
 			if (search.getMaxStrategy() != 0) {
-				sql += " and (" + Game.DbField.STRATEGY + "=-1 or " + Game.DbField.STRATEGY + "<="
-						+ search.getMaxStrategy() + ")";
+				sql += " and (" + Game.DbField.STRATEGY + "=-1 or " + Game.DbField.STRATEGY + "<=" + search.getMaxStrategy() + ")";
 			}
 			if (search.getMinDiplomacy() != 0) {
-				sql += " and (" + Game.DbField.DIPLOMATY + "=-1 or " + Game.DbField.DIPLOMATY + ">="
-						+ search.getMinDiplomacy() + ")";
+				sql += " and (" + Game.DbField.DIPLOMATY + "=-1 or " + Game.DbField.DIPLOMATY + ">=" + search.getMinDiplomacy() + ")";
 			}
 			if (search.getMaxDiplomacy() != 0) {
-				sql += " and (" + Game.DbField.DIPLOMATY + "=-1 or " + Game.DbField.DIPLOMATY + "<="
-						+ search.getMaxDiplomacy() + ")";
+				sql += " and (" + Game.DbField.DIPLOMATY + "=-1 or " + Game.DbField.DIPLOMATY + "<=" + search.getMaxDiplomacy() + ")";
 			}
 			if (search.getMinDuration() != 0) {
-				sql += " and (" + Game.DbField.DURATION + "=0 or " + Game.DbField.DURATION + ">="
-						+ search.getMinDuration() + ")";
+				sql += " and (" + Game.DbField.DURATION + "=0 or " + Game.DbField.DURATION + ">=" + search.getMinDuration() + ")";
 			}
 			if (search.getMaxDuration() != 0) {
-				sql += " and (" + Game.DbField.DURATION + "=0 or " + Game.DbField.DURATION + "<="
-						+ search.getMaxDuration() + ")";
+				sql += " and (" + Game.DbField.DURATION + "=0 or " + Game.DbField.DURATION + "<=" + search.getMaxDuration() + ")";
 			}
 		}
 		return sql;
@@ -329,13 +330,10 @@ public class GameDao extends AbstractDao {
 	public void createGame(Game game) {
 		getDatabase().beginTransaction();
 		try {
-			String sql = "insert into GAME (" + Game.DbField.ID + "," + Game.DbField.NAME + ","
-					+ Game.DbField.IMAGE_NAME + "," + Game.DbField.TYPE + "," + Game.DbField.FAMILIES + ","
-					+ Game.DbField.MECHANISMS + "," + Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + ","
-					+ Game.DbField.MAX_PLAYER + "," + Game.DbField.MIN_AGE + "," + Game.DbField.MAX_AGE + ","
-					+ Game.DbField.DURATION + "," + Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + ","
-					+ Game.DbField.STRATEGY + "," + Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + ","
-					+ Game.DbField.ADV_RATING + ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			String sql = "insert into GAME (" + Game.DbField.ID + "," + Game.DbField.NAME + "," + Game.DbField.IMAGE_NAME + "," + Game.DbField.TYPE + "," + Game.DbField.FAMILIES
+					+ "," + Game.DbField.MECHANISMS + "," + Game.DbField.THEMES + "," + Game.DbField.MIN_PLAYER + "," + Game.DbField.MAX_PLAYER + "," + Game.DbField.MIN_AGE + ","
+					+ Game.DbField.MAX_AGE + "," + Game.DbField.DURATION + "," + Game.DbField.DIFFICULTY + "," + Game.DbField.LUCK + "," + Game.DbField.STRATEGY + ","
+					+ Game.DbField.DIPLOMATY + "," + Game.DbField.NB_RATING + "," + Game.DbField.ADV_RATING + ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			Object[] params = new Object[18];
 			params[0] = game.getId();
 			params[1] = game.getName();
@@ -365,13 +363,10 @@ public class GameDao extends AbstractDao {
 	}
 
 	public void update(Game game) {
-		String sql = "update GAME set " + Game.DbField.NAME + "=?," + Game.DbField.IMAGE_NAME + "=?,"
-				+ Game.DbField.TYPE + "=?," + Game.DbField.FAMILIES + "=?," + Game.DbField.MECHANISMS + "=?,"
-				+ Game.DbField.THEMES + "=?," + Game.DbField.MIN_PLAYER + "=?," + Game.DbField.MAX_PLAYER + "=?,"
-				+ Game.DbField.MIN_AGE + "=?," + Game.DbField.MAX_AGE + "=?," + Game.DbField.DURATION + "=?,"
-				+ Game.DbField.DIFFICULTY + "=?," + Game.DbField.LUCK + "=?," + Game.DbField.STRATEGY + "=?,"
-				+ Game.DbField.DIPLOMATY + "=?," + Game.DbField.NB_RATING + "=?," + Game.DbField.ADV_RATING
-				+ "=? WHERE " + Game.DbField.ID + "=?";
+		String sql = "update GAME set " + Game.DbField.NAME + "=?," + Game.DbField.IMAGE_NAME + "=?," + Game.DbField.TYPE + "=?," + Game.DbField.FAMILIES + "=?,"
+				+ Game.DbField.MECHANISMS + "=?," + Game.DbField.THEMES + "=?," + Game.DbField.MIN_PLAYER + "=?," + Game.DbField.MAX_PLAYER + "=?," + Game.DbField.MIN_AGE + "=?,"
+				+ Game.DbField.MAX_AGE + "=?," + Game.DbField.DURATION + "=?," + Game.DbField.DIFFICULTY + "=?," + Game.DbField.LUCK + "=?," + Game.DbField.STRATEGY + "=?,"
+				+ Game.DbField.DIPLOMATY + "=?," + Game.DbField.NB_RATING + "=?," + Game.DbField.ADV_RATING + "=? WHERE " + Game.DbField.ID + "=?";
 		Object[] params = new Object[18];
 		params[0] = game.getName();
 		params[1] = game.getImageName();

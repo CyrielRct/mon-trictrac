@@ -34,10 +34,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -173,20 +173,24 @@ public class SearchList extends Activity {
 	private void launchSearch(final Search search) {
 		final List<Collection> collections = CollectionDao.getInstance(this).getCollections();
 		if (collections.size() > 1) {
+			Collection all = new Collection(null);
+			all.setName(getResources().getString(R.string.search_all_games));
+
+			collections.add(0, all);
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(getResources().getString(R.string.collection_choice_title));
-			builder.setAdapter(new CollectionAdapter(SearchList.this, collections),
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int item) {
-							dialog.dismiss();
-							// Intent i = new Intent(SearchList.this,
-							// GameList.class);
-							// i.putExtra("COLLECTION", collections.get(item));
-							// i.putExtra("SEARCH", search);
-							// startActivity(i);
-							Home.gotToCollection(SearchList.this, collections.get(item), search);
-						}
-					});
+			builder.setAdapter(new CollectionAdapter(SearchList.this, collections), new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int item) {
+					dialog.dismiss();
+					Collection c = collections.get(item);
+					if (c.getId() == null) {
+						Home.gotToCollection(SearchList.this, null, search);
+					} else {
+						Home.gotToCollection(SearchList.this, c, search);
+					}
+				}
+			});
 			AlertDialog alert = builder.create();
 			alert.show();
 		} else if (collections.size() == 1) {

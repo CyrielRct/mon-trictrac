@@ -81,6 +81,10 @@ public class Collection extends Entity {
 
 	@Override
 	public String toString() {
-		return name + " (" + count + ")";
+		if (getId() == null) {
+			return name;
+		} else {
+			return name + " (" + count + ")";
+		}
 	}
 }
