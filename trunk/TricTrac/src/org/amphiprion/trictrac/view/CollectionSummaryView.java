@@ -52,8 +52,7 @@ public class CollectionSummaryView extends LinearLayout {
 	public CollectionSummaryView(Context context, Collection collection) {
 		super(context);
 		this.collection = collection;
-		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		setLayoutParams(lp);
 		setBackgroundDrawable(context.getResources().getDrawable(R.drawable.list_item_background_states));
 
@@ -78,13 +77,15 @@ public class CollectionSummaryView extends LinearLayout {
 	 */
 	private View createIcon() {
 		ImageView img = new ImageView(getContext());
-		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
 		img.setLayoutParams(imglp);
-
-		img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.collection));
+		if (collection.getId() == null) {
+			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.all_games));
+		} else {
+			img.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.collection));
+		}
 		return img;
 	}
 
@@ -95,13 +96,11 @@ public class CollectionSummaryView extends LinearLayout {
 	 */
 	private View createAccountLayout() {
 		LinearLayout accountLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
 		accountLayout.setOrientation(VERTICAL);
 		accountLayout.setLayoutParams(aclp);
 		TextView t = new TextView(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		t.setLayoutParams(tlp);
 		t.setText(collection.getName());
@@ -125,8 +124,7 @@ public class CollectionSummaryView extends LinearLayout {
 	 */
 	private View createBalance() {
 		TextView balance = new TextView(getContext());
-		LayoutParams blp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		LayoutParams blp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		balance.setGravity(Gravity.RIGHT);
 		balance.setLayoutParams(blp);
 		balance.setText("" + collection.getCount());

@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.amphiprion.trictrac.adapter.CollectionAdapter;
 import org.amphiprion.trictrac.dao.CollectionDao;
+import org.amphiprion.trictrac.dao.GameDao;
 import org.amphiprion.trictrac.dao.SearchDao;
 import org.amphiprion.trictrac.entity.Collection;
 import org.amphiprion.trictrac.entity.Search;
@@ -175,7 +176,8 @@ public class SearchList extends Activity {
 		if (collections.size() > 1) {
 			Collection all = new Collection(null);
 			all.setName(getResources().getString(R.string.search_all_games));
-
+			int count = GameDao.getInstance(this).getGameCount(null, null, null);
+			all.setCount(count);
 			collections.add(0, all);
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(getResources().getString(R.string.collection_choice_title));
