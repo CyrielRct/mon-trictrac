@@ -96,6 +96,11 @@ public class CollectionActivityGroup extends Activity {
 
 		List<Collection> collections = CollectionDao.getInstance(this).getCollections();
 		if (collections.size() > 0) {
+			Collection all = new Collection(null);
+			all.setName(getResources().getString(R.string.search_all_games));
+			int count = GameDao.getInstance(this).getGameCount(null, null, null);
+			all.setCount(count);
+			collections.add(0, all);
 			for (Collection collection : collections) {
 				CollectionSummaryView view = new CollectionSummaryView(this, collection);
 				view.setOnClickListener(new View.OnClickListener() {
@@ -103,24 +108,25 @@ public class CollectionActivityGroup extends Activity {
 					public void onClick(View v) {
 						if (v instanceof CollectionSummaryView) {
 							Collection collection = ((CollectionSummaryView) v).getCollection();
-							// Intent i = new Intent(CollectionList.this,
-							// GameList.class);
-							// i.putExtra("COLLECTION", collection);
-							// startActivity(i);
-							Home.gotToCollection(CollectionActivityGroup.this, collection, null);
+							if (collection.getId() == null) {
+								Home.gotToCollection(CollectionActivityGroup.this, null, null);
+							} else {
+								Home.gotToCollection(CollectionActivityGroup.this, collection, null);
+							}
 						}
 					}
 				});
-
-				view.setOnLongClickListener(new View.OnLongClickListener() {
-					@Override
-					public boolean onLongClick(View v) {
-						registerForContextMenu(v);
-						openContextMenu(v);
-						unregisterForContextMenu(v);
-						return true;
-					}
-				});
+				if (collection.getId() != null) {
+					view.setOnLongClickListener(new View.OnLongClickListener() {
+						@Override
+						public boolean onLongClick(View v) {
+							registerForContextMenu(v);
+							openContextMenu(v);
+							unregisterForContextMenu(v);
+							return true;
+						}
+					});
+				}
 
 				ln.addView(view);
 			}
@@ -330,7 +336,7 @@ public class CollectionActivityGroup extends Activity {
 		if (gameListContext.collection != null) {
 			title = gameListContext.collection.getName();
 		} else {
-			title = getResources().getString(R.string.view_all_games);
+			title = getResources().getString(R.string.search_all_games);
 		}
 		if (gameListContext.search != null) {
 			title += ": " + gameListContext.search.getName();
@@ -442,9 +448,6 @@ public class CollectionActivityGroup extends Activity {
 			MenuItem addAccount = menu.add(0, ApplicationConstants.MENU_ID_ADD_COLLECTION, index++, R.string.add_collection);
 			addAccount.setIcon(android.R.drawable.ic_menu_add);
 
-			MenuItem allGames = menu.add(0, ApplicationConstants.MENU_ID_VIEW_ALL_GAMES, index++, R.string.view_all_games);
-			allGames.setIcon(android.R.drawable.ic_menu_view);
-
 			MenuItem searchTrictrac = menu.add(0, ApplicationConstants.MENU_ID_SEARCH_TRICTRAC_GAME, index++, R.string.menu_search_trictrac);
 			searchTrictrac.setIcon(android.R.drawable.ic_menu_search);
 
@@ -497,8 +500,6 @@ public class CollectionActivityGroup extends Activity {
 					}
 				});
 				task.execute();
-			} else if (item.getItemId() == ApplicationConstants.MENU_ID_VIEW_ALL_GAMES) {
-				Home.gotToCollection(CollectionActivityGroup.this, null, null);
 			}
 		} else {
 			if (item.getItemId() == ApplicationConstants.MENU_ID_CHOOSE_EXISTING_SEARCH) {
