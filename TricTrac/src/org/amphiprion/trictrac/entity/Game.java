@@ -53,6 +53,7 @@ public class Game extends Entity {
 	private double happyness;
 	private int numberOfRatings;
 	private double adverageRating;
+	private String ownerCollectionNames;
 
 	public enum DbField {
 		ID, NAME, IMAGE_NAME, TYPE, FAMILIES, MECHANISMS, THEMES, MIN_PLAYER, MAX_PLAYER, MIN_AGE, MAX_AGE, DURATION, DIFFICULTY, LUCK, STRATEGY, DIPLOMATY, NB_RATING, ADV_RATING
@@ -248,4 +249,11 @@ public class Game extends Entity {
 		this.adverageRating = adverageRating;
 	}
 
+	public String getOwnerCollectionNames() {
+		return ownerCollectionNames;
+	}
+
+	public void setOwnerCollectionNames(String ownerCollectionNames) {
+		this.ownerCollectionNames = ownerCollectionNames;
+	}
 }

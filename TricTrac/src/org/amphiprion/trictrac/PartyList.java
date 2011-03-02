@@ -83,7 +83,7 @@ import android.widget.Toast;
  */
 public class PartyList extends Activity implements LoadPartyListener, LoadPartyGameListener {
 	private static final int PAGE_SIZE = 20;
-
+	public static boolean dontCallHandleIntentOnCreate = false;
 	public static PartyList instance;
 	private HashMap<String, View> detailedViews;
 	private MyScrollView scrollView;
@@ -128,8 +128,9 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 				}
 			}
 		});
-
-		handleIntent(getIntent());
+		if (!dontCallHandleIntentOnCreate) {
+			handleIntent(getIntent());
+		}
 
 	}
 
@@ -152,6 +153,7 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 			Home.setTopTitle(getResources().getString(R.string.my_parties, game.getName()));
 		}
 		init();
+		dontCallHandleIntentOnCreate = false;
 	}
 
 	@Override
@@ -380,7 +382,11 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 		// }
 		if (newParties.size() == 0 && ln.getChildCount() == 0) {
 			TextView tv = new TextView(this);
-			tv.setText(R.string.empty_party_list);
+			if (game == null) {
+				tv.setText(R.string.empty_all_party_list);
+			} else {
+				tv.setText(R.string.empty_game_party_list);
+			}
 			ln.addView(tv);
 			return;
 		}
@@ -448,7 +454,11 @@ public class PartyList extends Activity implements LoadPartyListener, LoadPartyG
 		// }
 		if (newGames.size() == 0 && ln.getChildCount() == 0) {
 			TextView tv = new TextView(this);
-			tv.setText(R.string.empty_party_list);
+			if (game == null) {
+				tv.setText(R.string.empty_all_party_list);
+			} else {
+				tv.setText(R.string.empty_game_party_list);
+			}
 			ln.addView(tv);
 			return;
 		}

@@ -57,8 +57,7 @@ public class GameSummaryView extends LinearLayout {
 	public GameSummaryView(Context context, Game game) {
 		super(context);
 		this.game = game;
-		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams lp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		setLayoutParams(lp);
 		setBackgroundDrawable(context.getResources().getDrawable(R.drawable.list_item_background_states));
 
@@ -82,14 +81,12 @@ public class GameSummaryView extends LinearLayout {
 	 */
 	private View createIcon() {
 		ImageView img = new ImageView(getContext());
-		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams imglp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		imglp.gravity = Gravity.CENTER_VERTICAL;
 		imglp.rightMargin = 5;
 		img.setLayoutParams(imglp);
 
-		File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/"
-				+ game.getImageName());
+		File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/" + game.getImageName());
 		Bitmap bitmap = null;
 		if (f.exists()) {
 			bitmap = BitmapFactory.decodeFile(f.toString());
@@ -109,13 +106,11 @@ public class GameSummaryView extends LinearLayout {
 	 */
 	private View createAccountLayout() {
 		LinearLayout accountLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 3);
 		accountLayout.setOrientation(VERTICAL);
 		accountLayout.setLayoutParams(aclp);
 		TextView t = new TextView(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		t.setLayoutParams(tlp);
 		t.setText(game.getName());
@@ -125,8 +120,7 @@ public class GameSummaryView extends LinearLayout {
 		accountLayout.addView(t);
 
 		t = new TextView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		t.setLayoutParams(tlp);
 		t.setText(game.getType());
@@ -136,6 +130,9 @@ public class GameSummaryView extends LinearLayout {
 		accountLayout.addView(createLevelsLayout());
 		accountLayout.addView(createRatings());
 		accountLayout.addView(createParties());
+		if (game.getOwnerCollectionNames() != null) {
+			accountLayout.addView(createOwnerCollections());
+		}
 		return accountLayout;
 	}
 
@@ -146,18 +143,15 @@ public class GameSummaryView extends LinearLayout {
 	 */
 	private View createMainStatsLayout() {
 		LinearLayout accountLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		accountLayout.setLayoutParams(aclp);
 		// //// Players
 		ImageView im = new ImageView(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		im.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ic_player));
 		accountLayout.addView(im);
 		TextView t = new TextView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		String nbPlayers = "";
 		if (game.getMinPlayer() != 0) {
@@ -175,13 +169,11 @@ public class GameSummaryView extends LinearLayout {
 
 		// ////// Duration
 		im = new ImageView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		im.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ic_duration));
 		accountLayout.addView(im);
 		t = new TextView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		String duration = "";
 		if (game.getDuration() != 0) {
@@ -196,13 +188,11 @@ public class GameSummaryView extends LinearLayout {
 
 		// //// Age
 		im = new ImageView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		im.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ic_age));
 		accountLayout.addView(im);
 		t = new TextView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 
 		String ages = "";
 		if (game.getMinAge() != 0) {
@@ -230,18 +220,15 @@ public class GameSummaryView extends LinearLayout {
 	 */
 	private View createLevelsLayout() {
 		LinearLayout accountLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		accountLayout.setLayoutParams(aclp);
 		// //// Difficulté
 		LinearLayout vl = new LinearLayout(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		vl.setOrientation(VERTICAL);
 		vl.setLayoutParams(tlp);
 		TextView t = new TextView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		tlp.gravity = Gravity.CENTER;
 		t.setLayoutParams(tlp);
 		t.setText(R.string.difficulty);
@@ -252,13 +239,11 @@ public class GameSummaryView extends LinearLayout {
 
 		// //// Chance
 		vl = new LinearLayout(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		vl.setOrientation(VERTICAL);
 		vl.setLayoutParams(tlp);
 		t = new TextView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		tlp.gravity = Gravity.CENTER;
 		t.setLayoutParams(tlp);
 		t.setText(R.string.luck);
@@ -269,13 +254,11 @@ public class GameSummaryView extends LinearLayout {
 
 		// //// Strategy
 		vl = new LinearLayout(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		vl.setOrientation(VERTICAL);
 		vl.setLayoutParams(tlp);
 		t = new TextView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		tlp.gravity = Gravity.CENTER;
 		t.setLayoutParams(tlp);
 		t.setText(R.string.strategy);
@@ -286,14 +269,12 @@ public class GameSummaryView extends LinearLayout {
 
 		// //// Diplomatie
 		vl = new LinearLayout(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		vl.setOrientation(VERTICAL);
 		vl.setLayoutParams(tlp);
 
 		t = new TextView(getContext());
-		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		tlp.gravity = Gravity.CENTER;
 		t.setLayoutParams(tlp);
 		t.setText(R.string.diplomacy);
@@ -312,8 +293,7 @@ public class GameSummaryView extends LinearLayout {
 			// LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
 			// android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			// im.setLayoutParams(tlp);
-			int id = getContext().getResources().getIdentifier("level_" + level, "drawable",
-					ApplicationConstants.PACKAGE);
+			int id = getContext().getResources().getIdentifier("level_" + level, "drawable", ApplicationConstants.PACKAGE);
 			im.setImageDrawable(getContext().getResources().getDrawable(id));
 		}
 		return im;
@@ -321,12 +301,10 @@ public class GameSummaryView extends LinearLayout {
 
 	private View createParties() {
 		LinearLayout accountLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		accountLayout.setLayoutParams(aclp);
 		TextView t = new TextView(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		t.setLayoutParams(tlp);
 		t.setText(getResources().getString(R.string.game_parties_nb, game.getNbParty()));
 		t.setTextSize(10);
@@ -334,26 +312,30 @@ public class GameSummaryView extends LinearLayout {
 
 		if (game.getNbParty() > 0) {
 			t = new TextView(getContext());
-			tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			t.setLayoutParams(tlp);
-			t.setText(" "
-					+ getResources()
-							.getString(R.string.game_parties_happyness, game.getHappyness() / game.getNbParty()));
+			t.setText(" " + getResources().getString(R.string.game_parties_happyness, game.getHappyness() / game.getNbParty()));
 			t.setTextSize(10);
 			accountLayout.addView(t);
 		}
 		return accountLayout;
 	}
 
+	private View createOwnerCollections() {
+		TextView t = new TextView(getContext());
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		t.setLayoutParams(tlp);
+		t.setText(getResources().getString(R.string.game_owner_collection_names, game.getOwnerCollectionNames()));
+		t.setTextSize(10);
+		return t;
+	}
+
 	private View createRatings() {
 		LinearLayout accountLayout = new LinearLayout(getContext());
-		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams aclp = new LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		accountLayout.setLayoutParams(aclp);
 		TextView t = new TextView(getContext());
-		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		LayoutParams tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		t.setLayoutParams(tlp);
 		t.setText(getResources().getString(R.string.game_ratings_nb, game.getNumberOfRatings()));
 		t.setTextSize(10);
@@ -361,8 +343,7 @@ public class GameSummaryView extends LinearLayout {
 
 		if (game.getNumberOfRatings() > 0) {
 			t = new TextView(getContext());
-			tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-					android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+			tlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			t.setLayoutParams(tlp);
 			t.setText(" " + getResources().getString(R.string.game_ratings_adv, game.getAdverageRating()));
 			t.setTextSize(10);

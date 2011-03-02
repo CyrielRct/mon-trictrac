@@ -182,6 +182,7 @@ public class Home extends TabActivity implements ImportCollectionListener {
 	}
 
 	public static void goToParties(Context context, Game game) {
+		PartyList.dontCallHandleIntentOnCreate = true;
 		tabHost.setCurrentTab(3);
 		Intent intent = new Intent().setClass(context, PartyList.class);
 		intent.putExtra("GAME", game);

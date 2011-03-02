@@ -27,7 +27,7 @@
 	<string name="synch_collection">Synchroniser la ludothèque</string>
 	<string name="delete_collection">Supprimer la ludothèque</string>
 	<string name="next_page">Page suivante</string>
-
+	<string name="view_all_games">Voir tous les jeux</string>
 	<!-- Game -->
 	<string name="download_games">Récupération depuis TricTrac: %1$s/%2$s</string>
 	<string name="difficulty">Difficulté</string>
@@ -47,7 +47,9 @@
 	<string name="goto_trictrac_advices">Voir les avis Tric Trac</string>
 	<string name="game_ratings_nb">%1s avis.</string>
 	<string name="game_ratings_adv">Note: %1$s</string>
+	<string name="game_owner_collection_names">Ludothèque(s): %s</string>
 	<!-- Search -->
+	<string name="search_all_games">Tous les jeux</string>
 	<string name="collection_choice_title">Choisir la collection</string>
 	<string name="search_choice_title">Choisir le filtre</string>
 	<string name="search_type_choice_title">Type de recherche</string>
@@ -102,8 +104,10 @@
 	<string name="period_end_date">Choisir la date de fin</string>
 	
 	<string name="my_parties">Mes parties : %1$s</string>
-	<string name="empty_party_list">\nUtiliser le menu pour créer une nouvelle
+	<string name="empty_game_party_list">\nUtiliser le menu pour créer une nouvelle
 		partie.\n\nPour effectuer une action sur une partie, faire un
+		clic long sur celle-ci.</string>
+	<string name="empty_all_party_list">\nPour créer une partie, rechercher d\'abord un jeu puis faire un click long sur le jeu et choisir "Créer une partie".\n\nPour effectuer une action sur une partie, faire un
 		clic long sur celle-ci.</string>
 
 	<string name="display_parties_mode">Mode d\'affichage</string>
