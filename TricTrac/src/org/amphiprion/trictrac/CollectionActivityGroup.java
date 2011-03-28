@@ -352,6 +352,10 @@ public class CollectionActivityGroup extends Activity {
 
 	private void addGameElementToList(List<Game> newGames) {
 		LinearLayout ln = (LinearLayout) findViewById(R.id.game_list);
+		if (ln == null) {
+			Home.gotToCollection(this);
+			return;
+		}
 		if (newGames != gameListContext.games) {
 			gameListContext.games.addAll(newGames);
 			if (ln.getChildCount() > 0) {
