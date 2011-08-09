@@ -139,9 +139,12 @@ public class PartySummaryView extends LinearLayout {
 		TextView t = new TextView(getContext());
 		LayoutParams txtlp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 		t.setLayoutParams(txtlp);
+
 		infoLayout.addView(t);
 
 		if (party.getTrictracId() != null) {
+			t.setText(" TricTrac Id=" + party.getTrictracId());
+
 			ImageView imgLink = new ImageView(getContext());
 			LayoutParams imgLinkLp = new LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 			imgLinkLp.gravity = Gravity.CENTER_VERTICAL;

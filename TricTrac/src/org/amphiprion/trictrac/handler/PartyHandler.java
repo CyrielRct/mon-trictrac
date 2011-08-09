@@ -591,7 +591,7 @@ public class PartyHandler {
 		LogUtil.trace(pw, "#############################");
 		LogUtil.trace(pw, "#############################");
 		LogUtil.trace(pw, "#############################");
-		LogUtil.trace(pw, "on upload la party, isUpdate=" + isUpdate);
+		LogUtil.trace(pw, "on upload la party localId=" + party.getId() + " , isUpdate=" + isUpdate);
 		List<PlayStat> stats = PlayStatDao.getInstance(context).getPlayStat(party);
 		party.setStats(stats);
 
@@ -707,6 +707,7 @@ public class PartyHandler {
 		List<String> partyIds = new ArrayList<String>();
 		try {
 			int deb = 0;
+			boolean toQuick = false;
 			while (true) {
 				String start = "http://www.trictrac.net/index.php3?id=jeux&rub=ludoperso&inf=liste_parties";
 				if (gameId != null) {
@@ -723,15 +724,24 @@ public class PartyHandler {
 				String line;
 				while ((line = rd.readLine()) != null) {
 					LogUtil.trace(pw, line);
-					if (line.startsWith(pattern)) {
-						int pos = line.indexOf("'", pattern.length());
-						String id = line.substring(pattern.length(), pos);
-						partyIds.add(id);
-						finded++;
+					if ("Attention vos appels de pages sont trop rapides.".equals(line)) {
+						toQuick = true;
+						break;
+					} else {
+						if (line.startsWith(pattern)) {
+							int pos = line.indexOf("'", pattern.length());
+							String id = line.substring(pattern.length(), pos);
+							partyIds.add(id);
+							finded++;
+						}
 					}
 				}
 				is.close();
-				if (finded == 0) {
+				if (toQuick) {
+					toQuick = false;
+					LogUtil.trace(pw, "   -> On attends 3s avant de relancer la requête");
+					Thread.sleep(3000);
+				} else if (finded == 0) {
 					break;
 				} else {
 					deb += finded;
