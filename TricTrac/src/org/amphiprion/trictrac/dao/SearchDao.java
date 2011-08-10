@@ -22,8 +22,8 @@ package org.amphiprion.trictrac.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.amphiprion.trictrac.entity.Search;
 import org.amphiprion.trictrac.entity.Entity.DbState;
+import org.amphiprion.trictrac.entity.Search;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -69,12 +69,11 @@ public class SearchDao extends AbstractDao {
 	 */
 	public List<Search> getSearchs() {
 
-		String sql = "SELECT " + Search.DbField.ID + "," + Search.DbField.NAME + "," + Search.DbField.MIN_PLAYER + ","
-				+ Search.DbField.MAX_PLAYER + "," + Search.DbField.MIN_DIFFICULTY + "," + Search.DbField.MAX_DIFFICULTY
-				+ "," + Search.DbField.MIN_LUCK + "," + Search.DbField.MAX_LUCK + "," + Search.DbField.MIN_STRATEGY
-				+ "," + Search.DbField.MAX_STRATEGY + "," + Search.DbField.MIN_DIPLOMACY + ","
-				+ Search.DbField.MAX_DIPLOMACY + "," + Search.DbField.MIN_DURATION + "," + Search.DbField.MAX_DURATION
-				+ "," + Search.DbField.EXACTLY + " from SEARCH order by " + Search.DbField.NAME + " asc";
+		String sql = "SELECT " + Search.DbField.ID + "," + Search.DbField.NAME + "," + Search.DbField.MIN_PLAYER + "," + Search.DbField.MAX_PLAYER + ","
+				+ Search.DbField.MIN_DIFFICULTY + "," + Search.DbField.MAX_DIFFICULTY + "," + Search.DbField.MIN_LUCK + "," + Search.DbField.MAX_LUCK + ","
+				+ Search.DbField.MIN_STRATEGY + "," + Search.DbField.MAX_STRATEGY + "," + Search.DbField.MIN_DIPLOMACY + "," + Search.DbField.MAX_DIPLOMACY + ","
+				+ Search.DbField.MIN_DURATION + "," + Search.DbField.MAX_DURATION + "," + Search.DbField.EXACTLY + "," + Search.DbField.MIN_AGE + " from SEARCH order by "
+				+ Search.DbField.NAME + " asc";
 		Cursor cursor = getDatabase().rawQuery(sql, new String[] {});
 		ArrayList<Search> result = new ArrayList<Search>();
 		if (cursor.moveToFirst()) {
@@ -94,6 +93,7 @@ public class SearchDao extends AbstractDao {
 				entity.setMinDuration(cursor.getInt(12));
 				entity.setMaxDuration(cursor.getInt(13));
 				entity.setExactly(cursor.getInt(14) == 1);
+				entity.setMinAge(cursor.getInt(15));
 				result.add(entity);
 			} while (cursor.moveToNext());
 		}
@@ -116,14 +116,12 @@ public class SearchDao extends AbstractDao {
 	 *            the new search
 	 */
 	public void create(Search search) {
-		String sql = "insert into SEARCH (" + Search.DbField.ID + "," + Search.DbField.NAME + ","
-				+ Search.DbField.MIN_PLAYER + "," + Search.DbField.MAX_PLAYER + "," + Search.DbField.MIN_DIFFICULTY
-				+ "," + Search.DbField.MAX_DIFFICULTY + "," + Search.DbField.MIN_LUCK + "," + Search.DbField.MAX_LUCK
-				+ "," + Search.DbField.MIN_STRATEGY + "," + Search.DbField.MAX_STRATEGY + ","
-				+ Search.DbField.MIN_DIPLOMACY + "," + Search.DbField.MAX_DIPLOMACY + "," + Search.DbField.MIN_DURATION
-				+ "," + Search.DbField.MAX_DURATION + "," + Search.DbField.EXACTLY
-				+ ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		Object[] params = new Object[15];
+		String sql = "insert into SEARCH (" + Search.DbField.ID + "," + Search.DbField.NAME + "," + Search.DbField.MIN_PLAYER + "," + Search.DbField.MAX_PLAYER + ","
+				+ Search.DbField.MIN_DIFFICULTY + "," + Search.DbField.MAX_DIFFICULTY + "," + Search.DbField.MIN_LUCK + "," + Search.DbField.MAX_LUCK + ","
+				+ Search.DbField.MIN_STRATEGY + "," + Search.DbField.MAX_STRATEGY + "," + Search.DbField.MIN_DIPLOMACY + "," + Search.DbField.MAX_DIPLOMACY + ","
+				+ Search.DbField.MIN_DURATION + "," + Search.DbField.MAX_DURATION + "," + Search.DbField.EXACTLY + "," + Search.DbField.MIN_AGE
+				+ ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		Object[] params = new Object[16];
 		params[0] = search.getId();
 		params[1] = search.getName();
 		params[2] = search.getMinPlayer();
@@ -138,7 +136,8 @@ public class SearchDao extends AbstractDao {
 		params[11] = search.getMaxDiplomacy();
 		params[12] = search.getMinDuration();
 		params[13] = search.getMaxDuration();
-		params[14] = (search.isExactly() ? 1 : 0);
+		params[14] = search.isExactly() ? 1 : 0;
+		params[15] = search.getMinAge();
 
 		execSQL(sql, params);
 	}
@@ -150,14 +149,11 @@ public class SearchDao extends AbstractDao {
 	 *            the search to update
 	 */
 	public void update(Search search) {
-		String sql = "update SEARCH set " + Search.DbField.NAME + "=?," + Search.DbField.MIN_PLAYER + "=?,"
-				+ Search.DbField.MAX_PLAYER + "=?," + Search.DbField.MIN_DIFFICULTY + "=?,"
-				+ Search.DbField.MAX_DIFFICULTY + "=?," + Search.DbField.MIN_LUCK + "=?," + Search.DbField.MAX_LUCK
-				+ "=?," + Search.DbField.MIN_STRATEGY + "=?," + Search.DbField.MAX_STRATEGY + "=?,"
-				+ Search.DbField.MIN_DIPLOMACY + "=?," + Search.DbField.MAX_DIPLOMACY + "=?,"
-				+ Search.DbField.MIN_DURATION + "=?," + Search.DbField.MAX_DURATION + "=?," + Search.DbField.EXACTLY
-				+ "=? WHERE " + Search.DbField.ID + "=?";
-		Object[] params = new Object[15];
+		String sql = "update SEARCH set " + Search.DbField.NAME + "=?," + Search.DbField.MIN_PLAYER + "=?," + Search.DbField.MAX_PLAYER + "=?," + Search.DbField.MIN_DIFFICULTY
+				+ "=?," + Search.DbField.MAX_DIFFICULTY + "=?," + Search.DbField.MIN_LUCK + "=?," + Search.DbField.MAX_LUCK + "=?," + Search.DbField.MIN_STRATEGY + "=?,"
+				+ Search.DbField.MAX_STRATEGY + "=?," + Search.DbField.MIN_DIPLOMACY + "=?," + Search.DbField.MAX_DIPLOMACY + "=?," + Search.DbField.MIN_DURATION + "=?,"
+				+ Search.DbField.MAX_DURATION + "=?," + Search.DbField.EXACTLY + "=?," + Search.DbField.MIN_AGE + "=? WHERE " + Search.DbField.ID + "=?";
+		Object[] params = new Object[16];
 		params[0] = search.getName();
 		params[1] = search.getMinPlayer();
 		params[2] = search.getMaxPlayer();
@@ -171,8 +167,9 @@ public class SearchDao extends AbstractDao {
 		params[10] = search.getMaxDiplomacy();
 		params[11] = search.getMinDuration();
 		params[12] = search.getMaxDuration();
-		params[13] = (search.isExactly() ? 1 : 0);
-		params[14] = search.getId();
+		params[13] = search.isExactly() ? 1 : 0;
+		params[14] = search.getMinAge();
+		params[15] = search.getId();
 
 		execSQL(sql, params);
 	}

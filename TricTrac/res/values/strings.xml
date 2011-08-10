@@ -35,6 +35,7 @@
 	<string name="strategy">Stratégie</string>
 	<string name="diplomacy">Diplomatie</string>
 	<string name="duration">Durée (mn)</string>
+	<string name="age">Age</string>
 	<string name="search_hint">Nom du jeu</string>
 	<string name="message_nb_result">%1$s jeux trouvés.</string>
 	<string name="synch_game">Synchroniser le jeu</string>
@@ -64,6 +65,7 @@
 	<string name="max_player">à</string>
 	<string name="exactly">Exclusivement</string>
 	<string name="min_level">Minimum</string>
+	<string name="min_age">Age</string>
 	<string name="max_level">Maximum</string>
 	<string name="search">Rechercher</string>
 	<string name="search_name">Nom du filtre</string>
