@@ -34,6 +34,7 @@ import android.widget.TextView;
 public class EditSearch extends Activity {
 	private Search search;
 	private CheckBox chkPlayer;
+	private CheckBox chkAge;
 	private CheckBox chkDifficulty;
 	private CheckBox chkLuck;
 	private CheckBox chkStrategy;
@@ -58,6 +59,8 @@ public class EditSearch extends Activity {
 
 		chkPlayer = (CheckBox) findViewById(R.id.chkPlayers);
 		chkPlayer.setOnCheckedChangeListener(new CheckExpander(findViewById(R.id.pPlayers)));
+		chkAge = (CheckBox) findViewById(R.id.chkAge);
+		chkAge.setOnCheckedChangeListener(new CheckExpander(findViewById(R.id.pAge)));
 		chkDifficulty = (CheckBox) findViewById(R.id.chkDifficulty);
 		chkDifficulty.setOnCheckedChangeListener(new CheckExpander(findViewById(R.id.pDifficulty)));
 		chkLuck = (CheckBox) findViewById(R.id.chkLuck);
@@ -117,6 +120,15 @@ public class EditSearch extends Activity {
 		CheckBox chkExactly = (CheckBox) findViewById(R.id.chkExclusive);
 		chkExactly.setChecked(search.isExactly());
 		chkPlayer.setChecked(checked);
+
+		// Age
+		checked = false;
+		if (search.getMinAge() != 0) {
+			TextView txtMinAge = (TextView) findViewById(R.id.txtMinAge);
+			txtMinAge.setText("" + search.getMinAge());
+			checked = true;
+		}
+		chkAge.setChecked(checked);
 
 		// Difficulty
 		checked = false;
@@ -206,6 +218,15 @@ public class EditSearch extends Activity {
 			}
 			CheckBox chkExactly = (CheckBox) findViewById(R.id.chkExclusive);
 			search.setExactly(chkExactly.isChecked());
+		}
+
+		// Age
+		search.setMinAge(0);
+		if (chkAge.isChecked()) {
+			TextView txtMin = (TextView) findViewById(R.id.txtMinAge);
+			if (!"".equals("" + txtMin.getText())) {
+				search.setMinAge(Integer.parseInt("" + txtMin.getText()));
+			}
 		}
 
 		// Difficulty

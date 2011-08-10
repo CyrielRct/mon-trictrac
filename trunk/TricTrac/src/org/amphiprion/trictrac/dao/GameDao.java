@@ -317,6 +317,9 @@ public class GameDao extends AbstractDao {
 			if (search.getMaxDuration() != 0) {
 				sql += " and (" + Game.DbField.DURATION + "=0 or " + Game.DbField.DURATION + "<=" + search.getMaxDuration() + ")";
 			}
+			if (search.getMinAge() != 0) {
+				sql += " and (" + Game.DbField.MIN_AGE + "=0 or " + Game.DbField.MIN_AGE + "<=" + search.getMinAge() + ")";
+			}
 		}
 		return sql;
 	}

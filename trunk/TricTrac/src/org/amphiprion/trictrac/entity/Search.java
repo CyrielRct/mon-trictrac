@@ -31,7 +31,7 @@ public class Search extends Entity {
 	private static final long serialVersionUID = 1L;
 
 	public enum DbField {
-		ID, NAME, MIN_PLAYER, MAX_PLAYER, MIN_DIFFICULTY, MAX_DIFFICULTY, MIN_LUCK, MAX_LUCK, MIN_STRATEGY, MAX_STRATEGY, MIN_DIPLOMACY, MAX_DIPLOMACY, MIN_DURATION, MAX_DURATION, EXACTLY
+		ID, NAME, MIN_PLAYER, MAX_PLAYER, MIN_DIFFICULTY, MAX_DIFFICULTY, MIN_LUCK, MAX_LUCK, MIN_STRATEGY, MAX_STRATEGY, MIN_DIPLOMACY, MAX_DIPLOMACY, MIN_DURATION, MAX_DURATION, EXACTLY, MIN_AGE
 	}
 
 	private String name;
@@ -48,6 +48,7 @@ public class Search extends Entity {
 	private int maxDiplomacy;
 	private int minDuration;
 	private int maxDuration;
+	private int minAge;
 
 	public Search() {
 		super();
@@ -167,6 +168,14 @@ public class Search extends Entity {
 
 	public void setExactly(boolean exactly) {
 		this.exactly = exactly;
+	}
+
+	public void setMinAge(int minAge) {
+		this.minAge = minAge;
+	}
+
+	public int getMinAge() {
+		return minAge;
 	}
 
 	@Override
