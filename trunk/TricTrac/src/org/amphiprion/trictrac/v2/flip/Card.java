@@ -1,19 +1,14 @@
 package org.amphiprion.trictrac.v2.flip;
 
-import static javax.microedition.khronos.opengles.GL10.GL_BACK;
 import static javax.microedition.khronos.opengles.GL10.GL_BLEND;
-import static javax.microedition.khronos.opengles.GL10.GL_CCW;
-import static javax.microedition.khronos.opengles.GL10.GL_CLAMP_TO_EDGE;
 import static javax.microedition.khronos.opengles.GL10.GL_CULL_FACE;
 import static javax.microedition.khronos.opengles.GL10.GL_DEPTH_TEST;
 import static javax.microedition.khronos.opengles.GL10.GL_FLOAT;
 import static javax.microedition.khronos.opengles.GL10.GL_LIGHTING;
+import static javax.microedition.khronos.opengles.GL10.GL_ONE;
 import static javax.microedition.khronos.opengles.GL10.GL_ONE_MINUS_SRC_ALPHA;
-import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 import static javax.microedition.khronos.opengles.GL10.GL_TEXTURE_2D;
 import static javax.microedition.khronos.opengles.GL10.GL_TEXTURE_COORD_ARRAY;
-import static javax.microedition.khronos.opengles.GL10.GL_TEXTURE_WRAP_S;
-import static javax.microedition.khronos.opengles.GL10.GL_TEXTURE_WRAP_T;
 import static javax.microedition.khronos.opengles.GL10.GL_TRIANGLES;
 import static javax.microedition.khronos.opengles.GL10.GL_UNSIGNED_SHORT;
 import static javax.microedition.khronos.opengles.GL10.GL_VERTEX_ARRAY;
@@ -43,8 +38,6 @@ import android.util.FloatMath;
  */
 
 public class Card {
-	private static final int MAX_ANGLE = 90;
-	private static final float SPEED = 1.5f;
 
 	private float cardVertices[];
 
@@ -60,12 +53,9 @@ public class Card {
 
 	private Texture texture;
 
-	private float angle = 0f;
+	protected float angle = 0f;
 
-	private boolean animating = false;
 	private boolean top = false;
-
-	private boolean forward = true;
 
 	private boolean dirty = false;
 
@@ -91,10 +81,6 @@ public class Card {
 		this.angle = angle;
 	}
 
-	public void setAnimating(boolean animating) {
-		this.animating = animating;
-	}
-
 	public void draw(GL10 gl) {
 		if (dirty) {
 			updateVertices();
@@ -104,23 +90,25 @@ public class Card {
 			return;
 		}
 
-		gl.glFrontFace(GL_CCW);
-
+		gl.glFrontFace(GL10.GL_CCW);
 		gl.glEnable(GL_CULL_FACE);
-		gl.glCullFace(GL_BACK);
+		gl.glCullFace(GL10.GL_BACK);
 
 		gl.glEnableClientState(GL_VERTEX_ARRAY);
 
 		gl.glEnable(GL_BLEND);
-		gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		gl.glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-		gl.glColor4f(1f, 1.0f, 1f, 1.0f);
+		// gl.glColor4f(1, 0, 0, 0.5f);
+		// gl.glColorMask(true, true, true, true);
 
 		if (Utils.isValidTexture(texture)) {
 			gl.glEnable(GL_TEXTURE_2D);
 			gl.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			// gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+			// GL_CLAMP_TO_EDGE);
+			// gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+			// GL_CLAMP_TO_EDGE);
 			gl.glTexCoordPointer(2, GL_FLOAT, 0, textureBuffer);
 			gl.glBindTexture(GL_TEXTURE_2D, texture.getId()[0]);
 		}
@@ -141,25 +129,11 @@ public class Card {
 			}
 		}
 
-		if (animating) {
-			if (angle >= MAX_ANGLE) {
-				forward = false;
-			}
-			if (angle <= 1) {
-				forward = true;
-			}
-
-			if (forward) {
-				angle += SPEED;
-			} else {
-				angle -= SPEED;
-			}
-		}
-
 		gl.glVertexPointer(3, GL_FLOAT, 0, vertexBuffer);
 		gl.glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_SHORT, indexBuffer);
 
 		// checkError(gl);
+		gl.glTexEnvf(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, GL10.GL_MODULATE);
 
 		gl.glPopMatrix();
 
