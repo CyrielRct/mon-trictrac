@@ -43,6 +43,8 @@ public class FlipRenderer implements GLSurfaceView.Renderer {
 
 	private FlipCards cards;
 
+	private float angle;
+
 	public FlipRenderer(FlipViewGroup flipViewGroup) {
 		this.flipViewGroup = flipViewGroup;
 
@@ -93,12 +95,21 @@ public class FlipRenderer implements GLSurfaceView.Renderer {
 	@Override
 	public void onDrawFrame(GL10 gl) {
 		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// if (cards.angle < 180) {
+		// cards.angle += 1;
+		// }
+		if (animatedDirection != 0) {
+			setAngle(getAngle() + 3 * animatedDirection);
+		}
 		cards.draw(gl);
+		// Logger.i("COUCOU:" + System.currentTimeMillis());
 	}
 
-	public void updateTexture(View view) {
-		cards.reloadTexture(view);
+	public void updateTexture(View firstView, View secondView) {
+		cards.reloadTexture(firstView, secondView);
 		// flipViewGroup.getSurfaceView().requestRender();
+		Logger.i("texture:" + System.currentTimeMillis());
+
 	}
 
 	public static void checkError(GL10 gl) {
@@ -106,5 +117,24 @@ public class FlipRenderer implements GLSurfaceView.Renderer {
 		if (error != 0) {
 			throw new RuntimeException(GLU.gluErrorString(error));
 		}
+	}
+
+	public float getAngle() {
+		return angle;
+	}
+
+	public void setAngle(float f) {
+		angle = Math.min(180, Math.max(0, f));
+		cards.angle = angle;
+		if (animatedDirection != 0 && callbackOnAngleUpdate != null) {
+			callbackOnAngleUpdate.run();
+		}
+	}
+
+	public int animatedDirection;
+	public Runnable callbackOnAngleUpdate;
+
+	public void destroyTexture() {
+		cards.destroyTexture();
 	}
 }

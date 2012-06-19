@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -44,10 +45,20 @@ public class FlipViewGroup extends ViewGroup {
 		setupSurfaceView();
 	}
 
+	public View getFlipView(int index) {
+		return flipViews.get(index);
+	}
+
 	private void setupSurfaceView() {
 		surfaceView = new GLSurfaceView(getContext());
 
 		renderer = new FlipRenderer(this);
+		renderer.callbackOnAngleUpdate = new Runnable() {
+			@Override
+			public void run() {
+				angleUpdated();
+			}
+		};
 
 		surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 		surfaceView.setZOrderOnTop(true);
@@ -56,6 +67,8 @@ public class FlipViewGroup extends ViewGroup {
 		surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
 		addView(surfaceView);
+
+		surfaceView.setVisibility(INVISIBLE);
 	}
 
 	public GLSurfaceView getSurfaceView() {
@@ -69,6 +82,9 @@ public class FlipViewGroup extends ViewGroup {
 	public void addFlipView(View v) {
 		flipViews.add(v);
 		addView(v, 1);
+		if (flipViews.size() - 1 != currentView) {
+			v.setVisibility(INVISIBLE);
+		}
 	}
 
 	@Override
@@ -90,9 +106,10 @@ public class FlipViewGroup extends ViewGroup {
 				height = h;
 
 				if (flipping && !flipViews.isEmpty()) {
-					View view = flipViews.get(currentView); //
-					renderer.updateTexture(view);
-					view.setVisibility(View.INVISIBLE);
+					View firstView = flipViews.get(currentView); //
+					View secondView = flipViews.get(currentView + 1); //
+					renderer.updateTexture(firstView, secondView);
+					// view.setVisibility(View.INVISIBLE);
 				}
 			}
 		}
@@ -109,7 +126,173 @@ public class FlipViewGroup extends ViewGroup {
 		}
 	}
 
-	public void startFlipping() {
-		flipping = true;
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent event) {
+		if (!delegateTouch(event)) {
+			return super.dispatchTouchEvent(event);
+		} else {
+			return true;
+		}
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (!delegateTouch(event)) {
+			return super.onTouchEvent(event);
+		} else {
+			return true;
+		}
+	}
+
+	private boolean delegateTouch(MotionEvent event) {
+		if (locked) {
+			return false;
+		}
+		if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			if (!flipping && Math.abs(py - event.getY()) < 10) {
+				return true;
+			}
+
+			if (py < event.getY()) {
+				flipDirection = -1;
+			} else if (py > event.getY()) {
+				flipDirection = 1;
+			} else {
+				return true;
+			}
+			if (!flipping) {
+				renderer.setAngle(0);
+				if (flipDirection == 1 && currentView + 1 >= flipViews.size()) {
+					return true;
+				} else if (flipDirection == -1 && currentView == 0) {
+					return true;
+				}
+				if (flipDirection == -1) {
+					currentView--;
+					renderer.setAngle(180);
+				}
+				View firstView = flipViews.get(currentView); //
+				View secondView = flipViews.get(currentView + 1); //
+				renderer.updateTexture(firstView, secondView);
+				// if (flipDirection == -1) {
+				// firstView.setVisibility(VISIBLE);
+				// secondView.setVisibility(INVISIBLE);
+				// } else {
+				// firstView.setVisibility(INVISIBLE);
+				// secondView.setVisibility(VISIBLE);
+				// }
+				flipping = true;
+				surfaceView.setVisibility(VISIBLE);
+			}
+			renderer.setAngle(renderer.getAngle() + (py - event.getY()) / 3.0f);
+
+			if (renderer.getAngle() < 90) {
+				View firstView = flipViews.get(currentView);
+				firstView.setVisibility(VISIBLE);
+				View secondView = flipViews.get(currentView + 1);
+				secondView.setVisibility(INVISIBLE);
+			} else {
+				View firstView = flipViews.get(currentView);
+				firstView.setVisibility(INVISIBLE);
+				View secondView = flipViews.get(currentView + 1);
+				secondView.setVisibility(VISIBLE);
+			}
+			px = event.getX();
+			py = event.getY();
+			return true;
+		} else if (event.getAction() == MotionEvent.ACTION_UP) {
+			py = -1;
+			if (flipping) {
+				if (renderer.getAngle() != 0 && renderer.getAngle() != 180) {
+					renderer.animatedDirection = flipDirection;
+				} else {
+					angleUpdated();
+				}
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			px = event.getX();
+			py = event.getY();
+			return false;
+		}
+
+	}
+
+	protected void angleUpdated() {
+		final View firstView = flipViews.get(currentView);
+		final View secondView = flipViews.get(currentView + 1);
+		if (renderer.getAngle() == 180) {
+			renderer.animatedDirection = 0;
+			firstView.setVisibility(INVISIBLE);
+			secondView.setVisibility(VISIBLE);
+			flipping = false;
+			post(new Runnable() {
+				@Override
+				public void run() {
+					surfaceView.setVisibility(INVISIBLE);
+				}
+			});
+			renderer.destroyTexture();
+
+			// renderer.setAngle(0);
+			currentView++;
+		} else if (renderer.getAngle() == 0) {
+			renderer.animatedDirection = 0;
+			firstView.setVisibility(VISIBLE);
+			secondView.setVisibility(INVISIBLE);
+			flipping = false;
+			post(new Runnable() {
+				@Override
+				public void run() {
+					surfaceView.setVisibility(INVISIBLE);
+				}
+			});
+			renderer.destroyTexture();
+
+			// renderer.setAngle(0);
+		} else {
+			if (renderer.getAngle() < 90) {
+				post(new Runnable() {
+					@Override
+					public void run() {
+						firstView.setVisibility(VISIBLE);
+						secondView.setVisibility(INVISIBLE);
+					}
+				});
+			} else {
+				post(new Runnable() {
+					@Override
+					public void run() {
+						firstView.setVisibility(INVISIBLE);
+						secondView.setVisibility(VISIBLE);
+					}
+				});
+			}
+		}
+	}
+
+	private float px;
+	private float py;
+	private boolean locked;
+
+	public void clearFlipViews() {
+		for (View v : flipViews) {
+			removeView(v);
+		}
+		flipViews.clear();
+	}
+
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
+
+	public int getCurrentPage() {
+		return currentView;
+	}
+
+	public boolean isFlipping() {
+		return flipping;
 	}
 }
