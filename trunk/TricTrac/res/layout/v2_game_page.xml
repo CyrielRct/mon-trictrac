@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/trictrac_logo" />
+		<LinearLayout
+	        android:id="@+id/linearLayout1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" 
+            android:layout_weight="1"
+	        android:orientation="vertical">
+        	<TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jeux"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/black" />
+		    <TextView
+            android:id="@+id/page"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Large Text"
+            android:textColor="@color/black" />
+        
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/search_cleared" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/editText1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+
+            <requestFocus />
+        </EditText>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/linearLayout4"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+            
+            <FrameLayout
+    			android:layout_width="fill_parent"
+    			android:layout_height="fill_parent"
+    			android:layout_weight="1"
+		android:padding="5dp"
+	            android:layout_gravity="center"
+    			>
+	            <ImageView
+	                android:id="@+id/img0"
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+					android:layout_gravity="center"
+	                android:src="@drawable/ludo" />
+	            <LinearLayout 
+		 		    android:id="@+id/detail0"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+				    android:layout_gravity="bottom"
+				    android:gravity="center"
+				    android:background="#77000000"
+		 		    android:orientation="vertical">
+	            	<TextView
+		                android:id="@+id/name0"
+				        android:layout_width="fill_parent" 
+				        android:layout_height="wrap_content" 
+				        android:layout_gravity="center"
+				        android:gravity="center_horizontal"
+				        android:textColor="#ffffffff"
+				        android:text="" />
+	            </LinearLayout>
+	            <ImageView
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+					android:layout_gravity="center"
+	                android:src="@drawable/mask_game" />
+	            <ImageView
+	                android:id="@+id/imgDelete0"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|left"
+			        android:src="@drawable/delete_over" />
+
+	            <ImageView
+	                android:id="@+id/imgEdit0"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|center_horizontal"
+			        android:src="@drawable/edit_over" />
+	            					            
+			</FrameLayout>
+
+            <FrameLayout
+    			android:layout_width="fill_parent"
+    			android:layout_height="fill_parent"
+    			android:layout_weight="1"
+		android:padding="5dp"
+	            android:layout_gravity="center"
+    			>
+	            <ImageView
+	                android:id="@+id/img1"
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:layout_gravity="center"
+	                android:scaleType="fitXY"
+	                android:src="@drawable/ludo" />
+	            <LinearLayout 
+		 		    android:id="@+id/detail1"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+				    android:layout_gravity="bottom"
+				    android:gravity="center"
+				    android:background="#77000000"
+		 		    android:orientation="vertical">
+	            	<TextView
+		                android:id="@+id/name1"
+				        android:layout_width="fill_parent" 
+				        android:layout_height="wrap_content" 
+				        android:layout_gravity="center"
+				        android:gravity="center_horizontal"
+				        android:textColor="#ffffffff"
+				        android:text="" />
+	            </LinearLayout>
+	            <ImageView
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+					android:layout_gravity="center"
+	                android:src="@drawable/mask_game" />
+	            <ImageView
+	                android:id="@+id/imgDelete1"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|left"
+			        android:src="@drawable/delete_over" />
+	            <ImageView
+	                android:id="@+id/imgEdit1"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|center_horizontal"
+			        android:src="@drawable/edit_over" />
+	        </FrameLayout>
+        </LinearLayout>
+                
+        <LinearLayout
+            android:id="@+id/linearLayout6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+
+            <FrameLayout
+    			android:layout_width="fill_parent"
+    			android:layout_height="fill_parent"
+    			android:layout_weight="1"
+		android:padding="5dp"
+	            android:layout_gravity="center"
+    			>
+	            <ImageView
+	                android:id="@+id/img2"
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+	                android:src="@drawable/ludo" />
+		 		<LinearLayout 
+		 		    android:id="@+id/detail2"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+				    android:layout_gravity="bottom"
+				    android:gravity="center"
+				    android:background="#77000000"
+		 		    android:orientation="vertical">
+	            	<TextView
+		                android:id="@+id/name2"
+				        android:layout_width="fill_parent" 
+				        android:layout_height="wrap_content" 
+				        android:layout_gravity="center"
+				        android:gravity="center_horizontal"
+				        android:textColor="#ffffffff"
+				        android:text="" />
+	            </LinearLayout>
+	            <ImageView
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+					android:layout_gravity="center"
+	                android:src="@drawable/mask_game" />
+	            <ImageView
+	                android:id="@+id/imgDelete2"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|left"
+			        android:src="@drawable/delete_over" />
+	            <ImageView
+	                android:id="@+id/imgEdit2"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|center_horizontal"
+			        android:src="@drawable/edit_over" />
+	            
+			</FrameLayout>
+            <FrameLayout
+    			android:layout_width="fill_parent"
+    			android:layout_height="fill_parent"
+    			android:layout_weight="1"
+		android:padding="5dp"
+	            android:layout_gravity="center"
+    			>
+	            <ImageView
+	                android:id="@+id/img3"
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+	                android:src="@drawable/ludo" />
+		 		<LinearLayout 
+		 		    android:id="@+id/detail3"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+				    android:layout_gravity="bottom"
+				    android:gravity="center"
+				    android:background="#77000000"
+		 		    android:orientation="vertical">
+	            	<TextView
+		                android:id="@+id/name3"
+				        android:layout_width="fill_parent" 
+				        android:layout_height="wrap_content" 
+				        android:layout_gravity="center"
+				        android:gravity="center_horizontal"
+				        android:textColor="#ffffffff"
+				        android:text="" />
+	            </LinearLayout>
+	            <ImageView
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+					android:layout_gravity="center"
+	                android:src="@drawable/mask_game" />
+	            <ImageView
+	                android:id="@+id/imgDelete3"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|left"
+			        android:src="@drawable/delete_over" />
+	            <ImageView
+	                android:id="@+id/imgEdit3"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|center_horizontal"
+			        android:src="@drawable/edit_over" />
+	            
+			</FrameLayout>
+        </LinearLayout>
+            
+        <LinearLayout
+            android:id="@+id/linearLayout7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+
+            <FrameLayout
+    			android:layout_width="fill_parent"
+    			android:layout_height="fill_parent"
+    			android:layout_weight="1"
+		android:padding="5dp"
+	            android:layout_gravity="center"
+    			>
+	            <ImageView
+	                android:id="@+id/img4"
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+	                android:src="@drawable/ludo" />
+		 		<LinearLayout 
+		 		    android:id="@+id/detail4"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+				    android:layout_gravity="bottom"
+				    android:gravity="center"
+				    android:background="#77000000"
+		 		    android:orientation="vertical">
+	            	<TextView
+		                android:id="@+id/name4"
+				        android:layout_width="fill_parent" 
+				        android:layout_height="wrap_content" 
+				        android:layout_gravity="center"
+				        android:gravity="center_horizontal"
+				        android:textColor="#ffffffff"
+				        android:text="" />
+	            </LinearLayout>
+	            <ImageView
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+					android:layout_gravity="center"
+	                android:src="@drawable/mask_game" />
+	            <ImageView
+	                android:id="@+id/imgDelete4"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|left"
+			        android:src="@drawable/delete_over" />
+	            <ImageView
+	                android:id="@+id/imgEdit4"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|center_horizontal"
+			        android:src="@drawable/edit_over" />
+	            
+			</FrameLayout>
+            <FrameLayout
+    			android:layout_width="fill_parent"
+    			android:layout_height="fill_parent"
+    			android:layout_weight="1"
+		android:padding="5dp"
+	            android:layout_gravity="center"
+    			>
+	            <ImageView
+	                android:id="@+id/img5"
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+	                android:src="@drawable/ludo" />
+	            <LinearLayout 
+		 		    android:id="@+id/detail5"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+				    android:layout_gravity="bottom"
+				    android:gravity="center"
+				    android:background="#77000000"
+		 		    android:orientation="vertical">
+	            	<TextView
+		                android:id="@+id/name5"
+				        android:layout_width="fill_parent" 
+				        android:layout_height="wrap_content" 
+				        android:layout_gravity="center"
+				        android:gravity="center_horizontal"
+				        android:textColor="#ffffffff"
+				        android:text="" />
+	            </LinearLayout>
+		 		<ImageView
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent"
+					android:scaleType="fitXY"
+					android:layout_gravity="center"
+	                android:src="@drawable/mask_game" />
+	            <ImageView
+	                android:id="@+id/imgDelete5"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|left"
+			        android:src="@drawable/delete_over" />
+	            <ImageView
+	                android:id="@+id/imgEdit5"
+	                android:visibility="invisible"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="top|center_horizontal"
+			        android:src="@drawable/edit_over" />
+	            
+			</FrameLayout>
+        </LinearLayout>
+            
+            
+    </LinearLayout>
+
+</LinearLayout>

@@ -34,7 +34,7 @@ import org.amphiprion.trictrac.view.MyScrollView;
  * 
  */
 public class GameListContext {
-	public static final int PAGE_SIZE = 20;
+	public static final int PAGE_SIZE = 18;
 
 	public Collection collection;
 	public Search search;
