@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -45,10 +46,17 @@ public class GameList extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// Remove title bar
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		// Remove notification bar
+		// this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+		// WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		contentView = new FlipViewGroup(this);
 		gameListContext = new GameListContext();
-		gameListContext.collection = (Collection) getIntent().getSerializableExtra("COLLECTION");
+		gameListContext.collection = (Collection) getIntent()
+				.getSerializableExtra("COLLECTION");
 
 		initGameList();
 		setContentView(contentView);
@@ -59,7 +67,8 @@ public class GameList extends Activity {
 					@Override
 					public void run() {
 						if (!gameListContext.allLoaded) {
-							if (contentView.getCurrentPage() + 2 >= contentView.getPageCount()) {
+							if (contentView.getCurrentPage() + 2 >= contentView
+									.getPageCount()) {
 								loadGameNextPage();
 							}
 						}
@@ -121,10 +130,16 @@ public class GameList extends Activity {
 
 	private void loadGameNextPage() {
 		if (gameListContext.loadedPage == 0) {
-			int nb = GameDao.getInstance(this).getGameCount(gameListContext.collection, gameListContext.search, gameListContext.query);
+			int nb = GameDao.getInstance(this).getGameCount(
+					gameListContext.collection, gameListContext.search,
+					gameListContext.query);
 			totalGames = nb;
-			Toast.makeText(this, getResources().getString(R.string.message_nb_result, nb), Toast.LENGTH_LONG).show();
-			List<Game> newGames = GameDao.getInstance(this).getGames(gameListContext.collection, gameListContext.loadedPage, GameListContext.PAGE_SIZE, gameListContext.search,
+			Toast.makeText(this,
+					getResources().getString(R.string.message_nb_result, nb),
+					Toast.LENGTH_LONG).show();
+			List<Game> newGames = GameDao.getInstance(this).getGames(
+					gameListContext.collection, gameListContext.loadedPage,
+					GameListContext.PAGE_SIZE, gameListContext.search,
 					gameListContext.query);
 			importGameEnded(true, newGames);
 		} else {
@@ -140,7 +155,9 @@ public class GameList extends Activity {
 					return GameList.this;
 				}
 			};
-			gameListContext.task = new LoadGamesTask(l, gameListContext.collection, gameListContext.loadedPage, GameListContext.PAGE_SIZE, gameListContext.search,
+			gameListContext.task = new LoadGamesTask(l,
+					gameListContext.collection, gameListContext.loadedPage,
+					GameListContext.PAGE_SIZE, gameListContext.search,
 					gameListContext.query);
 			gameListContext.task.execute();
 		}
@@ -201,26 +218,34 @@ public class GameList extends Activity {
 			TextView txtTitle = (TextView) v.findViewById(R.id.title);
 			txtTitle.setText(title);
 			txtTitle = (TextView) v.findViewById(R.id.page);
-			txtTitle.setText("Page " + (nbExisting + i + 1) + " / " + nbTotalPage);
+			txtTitle.setText("Page " + (nbExisting + i + 1) + " / "
+					+ nbTotalPage);
 			contentView.addFlipView(v);
 			for (int c = 0; c < nbPerPage; c++) {
 				int index = nbPerPage * i + c;
-				ImageView img = (ImageView) v.findViewById(getResources().getIdentifier("img" + c, "id", ApplicationConstants.PACKAGE));
+				ImageView img = (ImageView) v.findViewById(getResources()
+						.getIdentifier("img" + c, "id",
+								ApplicationConstants.PACKAGE));
 				if (index < newGames.size()) {
 					final Game game = newGames.get(index);
 
-					File f = new File(Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/" + game.getImageName());
+					File f = new File(Environment.getExternalStorageDirectory()
+							+ "/" + ApplicationConstants.DIRECTORY + "/"
+							+ game.getImageName());
 					Bitmap bitmap = null;
 					if (f.exists()) {
 						bitmap = BitmapFactory.decodeFile(f.toString());
 					}
 					if (bitmap == null) {
-						bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_game_image);
+						bitmap = BitmapFactory.decodeResource(getResources(),
+								R.drawable.no_game_image);
 					}
 
 					img.setImageBitmap(bitmap);
 
-					TextView txt = (TextView) v.findViewById(getResources().getIdentifier("name" + c, "id", ApplicationConstants.PACKAGE));
+					TextView txt = (TextView) v.findViewById(getResources()
+							.getIdentifier("name" + c, "id",
+									ApplicationConstants.PACKAGE));
 					txt.setText(game.getName());
 					img.setOnLongClickListener(new View.OnLongClickListener() {
 						@Override
@@ -229,14 +254,20 @@ public class GameList extends Activity {
 							return true;
 						}
 					});
-					ImageView imgDel = (ImageView) v.findViewById(getResources().getIdentifier("imgDelete" + c, "id", ApplicationConstants.PACKAGE));
+					ImageView imgDel = (ImageView) v
+							.findViewById(getResources().getIdentifier(
+									"imgDelete" + c, "id",
+									ApplicationConstants.PACKAGE));
 					imgDel.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View arg0) {
 							// buildPages();
 						}
 					});
-					ImageView imgEdit = (ImageView) v.findViewById(getResources().getIdentifier("imgEdit" + c, "id", ApplicationConstants.PACKAGE));
+					ImageView imgEdit = (ImageView) v
+							.findViewById(getResources().getIdentifier(
+									"imgEdit" + c, "id",
+									ApplicationConstants.PACKAGE));
 					imgEdit.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View arg0) {
@@ -248,13 +279,20 @@ public class GameList extends Activity {
 							// ApplicationConstants.ACTIVITY_RETURN_UPDATE_COLLECTION);
 						}
 					});
-					LinearLayout ll = (LinearLayout) v.findViewById(getResources().getIdentifier("detail" + c, "id", ApplicationConstants.PACKAGE));
-					ll.addView(GameSummaryView.createMainStatsLayout(game, this, false, true));
+					LinearLayout ll = (LinearLayout) v
+							.findViewById(getResources().getIdentifier(
+									"detail" + c, "id",
+									ApplicationConstants.PACKAGE));
+					ll.addView(GameSummaryView.createMainStatsLayout(game,
+							this, false, true));
 					ll.addView(GameSummaryView.createParties(game, this, true));
 				} else {
 					img.setImageResource(R.drawable.no_game_image); // ludo_invis);
 					img.setVisibility(View.INVISIBLE);
-					LinearLayout ll = (LinearLayout) v.findViewById(getResources().getIdentifier("detail" + c, "id", ApplicationConstants.PACKAGE));
+					LinearLayout ll = (LinearLayout) v
+							.findViewById(getResources().getIdentifier(
+									"detail" + c, "id",
+									ApplicationConstants.PACKAGE));
 					ll.setVisibility(View.INVISIBLE);
 				}
 			}
@@ -271,14 +309,21 @@ public class GameList extends Activity {
 		}
 		editMode = !editMode;
 		contentView.setLocked(editMode);
-		Animation anim = AnimationUtils.loadAnimation(GameList.this, R.anim.shake);
+		Animation anim = AnimationUtils.loadAnimation(GameList.this,
+				R.anim.shake);
 		View v = contentView.getFlipView(contentView.getCurrentPage());
 		for (int c = 0; c < nbPerPage; c++) {
 			int index = contentView.getCurrentPage() * nbPerPage + c;
 			if (index < gameListContext.games.size()) {
-				ImageView img = (ImageView) v.findViewById(getResources().getIdentifier("img" + c, "id", ApplicationConstants.PACKAGE));
-				ImageView imgDel = (ImageView) v.findViewById(getResources().getIdentifier("imgDelete" + c, "id", ApplicationConstants.PACKAGE));
-				ImageView imgEdit = (ImageView) v.findViewById(getResources().getIdentifier("imgEdit" + c, "id", ApplicationConstants.PACKAGE));
+				ImageView img = (ImageView) v.findViewById(getResources()
+						.getIdentifier("img" + c, "id",
+								ApplicationConstants.PACKAGE));
+				ImageView imgDel = (ImageView) v.findViewById(getResources()
+						.getIdentifier("imgDelete" + c, "id",
+								ApplicationConstants.PACKAGE));
+				ImageView imgEdit = (ImageView) v.findViewById(getResources()
+						.getIdentifier("imgEdit" + c, "id",
+								ApplicationConstants.PACKAGE));
 				if (editMode) {
 					img.startAnimation(anim);
 					imgDel.setVisibility(View.VISIBLE);
