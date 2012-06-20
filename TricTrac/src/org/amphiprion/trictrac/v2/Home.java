@@ -160,6 +160,19 @@ public class Home extends Activity {
 							return true;
 						}
 					});
+					img.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View arg0) {
+							if (!editMode) {
+								Intent intent = new Intent(Home.this, GameList.class);
+								if (collection.getId() != null) {
+									intent.putExtra("COLLECTION", collection);
+								}
+								startActivity(intent);
+							}
+						}
+					});
+
 					if (collection.getId() != null) {
 						ImageView imgDel = (ImageView) v.findViewById(getResources().getIdentifier("imgDelete" + c, "id", ApplicationConstants.PACKAGE));
 						imgDel.setOnClickListener(new View.OnClickListener() {

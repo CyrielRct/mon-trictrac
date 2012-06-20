@@ -40,6 +40,8 @@ public class FlipViewGroup extends ViewGroup {
 	private int currentView = 0;
 	private int flipDirection = 1;
 
+	public Runnable callbackWhenPageChanged;
+
 	public FlipViewGroup(Context context) {
 		super(context);
 		setupSurfaceView();
@@ -149,6 +151,7 @@ public class FlipViewGroup extends ViewGroup {
 			return false;
 		}
 		if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			Logger.i("nbPage = " + getPageCount());
 			if (!flipping && Math.abs(py - event.getY()) < 10) {
 				return true;
 			}
@@ -225,33 +228,39 @@ public class FlipViewGroup extends ViewGroup {
 		final View secondView = flipViews.get(currentView + 1);
 		if (renderer.getAngle() == 180) {
 			renderer.animatedDirection = 0;
-			firstView.setVisibility(INVISIBLE);
-			secondView.setVisibility(VISIBLE);
-			flipping = false;
 			post(new Runnable() {
 				@Override
 				public void run() {
+					firstView.setVisibility(INVISIBLE);
+					secondView.setVisibility(VISIBLE);
 					surfaceView.setVisibility(INVISIBLE);
 				}
 			});
+			flipping = false;
 			renderer.destroyTexture();
 
 			// renderer.setAngle(0);
 			currentView++;
+			if (callbackWhenPageChanged != null) {
+				callbackWhenPageChanged.run();
+			}
 		} else if (renderer.getAngle() == 0) {
 			renderer.animatedDirection = 0;
-			firstView.setVisibility(VISIBLE);
-			secondView.setVisibility(INVISIBLE);
 			flipping = false;
 			post(new Runnable() {
 				@Override
 				public void run() {
+					firstView.setVisibility(VISIBLE);
+					secondView.setVisibility(INVISIBLE);
 					surfaceView.setVisibility(INVISIBLE);
 				}
 			});
 			renderer.destroyTexture();
 
 			// renderer.setAngle(0);
+			if (callbackWhenPageChanged != null) {
+				callbackWhenPageChanged.run();
+			}
 		} else {
 			if (renderer.getAngle() < 90) {
 				post(new Runnable() {
@@ -290,6 +299,10 @@ public class FlipViewGroup extends ViewGroup {
 
 	public int getCurrentPage() {
 		return currentView;
+	}
+
+	public int getPageCount() {
+		return flipViews.size();
 	}
 
 	public boolean isFlipping() {
