@@ -57,8 +57,12 @@ public class FlipCards {
 
 	public void draw(GL10 gl) {
 		if (mustDestroyTexture) {
-			firstTexture.destroy(gl);
-			secondTexture.destroy(gl);
+			if (firstTexture != null) {
+				firstTexture.destroy(gl);
+			}
+			if (secondTexture != null) {
+				secondTexture.destroy(gl);
+			}
 			mustDestroyTexture = false;
 		}
 		applyTexture(gl);
