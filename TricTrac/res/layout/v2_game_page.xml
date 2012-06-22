@@ -146,11 +146,15 @@
     			>
 	            <ImageView
 	                android:id="@+id/img1"
-	                android:layout_width="fill_parent"
-	                android:layout_height="fill_parent"
-					android:layout_gravity="center"
-	                android:scaleType="fitXY"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
 	                android:src="@drawable/ludo" />
+	            <ImageView
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
+	                android:src="@drawable/mask2" />
 	            <LinearLayout 
 		 		    android:id="@+id/detail1"
 		            android:layout_width="fill_parent"
@@ -206,10 +210,15 @@
     			>
 	            <ImageView
 	                android:id="@+id/img2"
-	                android:layout_width="fill_parent"
-	                android:layout_height="fill_parent"
-					android:scaleType="fitXY"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
 	                android:src="@drawable/ludo" />
+	            <ImageView
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
+	                android:src="@drawable/mask2" />
 		 		<LinearLayout 
 		 		    android:id="@+id/detail2"
 		            android:layout_width="fill_parent"
@@ -258,10 +267,15 @@
     			>
 	            <ImageView
 	                android:id="@+id/img3"
-	                android:layout_width="fill_parent"
-	                android:layout_height="fill_parent"
-					android:scaleType="fitXY"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
 	                android:src="@drawable/ludo" />
+	            <ImageView
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
+	                android:src="@drawable/mask2" />
 		 		<LinearLayout 
 		 		    android:id="@+id/detail3"
 		            android:layout_width="fill_parent"
@@ -318,10 +332,15 @@
     			>
 	            <ImageView
 	                android:id="@+id/img4"
-	                android:layout_width="fill_parent"
-	                android:layout_height="fill_parent"
-					android:scaleType="fitXY"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
 	                android:src="@drawable/ludo" />
+	            <ImageView
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
+	                android:src="@drawable/mask2" />
 		 		<LinearLayout 
 		 		    android:id="@+id/detail4"
 		            android:layout_width="fill_parent"
@@ -370,10 +389,15 @@
     			>
 	            <ImageView
 	                android:id="@+id/img5"
-	                android:layout_width="fill_parent"
-	                android:layout_height="fill_parent"
-					android:scaleType="fitXY"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
 	                android:src="@drawable/ludo" />
+	            <ImageView
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal|top"
+	                android:src="@drawable/mask2" />
 	            <LinearLayout 
 		 		    android:id="@+id/detail5"
 		            android:layout_width="fill_parent"
