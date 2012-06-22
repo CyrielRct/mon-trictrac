@@ -108,8 +108,7 @@ public class FlipRenderer implements GLSurfaceView.Renderer {
 	public void updateTexture(View firstView, View secondView) {
 		cards.reloadTexture(firstView, secondView);
 		// flipViewGroup.getSurfaceView().requestRender();
-		Logger.i("texture:" + System.currentTimeMillis());
-
+		// Logger.i("texture:" + System.currentTimeMillis());
 	}
 
 	public static void checkError(GL10 gl) {

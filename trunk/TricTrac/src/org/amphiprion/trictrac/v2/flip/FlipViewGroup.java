@@ -2,12 +2,23 @@ package org.amphiprion.trictrac.v2.flip;
 
 import java.util.LinkedList;
 
+import javax.microedition.khronos.opengles.GL;
+
+import org.amphiprion.gameengine3d.GameView;
+import org.amphiprion.gameengine3d.OpenGLRenderer;
+import org.amphiprion.gameengine3d.util.MatrixGrabber;
+import org.amphiprion.gameengine3d.util.MatrixTrackingGL;
+import org.amphiprion.trictrac.R;
+import org.amphiprion.trictrac.entity.Game;
+import org.amphiprion.trictrac.v2.screen.GameMenuScreen;
+
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 /*
  Copyright 2012 Aphid Mobile
@@ -32,14 +43,15 @@ public class FlipViewGroup extends ViewGroup {
 
 	private GLSurfaceView surfaceView;
 	private FlipRenderer renderer;
-
+	private OpenGLRenderer rendererGame;
+	private GameView gameView;
 	private int width;
 	private int height;
 
 	private boolean flipping = false;
 	private int currentView = 0;
 	private int flipDirection = 1;
-
+	private int nbGLViews = 2;
 	public Runnable callbackWhenPageChanged;
 
 	public FlipViewGroup(Context context) {
@@ -69,8 +81,38 @@ public class FlipViewGroup extends ViewGroup {
 		surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
 		addView(surfaceView);
-
 		surfaceView.setVisibility(INVISIBLE);
+
+		// GAME RENDERER
+		MatrixGrabber mg = new MatrixGrabber();
+		gameView = new GameView(getContext(), 768, 1280);
+		rendererGame = new OpenGLRenderer(getContext(), mg, 768, 1280, gameView);
+
+		gameView.setGLWrapper(new GLSurfaceView.GLWrapper() {
+			@Override
+			public GL wrap(GL gl) {
+				return new MatrixTrackingGL(gl);
+			}
+		});
+		gameView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+		gameView.setZOrderOnTop(true);
+		gameView.setRenderer(rendererGame);
+		gameView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+		gameView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+		// END GAME RENDERER
+		addView(gameView);
+		rendererGame.callbackOnFirstDraw = new Runnable() {
+			@Override
+			public void run() {
+				gameView.post(new Runnable() {
+					@Override
+					public void run() {
+						gameView.setVisibility(INVISIBLE);
+					}
+				});
+			}
+		};
+
 	}
 
 	public GLSurfaceView getSurfaceView() {
@@ -83,7 +125,7 @@ public class FlipViewGroup extends ViewGroup {
 
 	public void addFlipView(View v) {
 		flipViews.add(v);
-		addView(v, 1);
+		addView(v, nbGLViews);
 		if (flipViews.size() - 1 != currentView) {
 			v.setVisibility(INVISIBLE);
 		}
@@ -102,6 +144,7 @@ public class FlipViewGroup extends ViewGroup {
 			int w = r - l;
 			int h = b - t;
 			surfaceView.layout(0, 0, w, h);
+			gameView.layout(0, 0, w, h);
 
 			if (width != w || height != h) {
 				width = w;
@@ -151,7 +194,7 @@ public class FlipViewGroup extends ViewGroup {
 			return false;
 		}
 		if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			Logger.i("nbPage = " + getPageCount());
+			// Logger.i("nbPage = " + getPageCount());
 			if (!flipping && Math.abs(py - event.getY()) < 10) {
 				return true;
 			}
@@ -307,5 +350,15 @@ public class FlipViewGroup extends ViewGroup {
 
 	public boolean isFlipping() {
 		return flipping;
+	}
+
+	public void openGameMenu(Game game) {
+		View v = flipViews.get(currentView);
+		LinearLayout ll = (LinearLayout) v.findViewById(R.id.mask);
+		ll.setVisibility(View.VISIBLE);
+		GameMenuScreen scr = new GameMenuScreen();
+		scr.startAll(game);
+		gameView.setVisibility(VISIBLE);
+		gameView.addScreen(scr);
 	}
 }
