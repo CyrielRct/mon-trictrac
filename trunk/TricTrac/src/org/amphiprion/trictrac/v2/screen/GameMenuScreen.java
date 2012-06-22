@@ -27,30 +27,37 @@ public class GameMenuScreen extends GameScreen {
 		TextureUtil.unloadAll();
 		Plane b;
 		if (game != null) {
-			b = new Plane("file:" + Environment.getExternalStorageDirectory() + "/" + ApplicationConstants.DIRECTORY + "/" + game.getImageName(), 2, 2, 0, 0, 0);
+			b = new Plane("file:" + Environment.getExternalStorageDirectory()
+					+ "/" + ApplicationConstants.DIRECTORY + "/"
+					+ game.getImageName(), 2, 2, 0, 0, 0, 124, 124);
 		} else {
-			b = new Plane("/images/default/neon100.png", 2, 2, 0, 0, 0);
+			b = new Plane("/images/default/neon100.png", 2, 2, 0, 0, 0, 124,
+					124);
 		}
 		b.z = 10;
 		objects3d.add(b);
 
-		Translation3DAnimation t = new Translation3DAnimation(b, 500, 0, 0, 0, -b.z);
-		t.setInterpolation(itp);
+		Translation3DAnimation t = new Translation3DAnimation(b, 500, 0, 0, 0,
+				-b.z);
+		t.setInterpolation(itpDec);
 		addAnimation(t);
 
-		n1 = new Plane("/images/default/neon100.png", 2, 2, 0, 0, 0);
+		n1 = new Plane("/images/default/menu-game.png", 2, 2, 0, 0, 0, 124, 124);
 		n1.ry = -180;
 		objects3d.add(n1);
 
-		n2 = new Plane("/images/default/neon100.png", 2, 2, 0, 0, 0);
+		n2 = new Plane("/images/default/menu-game.png", 2, 2, 0, 124, 0, 124,
+				124);
 		n2.ry = -180;
 		objects3d.add(n2);
 
-		n3 = new Plane("/images/default/neon100.png", 2, 2, 0, 0, 0);
+		n3 = new Plane("/images/default/menu-game.png", 2, 2, 0, 0, 124, 124,
+				124);
 		n3.rx = -180;
 		objects3d.add(n3);
 
-		n4 = new Plane("/images/default/neon100.png", 2, 2, 0, 0, 0);
+		n4 = new Plane("/images/default/menu-game.png", 2, 2, 0, 124, 124, 124,
+				124);
 		n4.rx = -180;
 		objects3d.add(n4);
 
@@ -107,7 +114,8 @@ public class GameMenuScreen extends GameScreen {
 	@Override
 	public void onDraw3D(GL10 gl) {
 		gl.glClearColor(0, 0, 0, 0);
-		GLU.gluLookAt(gl, posCamera[0], posCamera[1], posCamera[2], posLook[0], posLook[1], posLook[2], 0, 0, 1);
+		GLU.gluLookAt(gl, posCamera[0], posCamera[1], posCamera[2], posLook[0],
+				posLook[1], posLook[2], 0, 0, 1);
 
 		super.onDraw3D(gl);
 	}
