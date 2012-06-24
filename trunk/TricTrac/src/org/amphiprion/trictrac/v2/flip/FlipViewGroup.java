@@ -4,13 +4,12 @@ import java.util.LinkedList;
 
 import javax.microedition.khronos.opengles.GL;
 
+import org.amphiprion.gameengine3d.GameScreen;
 import org.amphiprion.gameengine3d.GameView;
 import org.amphiprion.gameengine3d.OpenGLRenderer;
 import org.amphiprion.gameengine3d.util.MatrixGrabber;
 import org.amphiprion.gameengine3d.util.MatrixTrackingGL;
 import org.amphiprion.trictrac.R;
-import org.amphiprion.trictrac.entity.Game;
-import org.amphiprion.trictrac.v2.screen.GameMenuScreen;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -352,13 +351,29 @@ public class FlipViewGroup extends ViewGroup {
 		return flipping;
 	}
 
-	public void openGameMenu(Game game) {
+	public void openGameMenu(GameScreen screen) {
+		locked = true;
 		View v = flipViews.get(currentView);
 		LinearLayout ll = (LinearLayout) v.findViewById(R.id.mask);
 		ll.setVisibility(View.VISIBLE);
-		GameMenuScreen scr = new GameMenuScreen();
-		scr.startAll(game);
+
 		gameView.setVisibility(VISIBLE);
-		gameView.addScreen(scr);
+		gameView.addScreen(screen);
+	}
+
+	public void closeGameMenu() {
+		final View v = flipViews.get(currentView);
+		v.post(new Runnable() {
+
+			@Override
+			public void run() {
+				LinearLayout ll = (LinearLayout) v.findViewById(R.id.mask);
+				ll.setVisibility(View.INVISIBLE);
+
+				gameView.setVisibility(INVISIBLE);
+				locked = false;
+
+			}
+		});
 	}
 }

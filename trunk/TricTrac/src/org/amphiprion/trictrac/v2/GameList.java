@@ -14,6 +14,8 @@ import org.amphiprion.trictrac.entity.Game;
 import org.amphiprion.trictrac.task.LoadGamesTask;
 import org.amphiprion.trictrac.task.LoadGamesTask.LoadGameListener;
 import org.amphiprion.trictrac.v2.flip.FlipViewGroup;
+import org.amphiprion.trictrac.v2.screen.GameMenuScreen;
+import org.amphiprion.trictrac.v2.screen.GameMenuScreen.Item;
 import org.amphiprion.trictrac.view.GameSummaryView;
 
 import android.app.Activity;
@@ -85,6 +87,7 @@ public class GameList extends Activity {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+
 		return contentView.onTouchEvent(event);
 	}
 
@@ -207,6 +210,16 @@ public class GameList extends Activity {
 		addGameElementToList(gameListContext.games);
 	}
 
+	private void toggleView(View v, boolean locked) {
+		for (int c = 0; c < nbPerPage; c++) {
+			final ImageView img = (ImageView) v.findViewById(getResources()
+					.getIdentifier("img" + c, "id",
+							ApplicationConstants.PACKAGE));
+			img.setLongClickable(!locked);
+			img.setClickable(!locked);
+		}
+	}
+
 	private void addGameElementToList(List<Game> newGames) {
 		if (newGames != gameListContext.games) {
 			gameListContext.games.addAll(newGames);
@@ -217,7 +230,7 @@ public class GameList extends Activity {
 		int nbPage = (newGames.size() - 1) / nbPerPage + 1;
 
 		for (int i = 0; i < nbPage; i++) {
-			View v = View.inflate(this, R.layout.v2_game_page, null);
+			final View v = View.inflate(this, R.layout.v2_game_page, null);
 			TextView txtTitle = (TextView) v.findViewById(R.id.title);
 			txtTitle.setText(title);
 			txtTitle = (TextView) v.findViewById(R.id.page);
@@ -226,7 +239,7 @@ public class GameList extends Activity {
 			contentView.addFlipView(v);
 			for (int c = 0; c < nbPerPage; c++) {
 				int index = nbPerPage * i + c;
-				ImageView img = (ImageView) v.findViewById(getResources()
+				final ImageView img = (ImageView) v.findViewById(getResources()
 						.getIdentifier("img" + c, "id",
 								ApplicationConstants.PACKAGE));
 				if (index < newGames.size()) {
@@ -275,7 +288,18 @@ public class GameList extends Activity {
 					img.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View arg0) {
-							contentView.openGameMenu(game);
+							toggleView(v, true);
+							GameMenuScreen screen = new GameMenuScreen(game,
+									new GameMenuScreen.GameScreenExited() {
+
+										@Override
+										public void exited(Item item) {
+											toggleView(v, false);
+											contentView.closeGameMenu();
+										}
+									});
+
+							contentView.openGameMenu(screen);
 						}
 					});
 					img.setOnLongClickListener(new View.OnLongClickListener() {

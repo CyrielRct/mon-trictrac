@@ -80,7 +80,9 @@ public class GameView extends GLSurfaceView {
 				screens.get(i).desactivate();
 			}
 		}
-		screens.get(newStart).activate();
+		if (newStart >= 0) {
+			screens.get(newStart).activate();
+		}
 		startScreen = newStart;
 	}
 
@@ -103,8 +105,18 @@ public class GameView extends GLSurfaceView {
 	}
 
 	@Override
+	public boolean dispatchTouchEvent(MotionEvent event) {
+		if (screens.size() > 0) {
+			screens.get(screens.size() - 1).onTouch(event);
+			return true;
+		}
+		return super.dispatchTouchEvent(event);
+	}
+
+	@Override
 	public boolean postDelayed(Runnable action, long delayMillis) {
-		throw new UnsupportedOperationException("use gameScreen.postDelayed instead");
+		throw new UnsupportedOperationException(
+				"use gameScreen.postDelayed instead");
 	}
 
 	public boolean backRequested() {
